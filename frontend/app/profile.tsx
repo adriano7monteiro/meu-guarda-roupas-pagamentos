@@ -417,6 +417,18 @@ const styles = StyleSheet.create({
     borderColor: '#636e72',
     borderStyle: 'dashed',
   },
+  bodyPhotoWithImage: {
+    width: 200,
+    height: 250,
+    borderRadius: 16,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  bodyPhotoImage: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#2d3436',
+  },
   bodyPhotoText: {
     color: '#6c5ce7',
     fontSize: 16,
