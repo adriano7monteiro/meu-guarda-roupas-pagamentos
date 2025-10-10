@@ -129,9 +129,14 @@ export default function UploadClothes() {
   };
 
   const uploadClothing = async (retryCount = 0) => {
+    console.log('uploadClothing called with data:', clothingData);
+    console.log('Has image:', !!selectedImage);
+    
     if (!selectedImage || !clothingData.nome || !clothingData.tipo || 
         !clothingData.cor || !clothingData.estilo) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos e selecione uma imagem.');
+      showModal('error', 'Campos Obrigatórios', 'Por favor, preencha todos os campos e selecione uma imagem.', [
+        { text: 'OK', onPress: () => setModalVisible(false) }
+      ]);
       return;
     }
 
@@ -140,7 +145,9 @@ export default function UploadClothes() {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
+        showModal('error', 'Erro de Autenticação', 'Token de autenticação não encontrado.', [
+          { text: 'OK', onPress: () => setModalVisible(false) }
+        ]);
         setLoading(false);
         return;
       }
@@ -174,14 +181,19 @@ export default function UploadClothes() {
       if (response.ok) {
         const data = await response.json();
         console.log('Success response:', data);
-        Alert.alert('Sucesso', 'Roupa adicionada com sucesso!', [
+        showModal('success', 'Sucesso!', 'Roupa adicionada com sucesso!', [
           { 
             text: 'Ver no Guarda-roupa', 
-            onPress: () => router.push('/my-wardrobe' as any) 
+            onPress: () => {
+              setModalVisible(false);
+              router.push('/my-wardrobe' as any);
+            },
+            style: 'primary'
           },
           { 
             text: 'Adicionar Outra', 
             onPress: () => {
+              setModalVisible(false);
               // Reset form for adding another item
               setSelectedImage('');
               setClothingData({
@@ -190,7 +202,8 @@ export default function UploadClothes() {
                 cor: '',
                 estilo: '',
               });
-            }
+            },
+            style: 'secondary'
           }
         ]);
         return;
@@ -207,10 +220,14 @@ export default function UploadClothes() {
           await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
           return uploadClothing(retryCount + 1); // Retry
         } else {
-          Alert.alert('Erro', 'Problema de autenticação. Tente fazer login novamente.');
+          showModal('error', 'Erro de Autenticação', 'Problema de autenticação. Tente fazer login novamente.', [
+            { text: 'OK', onPress: () => setModalVisible(false) }
+          ]);
         }
       } else if (response.status === 401) {
-        Alert.alert('Erro', 'Sessão expirada. Faça login novamente.');
+        showModal('error', 'Sessão Expirada', 'Sua sessão expirou. Faça login novamente.', [
+          { text: 'OK', onPress: () => setModalVisible(false) }
+        ]);
       } else {
         let errorData;
         try {
@@ -218,20 +235,26 @@ export default function UploadClothes() {
         } catch {
           errorData = { detail: errorText || 'Erro desconhecido' };
         }
-        Alert.alert('Erro', errorData.detail || `Erro ${response.status}: ${response.statusText}`);
+        showModal('error', 'Erro no Upload', errorData.detail || `Erro ${response.status}: ${response.statusText}`, [
+          { text: 'OK', onPress: () => setModalVisible(false) }
+        ]);
       }
     } catch (error) {
       console.error('Upload error:', error);
       
       if (error.name === 'AbortError') {
-        Alert.alert('Erro', 'Upload cancelado por timeout. Tente novamente com uma imagem menor.');
+        showModal('error', 'Timeout', 'Upload cancelado por timeout. Tente novamente com uma imagem menor.', [
+          { text: 'OK', onPress: () => setModalVisible(false) }
+        ]);
       } else if (retryCount < 2) {
         console.log('Connection error - attempting retry...');
         setLoading(false);
         await new Promise(resolve => setTimeout(resolve, 1000));
         return uploadClothing(retryCount + 1);
       } else {
-        Alert.alert('Erro', 'Erro de conexão após várias tentativas. Verifique sua internet e tente novamente.');
+        showModal('error', 'Erro de Conexão', 'Erro de conexão após várias tentativas. Verifique sua internet e tente novamente.', [
+          { text: 'OK', onPress: () => setModalVisible(false) }
+        ]);
       }
     } finally {
       setLoading(false);
