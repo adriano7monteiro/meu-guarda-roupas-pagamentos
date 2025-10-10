@@ -196,6 +196,29 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [nome, setNome] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleFieldEdit = (field: 'email' | 'nome' | 'password', currentValue: string) => {
+    Alert.prompt(
+      field === 'email' ? 'E-mail' : field === 'nome' ? 'Nome' : 'Senha',
+      `Digite seu ${field === 'email' ? 'e-mail' : field === 'nome' ? 'nome' : 'senha'}:`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'OK',
+          onPress: (text) => {
+            if (text !== undefined) {
+              if (field === 'email') setEmail(text);
+              else if (field === 'nome') setNome(text);
+              else if (field === 'password') setPassword(text);
+            }
+          }
+        }
+      ],
+      'plain-text',
+      currentValue,
+      field === 'password' ? 'secure-text' : 'default'
+    );
+  };
+
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && !nome)) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos');
@@ -248,25 +271,40 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
         <View style={styles.authForm}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>E-mail</Text>
-            <Text style={styles.inputText}>
-              {email || 'Digite seu e-mail'}
-            </Text>
+            <TouchableOpacity 
+              style={styles.inputTouchable}
+              onPress={() => handleFieldEdit('email', email)}
+            >
+              <Text style={[styles.inputText, !email && styles.placeholderText]}>
+                {email || 'Digite seu e-mail'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {!isLogin && (
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Nome</Text>
-              <Text style={styles.inputText}>
-                {nome || 'Digite seu nome'}
-              </Text>
+              <TouchableOpacity 
+                style={styles.inputTouchable}
+                onPress={() => handleFieldEdit('nome', nome)}
+              >
+                <Text style={[styles.inputText, !nome && styles.placeholderText]}>
+                  {nome || 'Digite seu nome'}
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Senha</Text>
-            <Text style={styles.inputText}>
-              {password ? '••••••••' : 'Digite sua senha'}
-            </Text>
+            <TouchableOpacity 
+              style={styles.inputTouchable}
+              onPress={() => handleFieldEdit('password', password)}
+            >
+              <Text style={[styles.inputText, !password && styles.placeholderText]}>
+                {password ? '••••••••' : 'Digite sua senha'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity 
@@ -289,20 +327,19 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
           </TouchableOpacity>
         </View>
 
-        {/* Demo inputs - Remove in production */}
-        <View style={styles.demoInputs}>
-          <Text style={styles.demoTitle}>Demo - Inputs reais (temporário):</Text>
-          <Text style={styles.demoInput} onChangeText={setEmail} placeholder="E-mail">
-            {email}
-          </Text>
-          {!isLogin && (
-            <Text style={styles.demoInput} onChangeText={setNome} placeholder="Nome">
-              {nome}
-            </Text>
-          )}
-          <Text style={styles.demoInput} onChangeText={setPassword} placeholder="Senha" secureTextEntry>
-            {password}
-          </Text>
+        {/* Quick Demo Buttons */}
+        <View style={styles.demoSection}>
+          <Text style={styles.demoTitle}>Demo rápido:</Text>
+          <TouchableOpacity 
+            style={styles.demoButton}
+            onPress={() => {
+              setEmail('demo@teste.com');
+              setPassword('123456');
+              if (!isLogin) setNome('Usuário Demo');
+            }}
+          >
+            <Text style={styles.demoButtonText}>Preencher dados demo</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
