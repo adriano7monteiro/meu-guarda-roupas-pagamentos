@@ -226,7 +226,7 @@ async def upload_roupa(
 async def get_roupas(current_user=Depends(security)):
     user = await get_current_user(current_user)
     
-    roupas = await db.clothing_items.find({"user_id": user["id"]}).to_list(1000)
+    roupas = await db.clothing_items.find({"user_id": user["id"]}, {"_id": 0}).to_list(1000)
     return roupas
 
 @api_router.delete("/roupas/{roupa_id}")
