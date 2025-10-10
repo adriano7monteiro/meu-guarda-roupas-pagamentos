@@ -68,7 +68,7 @@ export default function Index() {
     try {
       await AsyncStorage.removeItem('auth_token');
       setUser(null);
-      Alert.alert('Sucesso', 'Logout realizado com sucesso!');
+      modal.showSuccess('Sucesso', 'Logout realizado com sucesso!');
     } catch (error) {
       console.error('Error during logout:', error);
     }
