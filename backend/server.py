@@ -283,8 +283,10 @@ async def gerar_look_visual(
                 # Extract the generated image from Fal.ai response (correct structure)
                 generated_image = None
                 
-                # Try different possible response structures
-                if "data" in fal_result and "url" in fal_result["data"]:
+                # Extract from Fal.ai response structure: {'images': [{'url': '...'}]}
+                if "images" in fal_result and len(fal_result["images"]) > 0:
+                    generated_image = fal_result["images"][0]["url"]
+                elif "data" in fal_result and "url" in fal_result["data"]:
                     generated_image = fal_result["data"]["url"]
                 elif "image" in fal_result:
                     if isinstance(fal_result["image"], dict):
