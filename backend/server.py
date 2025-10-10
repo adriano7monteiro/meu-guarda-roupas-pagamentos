@@ -235,6 +235,22 @@ async def gerar_look_visual(
         # In a full implementation, we'd need to composite multiple items
         first_clothing = clothing_items[0]
         
+        logging.info(f"Selected clothing: {first_clothing['nome']} ({first_clothing['tipo']}, {first_clothing['cor']})")
+        logging.info(f"User photo size: {len(user['foto_corpo']) if user.get('foto_corpo') else 0} chars")
+        logging.info(f"Clothing image size: {len(first_clothing['imagem_original']) if first_clothing.get('imagem_original') else 0} chars")
+        
+        # Verify both images are base64 format
+        user_photo_valid = user.get("foto_corpo", "").startswith("data:image/")
+        clothing_image_valid = first_clothing.get("imagem_original", "").startswith("data:image/")
+        
+        logging.info(f"User photo valid base64: {user_photo_valid}")
+        logging.info(f"Clothing image valid base64: {clothing_image_valid}")
+        
+        if not user_photo_valid:
+            logging.error(f"Invalid user photo format: {user['foto_corpo'][:50]}...")
+        if not clothing_image_valid:
+            logging.error(f"Invalid clothing image format: {first_clothing['imagem_original'][:50]}...")
+        
         # Prepare the virtual try-on API call (using Fal.ai FASHN)
         import requests
         
@@ -246,6 +262,8 @@ async def gerar_look_visual(
             "garment_image": first_clothing["imagem_original"],  # Clothing image (base64)
             "description": f"Virtual try-on: {first_clothing['nome']} ({first_clothing['cor']} {first_clothing['tipo']})"
         }
+        
+        logging.info(f"Sending to Fal.ai: model_image={len(payload['model_image'])} chars, garment_image={len(payload['garment_image'])} chars")
         
         headers = {
             "Authorization": f"Key {os.environ.get('FAL_API_KEY')}",
