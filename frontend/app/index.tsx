@@ -7,12 +7,13 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { useModal } from '../hooks/useModal';
+import CustomModal from '../components/CustomModal';
 
 interface User {
   email: string;
