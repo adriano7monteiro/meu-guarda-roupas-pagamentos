@@ -434,6 +434,53 @@ export default function UploadClothes() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Custom Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={[styles.modalHeader, modalConfig.type === 'success' && styles.successHeader]}>
+              <Ionicons 
+                name={modalConfig.type === 'success' ? 'checkmark-circle' : 'alert-circle'} 
+                size={32} 
+                color="#fff" 
+              />
+              <Text style={styles.modalTitle}>{modalConfig.title}</Text>
+            </View>
+            
+            <View style={styles.modalBody}>
+              <Text style={styles.modalMessage}>{modalConfig.message}</Text>
+            </View>
+            
+            <View style={styles.modalButtons}>
+              {modalConfig.buttons.map((button, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.modalButton,
+                    button.style === 'primary' && styles.primaryButton,
+                    button.style === 'secondary' && styles.secondaryButton
+                  ]}
+                  onPress={button.onPress}
+                >
+                  <Text style={[
+                    styles.modalButtonText,
+                    button.style === 'primary' && styles.primaryButtonText,
+                    button.style === 'secondary' && styles.secondaryButtonText
+                  ]}>
+                    {button.text}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
