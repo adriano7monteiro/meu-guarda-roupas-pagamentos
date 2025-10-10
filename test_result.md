@@ -182,6 +182,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "TESTE URGENTE PÓS-CRÉDITO: Investigação completa realizada. ✅ API Key válida, ✅ Saldo suficiente (sem erros 403), ✅ Payload corrigido (model_image/garment_image). ❌ PROBLEMA REAL: Fal.ai API retorna 422 'Failed to detect body pose in model image'. Causa: Imagens de teste muito pequenas/simples para detecção de pose humana. API funciona mas precisa de imagens reais com poses detectáveis. Fallback ativo. Endpoint tecnicamente funcional, mas requer imagens adequadas para IA."
+        - working: false
+          agent: "testing"
+          comment: "INVESTIGAÇÃO DETALHADA FAL.AI API: ✅ Endpoint funcionando, ✅ API Key válida, ✅ Payload correto (model_image/garment_image). ❌ PROBLEMA CONFIRMADO: Fal.ai retorna erro 422 'Failed to detect body pose in model image' mesmo com imagens maiores (400x600px). Estrutura de resposta do endpoint: {message, clothing_items, tryon_image, status, note, api_used}. Campo tryon_image retorna foto original do usuário (base64) quando em modo fallback. Status sempre 'success' mesmo em fallback. Campo api_used indica 'fallback' quando Fal.ai falha. Logs mostram que houve sucessos anteriores ('Fal.ai API success: unknown') mas atualmente todas as chamadas falham com erro 422. Fal.ai precisa de imagens reais com poses humanas detectáveis, não imagens sintéticas."
 
 frontend:
   - task: "Tela de autenticação (login/registro)"
