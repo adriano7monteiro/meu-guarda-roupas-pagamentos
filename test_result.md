@@ -137,9 +137,9 @@ backend:
 
   - task: "Sugestão de looks com IA (OpenAI)"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -149,6 +149,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "Testado com sucesso: POST /api/sugerir-look. Integração com emergentintegrations funcionando, GPT-4o-mini respondendo corretamente, fallback para casos de erro de parsing JSON implementado. API key sk-emergent-55869Ff778123962f1 válida."
+        - working: false
+          agent: "testing"
+          comment: "PROBLEMA IDENTIFICADO: AI retorna JSON envolvido em markdown (```json...```), causando falha no parsing. Logs mostram 'Failed to parse JSON response: ```json'. Endpoint funciona (200 OK) mas fallback é ativado. Usuários veem texto formatado pelo fallback, não a resposta original da IA. Solução: remover markdown code blocks antes do JSON.parse(). Teste confirmou: sugestao_texto contém '```json\\n{...}\\n```' em vez de JSON puro."
 
   - task: "Gerenciamento de looks salvos"
     implemented: true
