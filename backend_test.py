@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Meu Look IA
-Tests all backend API endpoints systematically
+Backend Test Suite for Meu Look IA - Virtual Try-on Focus
+Testing the new POST /api/gerar-look-visual endpoint with Fal.ai integration
 """
 
 import requests
 import json
 import base64
+import logging
+from datetime import datetime
 import os
-from dotenv import load_dotenv
-from pathlib import Path
 
-# Load environment variables
-load_dotenv(Path("/app/frontend/.env"))
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Get backend URL from frontend environment
-BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'http://localhost:8001')
-API_BASE = f"{BACKEND_URL}/api"
+# Backend URL from environment
+BACKEND_URL = "https://outfit-ai-12.preview.emergentagent.com/api"
 
-print(f"Testing backend at: {API_BASE}")
+print(f"Testing backend at: {BACKEND_URL}")
 
 class TestResults:
     def __init__(self):
