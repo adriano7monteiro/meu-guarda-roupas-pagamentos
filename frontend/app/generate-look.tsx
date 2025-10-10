@@ -391,18 +391,28 @@ export default function GenerateLook() {
                 
                 <View style={styles.visualResultCard}>
                   <View style={styles.tryonImageContainer}>
-                    <Image 
-                      source={{ uri: visualLookResult.tryon_image }} 
-                      style={styles.tryonImage}
-                      resizeMode="cover"
-                      onLoad={() => console.log('Try-on image loaded successfully')}
-                      onError={(error) => console.log('Try-on image load error:', error)}
-                    />
-                    <View style={styles.imageOverlay}>
-                      <Text style={styles.imageOverlayText}>
-                        {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA' : 'Original'}
-                      </Text>
-                    </View>
+                    <TouchableOpacity 
+                      style={styles.imageClickableContainer}
+                      onPress={() => setFullScreenImage(visualLookResult.tryon_image)}
+                      activeOpacity={0.8}
+                    >
+                      <Image 
+                        source={{ uri: visualLookResult.tryon_image }} 
+                        style={styles.tryonImage}
+                        resizeMode="cover"
+                        onLoad={() => console.log('Try-on image loaded successfully')}
+                        onError={(error) => console.log('Try-on image load error:', error)}
+                      />
+                      <View style={styles.imageOverlay}>
+                        <Text style={styles.imageOverlayText}>
+                          {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA' : 'Original'}
+                        </Text>
+                      </View>
+                      <View style={styles.clickIndicator}>
+                        <Ionicons name="expand" size={20} color="#fff" />
+                      </View>
+                    </TouchableOpacity>
+                    <Text style={styles.clickHint}>👆 Toque na imagem para visualizar em tela cheia</Text>
                   </View>
                   
                   <Text style={styles.visualResultNote}>
