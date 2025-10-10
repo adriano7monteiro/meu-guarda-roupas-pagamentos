@@ -118,62 +118,45 @@ class FalAITester:
             logger.error(f"❌ Error registering user: {str(e)}")
             return False
 
-    def upload_test_clothing(self):
-        """Upload test clothing items"""
-        logger.info("=== UPLOADING TEST CLOTHING ===")
-        
-        if not self.token:
-            logger.error("❌ No authentication token available")
-            return False
+    def create_test_clothing(self) -> bool:
+        """Create test clothing items with realistic images"""
+        try:
+            headers = {"Authorization": f"Bearer {self.token}"}
             
-        headers = {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"}
-        
-        # Upload multiple clothing items for testing
-        clothing_items = [
-            {
-                "tipo": "camiseta",
-                "cor": "azul",
-                "estilo": "casual",
-                "nome": "Camiseta Azul Casual",
-                "imagem_original": self.create_test_image_base64("clothing")
-            },
-            {
-                "tipo": "calca",
-                "cor": "preta",
-                "estilo": "jeans",
-                "nome": "Calça Jeans Preta",
-                "imagem_original": self.create_test_image_base64("clothing")
-            },
-            {
-                "tipo": "sapato",
-                "cor": "branco",
-                "estilo": "tenis",
-                "nome": "Tênis Branco Esportivo",
-                "imagem_original": self.create_test_image_base64("clothing")
-            }
-        ]
-        
-        for item in clothing_items:
-            try:
-                response = requests.post(f"{self.base_url}/upload-roupa", json=item, headers=headers, timeout=10)
-                logger.info(f"Clothing upload response status: {response.status_code}")
+            clothing_items = [
+                {
+                    "tipo": "camiseta",
+                    "cor": "azul",
+                    "estilo": "casual",
+                    "nome": "Camiseta Azul Casual",
+                    "imagem_original": f"data:image/png;base64,{self.create_realistic_base64_image(300, 400, '#4169E1')}"
+                },
+                {
+                    "tipo": "calca",
+                    "cor": "preta",
+                    "estilo": "social",
+                    "nome": "Calça Preta Social",
+                    "imagem_original": f"data:image/png;base64,{self.create_realistic_base64_image(300, 500, '#000000')}"
+                }
+            ]
+            
+            for item in clothing_items:
+                logger.info(f"🔵 Creating clothing: {item['nome']} (image size: {len(item['imagem_original'])} chars)")
+                response = requests.post(f"{self.base_url}/upload-roupa", json=item, headers=headers)
                 
                 if response.status_code == 200:
                     data = response.json()
-                    clothing_id = data.get("id")
-                    if clothing_id:
-                        self.clothing_ids.append(clothing_id)
-                        logger.info(f"✅ Clothing uploaded: {item['nome']} (ID: {clothing_id})")
-                    else:
-                        logger.warning(f"⚠️ Clothing uploaded but no ID returned: {item['nome']}")
+                    self.clothing_ids.append(data["id"])
+                    logger.info(f"✅ Clothing created: {item['nome']} (ID: {data['id']})")
                 else:
-                    logger.error(f"❌ Clothing upload failed: {response.status_code} - {response.text}")
-                    
-            except Exception as e:
-                logger.error(f"❌ Clothing upload error for {item['nome']}: {str(e)}")
-        
-        logger.info(f"Total clothing items uploaded: {len(self.clothing_ids)}")
-        return len(self.clothing_ids) > 0
+                    logger.error(f"❌ Failed to create clothing {item['nome']}: {response.status_code} - {response.text}")
+                    return False
+            
+            return len(self.clothing_ids) > 0
+            
+        except Exception as e:
+            logger.error(f"❌ Error creating clothing: {str(e)}")
+            return False
 
     def get_user_clothing(self):
         """Get user's clothing items to verify they exist"""
