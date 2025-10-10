@@ -332,6 +332,16 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
             <Text style={styles.demoButtonText}>Preencher dados demo</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Auth Modal */}
+        <CustomModal
+          visible={authModal.isVisible}
+          type={authModal.config.type}
+          title={authModal.config.title}
+          message={authModal.config.message}
+          buttons={authModal.config.buttons}
+          onClose={authModal.hideModal}
+        />
       </View>
     </SafeAreaView>
   );
