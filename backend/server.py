@@ -240,10 +240,10 @@ async def gerar_look_visual(
         
         fal_api_url = "https://fal.run/fal-ai/fashn/tryon/v1.5"
         
-        # Prepare the request payload
+        # Prepare the request payload (corrected field names for Fal.ai API)
         payload = {
-            "person_image_url": user["foto_corpo"],  # User's body photo (base64)
-            "garment_image_url": first_clothing["imagem_original"],  # Clothing image (base64)
+            "model_image": user["foto_corpo"],  # User's body photo (base64)
+            "garment_image": first_clothing["imagem_original"],  # Clothing image (base64)
             "description": f"Virtual try-on: {first_clothing['nome']} ({first_clothing['cor']} {first_clothing['tipo']})"
         }
         
