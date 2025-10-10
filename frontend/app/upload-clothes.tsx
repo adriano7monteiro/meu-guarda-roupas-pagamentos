@@ -97,7 +97,9 @@ export default function UploadClothes() {
       }
     } catch (error) {
       console.error('Error selecting image:', error);
-      Alert.alert('Erro', 'Erro ao selecionar imagem. Tente novamente.');
+      showModal('error', 'Erro', 'Erro ao selecionar imagem. Tente novamente.', [
+        { text: 'OK', onPress: () => setModalVisible(false) }
+      ]);
     }
   };
 
