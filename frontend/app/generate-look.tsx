@@ -858,4 +858,91 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 14,
   },
+  imageClickableContainer: {
+    position: 'relative',
+  },
+  clickIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  clickHint: {
+    color: '#6c5ce7',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 12,
+    fontStyle: 'italic',
+  },
+  
+  // Full screen modal styles
+  fullScreenContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+  },
+  fullScreenBackdrop: {
+    flex: 1,
+  },
+  fullScreenContent: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  fullScreenHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+  },
+  fullScreenTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  closeButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  fullScreenImageContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  fullScreenImage: {
+    width: Dimensions.get('window').width - 40,
+    height: Dimensions.get('window').height * 0.7,
+    maxWidth: 400,
+    maxHeight: 600,
+  },
+  fullScreenFooter: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+  },
+  fullScreenHint: {
+    color: '#999',
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  fullScreenCloseButton: {
+    backgroundColor: '#6c5ce7',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+  },
+  fullScreenCloseText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
