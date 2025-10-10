@@ -70,7 +70,7 @@ class FalAITester:
             # Fallback: create a simple base64 image without PIL
             # This is a minimal 1x1 PNG in base64
             return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
-
+    
     def register_test_user(self) -> bool:
         """Register a test user with body photo"""
         try:
@@ -117,7 +117,7 @@ class FalAITester:
         except Exception as e:
             logger.error(f"❌ Error registering user: {str(e)}")
             return False
-
+    
     def create_test_clothing(self) -> bool:
         """Create test clothing items with realistic images"""
         try:
@@ -157,265 +157,192 @@ class FalAITester:
         except Exception as e:
             logger.error(f"❌ Error creating clothing: {str(e)}")
             return False
-
-    def get_user_clothing(self):
-        """Get user's clothing items to verify they exist"""
-        logger.info("=== GETTING USER CLOTHING ===")
-        
-        if not self.token:
-            logger.error("❌ No authentication token available")
-            return False
-            
-        headers = {"Authorization": f"Bearer {self.token}"}
-        
+    
+    def test_fal_ai_integration(self) -> Dict[str, Any]:
+        """Test the Fal.ai virtual try-on integration with detailed logging"""
         try:
-            response = requests.get(f"{self.base_url}/roupas", headers=headers, timeout=10)
-            logger.info(f"Get clothing response status: {response.status_code}")
+            headers = {"Authorization": f"Bearer {self.token}"}
             
-            if response.status_code == 200:
-                clothing_items = response.json()
-                logger.info(f"✅ Found {len(clothing_items)} clothing items")
-                
-                # Update clothing_ids with actual IDs from database
-                self.clothing_ids = [item["id"] for item in clothing_items]
-                
-                for item in clothing_items:
-                    logger.info(f"  - {item['nome']} ({item['tipo']}, {item['cor']}) - ID: {item['id']}")
-                
-                return len(clothing_items) > 0
-            else:
-                logger.error(f"❌ Get clothing failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"❌ Get clothing error: {str(e)}")
-            return False
-
-    def test_virtual_tryon_endpoint(self):
-        """Test the main virtual try-on endpoint with Fal.ai integration"""
-        logger.info("=== TESTING VIRTUAL TRY-ON ENDPOINT ===")
-        
-        if not self.token:
-            logger.error("❌ No authentication token available")
-            return False
+            # Test with single clothing item first
+            test_data = {"roupa_ids": [self.clothing_ids[0]]}
             
-        if not self.clothing_ids:
-            logger.error("❌ No clothing items available for try-on")
-            return False
+            logger.info(f"🔵 Testing Fal.ai integration with clothing ID: {self.clothing_ids[0]}")
+            logger.info(f"🔵 Making request to: {self.base_url}/gerar-look-visual")
             
-        headers = {"Authorization": f"Bearer {self.token}"}
-        
-        # Test with first clothing item
-        test_clothing_ids = [self.clothing_ids[0]]
-        data = {"roupa_ids": test_clothing_ids}
-        
-        logger.info(f"Testing virtual try-on with clothing IDs: {test_clothing_ids}")
-        
-        try:
-            # Make the virtual try-on request
-            response = requests.post(f"{self.base_url}/gerar-look-visual", data=data, headers=headers, timeout=60)
-            logger.info(f"Virtual try-on response status: {response.status_code}")
+            response = requests.post(
+                f"{self.base_url}/gerar-look-visual", 
+                data=test_data, 
+                headers=headers,
+                timeout=60  # Longer timeout for AI processing
+            )
+            
+            logger.info(f"🔵 Response status code: {response.status_code}")
+            logger.info(f"🔵 Response headers: {dict(response.headers)}")
             
             if response.status_code == 200:
                 result = response.json()
-                logger.info("✅ Virtual try-on endpoint responded successfully")
                 
-                # Validate response structure
-                expected_fields = ["message", "clothing_items", "tryon_image", "status", "api_used"]
-                missing_fields = [field for field in expected_fields if field not in result]
+                # Log the complete response structure
+                logger.info(f"🟢 FAL.AI API RESPONSE ANALYSIS:")
+                logger.info(f"🟢 Response keys: {list(result.keys())}")
+                logger.info(f"🟢 Full response: {json.dumps(result, indent=2, ensure_ascii=False)}")
                 
-                if missing_fields:
-                    logger.warning(f"⚠️ Missing expected fields: {missing_fields}")
-                else:
-                    logger.info("✅ All expected fields present in response")
-                
-                # Log response details
-                logger.info(f"Message: {result.get('message', 'N/A')}")
-                logger.info(f"Status: {result.get('status', 'N/A')}")
-                logger.info(f"API Used: {result.get('api_used', 'N/A')}")
-                logger.info(f"Clothing items count: {len(result.get('clothing_items', []))}")
-                
-                # Check if Fal.ai API was actually called
-                api_used = result.get('api_used', '')
-                if api_used == 'fal.ai-fashn':
-                    logger.info("✅ Fal.ai API was successfully called")
-                    
-                    # Validate tryon_image
-                    tryon_image = result.get('tryon_image', '')
-                    if tryon_image and tryon_image != "":
-                        logger.info("✅ Try-on image generated successfully")
-                        if tryon_image.startswith('http'):
-                            logger.info(f"✅ Generated image URL: {tryon_image[:100]}...")
+                # Analyze specific fields
+                if "tryon_image" in result:
+                    tryon_image = result["tryon_image"]
+                    if tryon_image:
+                        if tryon_image.startswith("data:image"):
+                            logger.info(f"🟢 tryon_image: Base64 image (length: {len(tryon_image)} chars)")
+                            logger.info(f"🟢 tryon_image preview: {tryon_image[:100]}...")
+                        elif tryon_image.startswith("http"):
+                            logger.info(f"🟢 tryon_image: URL - {tryon_image}")
                         else:
-                            logger.info(f"✅ Generated image data length: {len(tryon_image)}")
+                            logger.info(f"🟢 tryon_image: Unknown format - {tryon_image[:100]}...")
                     else:
-                        logger.warning("⚠️ No try-on image in response")
-                        
-                elif api_used == 'fallback':
-                    logger.warning("⚠️ Fal.ai API failed, fallback mode used")
-                    note = result.get('note', '')
-                    if note:
-                        logger.info(f"Fallback reason: {note}")
-                else:
-                    logger.warning(f"⚠️ Unexpected API used: {api_used}")
+                        logger.warning(f"🟡 tryon_image is empty or null")
+                
+                if "status" in result:
+                    logger.info(f"🟢 Status: {result['status']}")
+                
+                if "api_used" in result:
+                    logger.info(f"🟢 API Used: {result['api_used']}")
+                
+                if "note" in result:
+                    logger.info(f"🟢 Note: {result['note']}")
                 
                 # Test with multiple clothing items
                 if len(self.clothing_ids) > 1:
-                    logger.info("=== TESTING WITH MULTIPLE CLOTHING ITEMS ===")
-                    multi_data = {"roupa_ids": self.clothing_ids[:2]}  # Test with 2 items
+                    logger.info(f"🔵 Testing with multiple clothing items: {self.clothing_ids}")
+                    multi_test_data = {"roupa_ids": self.clothing_ids}
                     
-                    multi_response = requests.post(f"{self.base_url}/gerar-look-visual", data=multi_data, headers=headers, timeout=60)
-                    logger.info(f"Multi-item try-on response status: {multi_response.status_code}")
+                    multi_response = requests.post(
+                        f"{self.base_url}/gerar-look-visual", 
+                        data=multi_test_data, 
+                        headers=headers,
+                        timeout=60
+                    )
                     
                     if multi_response.status_code == 200:
                         multi_result = multi_response.json()
-                        logger.info(f"✅ Multi-item try-on successful, API used: {multi_result.get('api_used', 'N/A')}")
-                    else:
-                        logger.warning(f"⚠️ Multi-item try-on failed: {multi_response.status_code}")
+                        logger.info(f"🟢 Multi-item test successful")
+                        logger.info(f"🟢 Multi-item response keys: {list(multi_result.keys())}")
+                        logger.info(f"🟢 Multi-item clothing_items count: {len(multi_result.get('clothing_items', []))}")
                 
-                return True
-                
+                return {
+                    "success": True,
+                    "response": result,
+                    "analysis": {
+                        "has_tryon_image": "tryon_image" in result and result["tryon_image"] is not None,
+                        "image_type": self._analyze_image_type(result.get("tryon_image")),
+                        "api_used": result.get("api_used", "unknown"),
+                        "status": result.get("status", "unknown"),
+                        "is_fallback": result.get("api_used") == "fallback"
+                    }
+                }
             else:
-                logger.error(f"❌ Virtual try-on failed: {response.status_code} - {response.text}")
-                return False
+                logger.error(f"❌ API call failed: {response.status_code}")
+                logger.error(f"❌ Error response: {response.text}")
+                return {
+                    "success": False,
+                    "error": f"HTTP {response.status_code}: {response.text}",
+                    "analysis": {"api_used": "failed"}
+                }
                 
         except Exception as e:
-            logger.error(f"❌ Virtual try-on error: {str(e)}")
-            return False
-
-    def test_error_scenarios(self):
-        """Test error scenarios for virtual try-on"""
-        logger.info("=== TESTING ERROR SCENARIOS ===")
-        
-        if not self.token:
-            logger.error("❌ No authentication token available")
-            return False
-            
-        headers = {"Authorization": f"Bearer {self.token}"}
-        
-        # Test 1: Invalid clothing ID
-        logger.info("Testing with invalid clothing ID...")
-        invalid_data = {"roupa_ids": ["invalid-id-123"]}
-        
-        try:
-            response = requests.post(f"{self.base_url}/gerar-look-visual", data=invalid_data, headers=headers, timeout=30)
-            logger.info(f"Invalid ID test response status: {response.status_code}")
-            
-            if response.status_code == 400:
-                logger.info("✅ Correctly rejected invalid clothing ID")
-            else:
-                logger.warning(f"⚠️ Unexpected response for invalid ID: {response.status_code}")
-                
-        except Exception as e:
-            logger.error(f"❌ Invalid ID test error: {str(e)}")
-        
-        # Test 2: Empty clothing IDs
-        logger.info("Testing with empty clothing IDs...")
-        empty_data = {"roupa_ids": []}
-        
-        try:
-            response = requests.post(f"{self.base_url}/gerar-look-visual", data=empty_data, headers=headers, timeout=30)
-            logger.info(f"Empty IDs test response status: {response.status_code}")
-            
-            if response.status_code == 400:
-                logger.info("✅ Correctly rejected empty clothing IDs")
-            else:
-                logger.warning(f"⚠️ Unexpected response for empty IDs: {response.status_code}")
-                
-        except Exception as e:
-            logger.error(f"❌ Empty IDs test error: {str(e)}")
-        
-        return True
-
-    def check_fal_api_configuration(self):
-        """Check if Fal.ai API key is properly configured"""
-        logger.info("=== CHECKING FAL.AI API CONFIGURATION ===")
-        
-        # Check backend logs for API key loading
-        try:
-            # We can't directly access the backend environment, but we can infer from the response
-            logger.info("Fal.ai API key should be: e6f13f85-b293-4197-9412-11d9947cf7b5:78f494fb71ef1bff59badf506b514aeb")
-            logger.info("API endpoint: https://fal.run/fal-ai/fashn/tryon/v1.5")
-            logger.info("✅ Configuration appears to be set up correctly")
-            return True
-        except Exception as e:
-            logger.error(f"❌ Configuration check error: {str(e)}")
-            return False
-
-    def run_comprehensive_test(self):
-        """Run comprehensive virtual try-on test suite"""
-        logger.info("🚀 STARTING COMPREHENSIVE VIRTUAL TRY-ON TEST SUITE")
-        logger.info("=" * 60)
-        
-        test_results = {
-            "user_setup": False,
-            "body_photo": False,
-            "clothing_upload": False,
-            "clothing_retrieval": False,
-            "virtual_tryon": False,
-            "error_handling": False,
-            "api_configuration": False
-        }
-        
-        # Step 1: User setup (register/login)
-        if self.register_test_user():
-            test_results["user_setup"] = True
-        
-        # Step 2: Upload body photo
-        if test_results["user_setup"] and self.upload_body_photo():
-            test_results["body_photo"] = True
-        
-        # Step 3: Upload clothing items
-        if test_results["body_photo"] and self.upload_test_clothing():
-            test_results["clothing_upload"] = True
-        
-        # Step 4: Retrieve clothing items
-        if test_results["clothing_upload"] and self.get_user_clothing():
-            test_results["clothing_retrieval"] = True
-        
-        # Step 5: Test virtual try-on endpoint
-        if test_results["clothing_retrieval"] and self.test_virtual_tryon_endpoint():
-            test_results["virtual_tryon"] = True
-        
-        # Step 6: Test error scenarios
-        if test_results["virtual_tryon"] and self.test_error_scenarios():
-            test_results["error_handling"] = True
-        
-        # Step 7: Check API configuration
-        if self.check_fal_api_configuration():
-            test_results["api_configuration"] = True
-        
-        # Summary
-        logger.info("=" * 60)
-        logger.info("🏁 TEST SUITE SUMMARY")
-        logger.info("=" * 60)
-        
-        passed_tests = sum(test_results.values())
-        total_tests = len(test_results)
-        
-        for test_name, result in test_results.items():
-            status = "✅ PASS" if result else "❌ FAIL"
-            logger.info(f"{test_name.replace('_', ' ').title()}: {status}")
-        
-        logger.info(f"\nOverall Result: {passed_tests}/{total_tests} tests passed")
-        
-        if test_results["virtual_tryon"]:
-            logger.info("🎉 VIRTUAL TRY-ON ENDPOINT IS WORKING!")
+            logger.error(f"❌ Error testing Fal.ai integration: {str(e)}")
+            return {
+                "success": False,
+                "error": str(e),
+                "analysis": {"api_used": "error"}
+            }
+    
+    def _analyze_image_type(self, image_data):
+        """Analyze the type of image data returned"""
+        if not image_data:
+            return "empty"
+        elif image_data.startswith("data:image"):
+            return "base64"
+        elif image_data.startswith("http"):
+            return "url"
         else:
-            logger.error("💥 VIRTUAL TRY-ON ENDPOINT FAILED!")
-        
-        return test_results
+            return "unknown"
+    
+    def check_backend_logs(self):
+        """Check backend logs for Fal.ai API details"""
+        try:
+            import subprocess
+            logger.info(f"🔵 Checking backend logs for Fal.ai API calls...")
+            
+            # Get recent backend logs
+            result = subprocess.run(
+                ["tail", "-n", "50", "/var/log/supervisor/backend.out.log"],
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode == 0:
+                logs = result.stdout
+                logger.info(f"🟢 Recent backend logs:")
+                for line in logs.split('\n'):
+                    if any(keyword in line.lower() for keyword in ['fal', 'api', 'response', 'image', 'tryon']):
+                        logger.info(f"🟢 LOG: {line}")
+            else:
+                logger.warning(f"🟡 Could not read backend logs: {result.stderr}")
+                
+        except Exception as e:
+            logger.warning(f"🟡 Error checking logs: {str(e)}")
 
 def main():
     """Main test execution"""
-    print(f"🚀 Testing Virtual Try-on Endpoint at: {BACKEND_URL}")
-    print("=" * 60)
+    logger.info("🚀 Starting Fal.ai API Integration Test")
+    logger.info("=" * 80)
     
-    tester = VirtualTryOnTester()
-    results = tester.run_comprehensive_test()
+    tester = FalAITester()
     
-    # Return exit code based on virtual try-on test result
-    return 0 if results["virtual_tryon"] else 1
+    # Step 1: Register user with body photo
+    logger.info("📋 STEP 1: Registering test user with body photo")
+    if not tester.register_test_user():
+        logger.error("❌ Failed to register user. Aborting test.")
+        return False
+    
+    # Step 2: Create clothing items
+    logger.info("📋 STEP 2: Creating test clothing items")
+    if not tester.create_test_clothing():
+        logger.error("❌ Failed to create clothing items. Aborting test.")
+        return False
+    
+    # Step 3: Test Fal.ai integration
+    logger.info("📋 STEP 3: Testing Fal.ai virtual try-on integration")
+    result = tester.test_fal_ai_integration()
+    
+    # Step 4: Check backend logs
+    logger.info("📋 STEP 4: Checking backend logs")
+    tester.check_backend_logs()
+    
+    # Final analysis
+    logger.info("=" * 80)
+    logger.info("🎯 FINAL ANALYSIS:")
+    
+    if result["success"]:
+        analysis = result["analysis"]
+        logger.info(f"✅ API call successful")
+        logger.info(f"🔍 Has tryon_image: {analysis['has_tryon_image']}")
+        logger.info(f"🔍 Image type: {analysis['image_type']}")
+        logger.info(f"🔍 API used: {analysis['api_used']}")
+        logger.info(f"🔍 Status: {analysis['status']}")
+        logger.info(f"🔍 Is fallback mode: {analysis['is_fallback']}")
+        
+        if analysis['is_fallback']:
+            logger.warning("🟡 IMPORTANT: API is running in fallback mode - Fal.ai not processing images")
+        else:
+            logger.info("🟢 GOOD: Fal.ai API appears to be processing images")
+            
+    else:
+        logger.error(f"❌ Test failed: {result['error']}")
+    
+    logger.info("=" * 80)
+    return result["success"]
 
 if __name__ == "__main__":
-    exit(main())
+    success = main()
+    sys.exit(0 if success else 1)
