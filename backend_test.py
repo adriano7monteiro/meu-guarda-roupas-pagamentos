@@ -104,11 +104,11 @@ def test_user_registration():
 
 def test_user_login():
     """Test user login with existing user"""
-    global auth_token, user_data
+    global auth_token, user_data, test_email
     
     # Use the same email from registration
     login_data = {
-        "email": f"usuario{int(time.time())}@teste.com",
+        "email": test_email,
         "password": "MinhaSenh@123"
     }
     
