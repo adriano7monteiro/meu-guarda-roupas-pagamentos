@@ -210,17 +210,26 @@ async def upload_roupa(
     roupa_data: ClothingItemCreate,
     current_user=Depends(security)
 ):
-    user = await get_current_user(current_user)
-    
-    # Create clothing item
-    clothing_dict = roupa_data.dict()
-    clothing_dict["user_id"] = user["id"]
-    clothing_dict["imagem_sem_fundo"] = roupa_data.imagem_original  # Por enquanto, sem remoção de fundo
-    
-    clothing = ClothingItem(**clothing_dict)
-    await db.clothing_items.insert_one(clothing.dict())
-    
-    return {"message": "Roupa cadastrada com sucesso", "id": clothing.id}
+    try:
+        user = await get_current_user(current_user)
+        logging.info(f"Upload roupa - User: {user['id']}")
+        
+        # Create clothing item
+        clothing_dict = roupa_data.dict()
+        clothing_dict["user_id"] = user["id"]
+        clothing_dict["imagem_sem_fundo"] = roupa_data.imagem_original  # Por enquanto, sem remoção de fundo
+        
+        logging.info(f"Upload roupa - Image size: {len(roupa_data.imagem_original) if roupa_data.imagem_original else 0}")
+        
+        clothing = ClothingItem(**clothing_dict)
+        result = await db.clothing_items.insert_one(clothing.dict())
+        
+        logging.info(f"Upload roupa - Inserted with ID: {result.inserted_id}")
+        
+        return {"message": "Roupa cadastrada com sucesso", "id": clothing.id}
+    except Exception as e:
+        logging.error(f"Error in upload_roupa: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 
 @api_router.get("/roupas")
 async def get_roupas(current_user=Depends(security)):
