@@ -7,12 +7,13 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
-  Alert,
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { useModal } from '../hooks/useModal';
+import CustomModal from '../components/CustomModal';
 
 const OCCASIONS = [
   { id: 'trabalho', label: 'Trabalho', icon: 'briefcase' as const },
@@ -54,6 +55,7 @@ export default function GenerateLook() {
   const [suggestion, setSuggestion] = useState<LookSuggestion | null>(null);
   const [userClothes, setUserClothes] = useState<Clothing[]>([]);
   const [suggestedClothes, setSuggestedClothes] = useState<Clothing[]>([]);
+  const modal = useModal();
 
   useEffect(() => {
     fetchUserClothes();
@@ -81,17 +83,20 @@ export default function GenerateLook() {
 
   const generateLook = async () => {
     if (!selectedOccasion) {
-      Alert.alert('Erro', 'Por favor, selecione uma ocasião.');
+      modal.showError('Erro', 'Por favor, selecione uma ocasião.');
       return;
     }
 
     if (userClothes.length === 0) {
-      Alert.alert(
+      modal.showWarning(
         'Nenhuma roupa encontrada',
         'Você precisa adicionar algumas roupas primeiro para gerar sugestões de looks.',
         [
-          { text: 'Cancelar' },
-          { text: 'Adicionar Roupas', onPress: () => router.push('/upload-clothes' as any) }
+          { text: 'Cancelar', onPress: () => modal.hideModal() },
+          { text: 'Adicionar Roupas', onPress: () => {
+            modal.hideModal();
+            router.push('/upload-clothes' as any);
+          }, style: 'primary' }
         ]
       );
       return;
@@ -102,7 +107,7 @@ export default function GenerateLook() {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
+        modal.showError('Erro', 'Token de autenticação não encontrado.');
         return;
       }
 
@@ -131,11 +136,11 @@ export default function GenerateLook() {
         );
         setSuggestedClothes(suggested);
       } else {
-        Alert.alert('Erro', data.detail || 'Erro ao gerar sugestão de look.');
+        modal.showError('Erro', data.detail || 'Erro ao gerar sugestão de look.');
       }
     } catch (error) {
       console.error('Error generating look:', error);
-      Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -163,16 +168,19 @@ export default function GenerateLook() {
       });
 
       if (response.ok) {
-        Alert.alert('Sucesso', 'Look salvo nos seus favoritos!', [
-          { text: 'Ver Looks Salvos', onPress: () => router.push('/saved-looks' as any) },
-          { text: 'OK' }
+        modal.showSuccess('Sucesso', 'Look salvo nos seus favoritos!', [
+          { text: 'Ver Looks Salvos', onPress: () => {
+            modal.hideModal();
+            router.push('/saved-looks' as any);
+          }, style: 'primary' },
+          { text: 'OK', onPress: () => modal.hideModal() }
         ]);
       } else {
-        Alert.alert('Erro', 'Erro ao salvar look.');
+        modal.showError('Erro', 'Erro ao salvar look.');
       }
     } catch (error) {
       console.error('Error saving look:', error);
-      Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
     }
   };
 
@@ -331,6 +339,16 @@ export default function GenerateLook() {
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modal.isVisible}
+        type={modal.config.type}
+        title={modal.config.title}
+        message={modal.config.message}
+        buttons={modal.config.buttons}
+        onClose={modal.hideModal}
+      />
     </SafeAreaView>
   );
 }
