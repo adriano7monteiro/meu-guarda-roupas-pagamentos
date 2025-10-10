@@ -147,6 +147,53 @@ export default function GenerateLook() {
     }
   };
 
+  const generateVisualLook = async () => {
+    if (!suggestion) return;
+
+    setLoading(true);
+
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) {
+        modal.showError('Erro', 'Token de autenticação não encontrado.');
+        return;
+      }
+
+      const formData = new FormData();
+      suggestion.roupas_ids.forEach((id: string) => {
+        formData.append('roupa_ids', id);
+      });
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/gerar-look-visual`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setVisualLookResult(data);
+        modal.showSuccess(
+          'Try-On Virtual Gerado!', 
+          data.note || 'Veja como as roupas ficam em você!',
+          [
+            { text: 'Ver Resultado', onPress: () => modal.hideModal(), style: 'primary' }
+          ]
+        );
+      } else {
+        modal.showError('Erro', data.detail || 'Erro ao gerar try-on visual.');
+      }
+    } catch (error) {
+      console.error('Error generating visual look:', error);
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const saveLook = async () => {
     if (!suggestion) return;
 
