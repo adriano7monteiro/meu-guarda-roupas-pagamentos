@@ -197,6 +197,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
   const [loading, setLoading] = useState(false);
+  const authModal = useModal();
 
   const handleFieldEdit = (field: 'email' | 'nome' | 'password', currentValue: string) => {
     Alert.prompt(
