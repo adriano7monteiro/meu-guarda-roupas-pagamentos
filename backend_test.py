@@ -21,50 +21,12 @@ logger = logging.getLogger(__name__)
 # Get backend URL from frontend env
 BACKEND_URL = "https://outfit-ai-12.preview.emergentagent.com/api"
 
-class FalAITester:
+class BackendTester:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.token = None
         self.user_id = None
         self.clothing_ids = []
-        
-    def create_realistic_base64_image(self, width=400, height=600, color="person"):
-        """Create a more realistic base64 image for testing pose detection"""
-        try:
-            from PIL import Image, ImageDraw
-            import io
-            
-            # Create a larger image that might work better with pose detection
-            img = Image.new('RGB', (width, height), color='white')
-            draw = ImageDraw.Draw(img)
-            
-            if color == "person":
-                # Draw a simple human silhouette
-                # Head
-                draw.ellipse([width//2-30, 50, width//2+30, 110], fill='#D2B48C')
-                # Body
-                draw.rectangle([width//2-40, 110, width//2+40, 350], fill='#4169E1')
-                # Arms
-                draw.rectangle([width//2-80, 130, width//2-40, 300], fill='#D2B48C')
-                draw.rectangle([width//2+40, 130, width//2+80, 300], fill='#D2B48C')
-                # Legs
-                draw.rectangle([width//2-35, 350, width//2-10, 550], fill='#000080')
-                draw.rectangle([width//2+10, 350, width//2+35, 550], fill='#000080')
-            else:
-                # Draw clothing item
-                draw.rectangle([50, 50, width-50, height-50], fill=color)
-                draw.rectangle([60, 60, width-60, height-60], outline='black', width=3)
-            
-            # Convert to base64
-            buffer = io.BytesIO()
-            img.save(buffer, format='PNG')
-            img_data = buffer.getvalue()
-            return base64.b64encode(img_data).decode('utf-8')
-            
-        except ImportError:
-            # Fallback: create a simple base64 image without PIL
-            # This is a minimal 1x1 PNG in base64
-            return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
     
     def register_test_user(self) -> bool:
         """Register a test user with body photo"""
