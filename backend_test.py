@@ -1,29 +1,24 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Meu Look IA - Focused on Fal.ai API Integration
-Testing the virtual try-on feature with detailed logging of Fal.ai responses
+Backend Test Suite for Meu Look IA
+Specific focus on POST /api/sugerir-look endpoint to investigate JSON response issues
 """
 
 import requests
 import json
 import base64
 import logging
-import sys
-from typing import Dict, Any
-import time
+import os
+from datetime import datetime
 
-# Configure logging to capture detailed API responses
+# Configure logging to see detailed output
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('/app/fal_api_test.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Get backend URL from environment
+# Get backend URL from frontend env
 BACKEND_URL = "https://outfit-ai-12.preview.emergentagent.com/api"
 
 class FalAITester:
