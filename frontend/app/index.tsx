@@ -200,25 +200,13 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const authModal = useModal();
 
   const handleFieldEdit = (field: 'email' | 'nome' | 'password', currentValue: string) => {
-    Alert.prompt(
-      field === 'email' ? 'E-mail' : field === 'nome' ? 'Nome' : 'Senha',
-      `Digite seu ${field === 'email' ? 'e-mail' : field === 'nome' ? 'nome' : 'senha'}:`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'OK',
-          onPress: (text) => {
-            if (text !== undefined) {
-              if (field === 'email') setEmail(text);
-              else if (field === 'nome') setNome(text);
-              else if (field === 'password') setPassword(text);
-            }
-          }
-        }
-      ],
-      'plain-text',
-      currentValue,
-      field === 'password' ? 'secure-text' : 'default'
+    // For now, using a simple prompt replacement with modal
+    const fieldLabel = field === 'email' ? 'E-mail' : field === 'nome' ? 'Nome' : 'Senha';
+    
+    authModal.showInfo(
+      fieldLabel,
+      `Use o botão "Preencher dados demo" abaixo para inserir dados de teste rapidamente.`,
+      [{ text: 'OK', onPress: () => authModal.hideModal() }]
     );
   };
 
