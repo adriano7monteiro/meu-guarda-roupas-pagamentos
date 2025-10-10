@@ -186,6 +186,16 @@ export default function Index() {
 
         </View>
       </ScrollView>
+
+      {/* Main Dashboard Modal */}
+      <CustomModal
+        visible={modal.isVisible}
+        type={modal.config.type}
+        title={modal.config.title}
+        message={modal.config.message}
+        buttons={modal.config.buttons}
+        onClose={modal.hideModal}
+      />
     </SafeAreaView>
   );
 }
