@@ -155,7 +155,23 @@ export default function UploadClothes() {
         const data = await response.json();
         console.log('Success response:', data);
         Alert.alert('Sucesso', 'Roupa adicionada com sucesso!', [
-          { text: 'OK', onPress: () => router.back() }
+          { 
+            text: 'Ver no Guarda-roupa', 
+            onPress: () => router.push('/my-wardrobe' as any) 
+          },
+          { 
+            text: 'Adicionar Outra', 
+            onPress: () => {
+              // Reset form for adding another item
+              setSelectedImage('');
+              setClothingData({
+                nome: '',
+                tipo: '',
+                cor: '',
+                estilo: '',
+              });
+            }
+          }
         ]);
         return;
       } 
