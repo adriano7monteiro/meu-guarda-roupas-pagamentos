@@ -469,6 +469,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 16,
   },
+  clothingImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 16,
+    backgroundColor: '#636e72',
+  },
   clothingInfo: {
     flex: 1,
   },
