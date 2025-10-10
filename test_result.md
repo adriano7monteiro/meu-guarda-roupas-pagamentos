@@ -167,9 +167,9 @@ backend:
 
   - task: "Virtual try-on com Fal.ai (POST /api/gerar-look-visual)"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -179,6 +179,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "TESTE ESPECÍFICO VIRTUAL TRY-ON: Endpoint funcionando corretamente. API Key configurada: e6f13f85-b293-4197-9412-11d9947cf7b5:78f494fb71ef1bff59badf506b514aeb. Fal.ai API sendo chamada corretamente em https://fal.run/fal-ai/fashn/tryon/v1.5. PROBLEMA: Conta Fal.ai com saldo esgotado (403 - Exhausted balance). Fallback funcionando perfeitamente. Validação de entrada OK, tratamento de erros OK. Estrutura de resposta correta com campos: message, clothing_items, tryon_image, status, api_used. Testado com 1 e múltiplas roupas. Endpoint 100% funcional, apenas precisa de recarga de saldo na conta Fal.ai."
+        - working: false
+          agent: "testing"
+          comment: "TESTE URGENTE PÓS-CRÉDITO: Investigação completa realizada. ✅ API Key válida, ✅ Saldo suficiente (sem erros 403), ✅ Payload corrigido (model_image/garment_image). ❌ PROBLEMA REAL: Fal.ai API retorna 422 'Failed to detect body pose in model image'. Causa: Imagens de teste muito pequenas/simples para detecção de pose humana. API funciona mas precisa de imagens reais com poses detectáveis. Fallback ativo. Endpoint tecnicamente funcional, mas requer imagens adequadas para IA."
 
 frontend:
   - task: "Tela de autenticação (login/registro)"
