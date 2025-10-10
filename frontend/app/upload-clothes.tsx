@@ -108,7 +108,9 @@ export default function UploadClothes() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permissão necessária', 'Precisamos de permissão para usar a câmera.');
+      showModal('error', 'Permissão Necessária', 'Precisamos de permissão para usar a câmera.', [
+        { text: 'OK', onPress: () => setModalVisible(false) }
+      ]);
       return;
     }
 
@@ -128,7 +130,9 @@ export default function UploadClothes() {
       }
     } catch (error) {
       console.error('Error taking photo:', error);
-      Alert.alert('Erro', 'Erro ao tirar foto. Tente novamente.');
+      showModal('error', 'Erro', 'Erro ao tirar foto. Tente novamente.', [
+        { text: 'OK', onPress: () => setModalVisible(false) }
+      ]);
     }
   };
 
