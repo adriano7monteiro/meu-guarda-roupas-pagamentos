@@ -27,279 +27,262 @@ class BackendTester:
         self.token = None
         self.user_id = None
         self.clothing_ids = []
+        
+    def create_test_user(self):
+        """Create a test user for testing"""
+        user_data = {
+            "email": f"testuser_{datetime.now().strftime('%Y%m%d_%H%M%S')}@test.com",
+            "password": "testpass123",
+            "nome": "Usuario Teste",
+            "ocasiao_preferida": "casual"
+        }
+        
+        logger.info("Creating test user...")
+        response = requests.post(f"{self.base_url}/auth/register", json=user_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.token = data["token"]
+            self.user_id = data["user"]["email"]
+            logger.info(f"✅ Test user created successfully: {self.user_id}")
+            return True
+        else:
+            logger.error(f"❌ Failed to create test user: {response.status_code} - {response.text}")
+            return False
     
-    def register_test_user(self) -> bool:
-        """Register a test user with body photo"""
-        try:
-            # Create realistic body photo
-            body_photo = f"data:image/png;base64,{self.create_realistic_base64_image(400, 600, 'person')}"
-            
-            user_data = {
-                "email": f"test_fal_user_{int(time.time())}@test.com",
-                "password": "TestPassword123!",
-                "nome": "Fal AI Test User",
-                "ocasiao_preferida": "casual"
+    def create_sample_clothing(self):
+        """Create sample clothing items for testing"""
+        # Simple base64 image (1x1 pixel PNG)
+        sample_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        
+        clothing_items = [
+            {
+                "tipo": "camiseta",
+                "cor": "azul",
+                "estilo": "casual",
+                "nome": "Camiseta Azul Casual",
+                "imagem_original": sample_image
+            },
+            {
+                "tipo": "calca",
+                "cor": "preta",
+                "estilo": "social",
+                "nome": "Calça Social Preta",
+                "imagem_original": sample_image
+            },
+            {
+                "tipo": "sapato",
+                "cor": "marrom",
+                "estilo": "casual",
+                "nome": "Sapato Casual Marrom",
+                "imagem_original": sample_image
             }
-            
-            logger.info(f"🔵 Registering test user: {user_data['email']}")
-            response = requests.post(f"{self.base_url}/auth/register", json=user_data)
+        ]
+        
+        headers = {"Authorization": f"Bearer {self.token}"}
+        
+        for item in clothing_items:
+            logger.info(f"Creating clothing item: {item['nome']}")
+            response = requests.post(f"{self.base_url}/upload-roupa", json=item, headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
-                self.token = data["token"]
-                self.user_id = data["user"]["email"]  # Using email as identifier
-                logger.info(f"✅ User registered successfully")
-                
-                # Upload body photo
-                headers = {"Authorization": f"Bearer {self.token}"}
-                photo_data = {"imagem": body_photo}
-                
-                logger.info(f"🔵 Uploading body photo (size: {len(body_photo)} chars)")
-                photo_response = requests.post(
-                    f"{self.base_url}/upload-foto-corpo", 
-                    data=photo_data, 
-                    headers=headers
-                )
-                
-                if photo_response.status_code == 200:
-                    logger.info(f"✅ Body photo uploaded successfully")
-                    return True
-                else:
-                    logger.error(f"❌ Failed to upload body photo: {photo_response.status_code} - {photo_response.text}")
-                    return False
+                self.clothing_ids.append(data["id"])
+                logger.info(f"✅ Clothing item created: {item['nome']} (ID: {data['id']})")
             else:
-                logger.error(f"❌ Failed to register user: {response.status_code} - {response.text}")
+                logger.error(f"❌ Failed to create clothing item {item['nome']}: {response.status_code} - {response.text}")
                 return False
-                
-        except Exception as e:
-            logger.error(f"❌ Error registering user: {str(e)}")
-            return False
+        
+        return len(self.clothing_ids) > 0
     
-    def create_test_clothing(self) -> bool:
-        """Create test clothing items with realistic images"""
-        try:
-            headers = {"Authorization": f"Bearer {self.token}"}
-            
-            clothing_items = [
-                {
-                    "tipo": "camiseta",
-                    "cor": "azul",
-                    "estilo": "casual",
-                    "nome": "Camiseta Azul Casual",
-                    "imagem_original": f"data:image/png;base64,{self.create_realistic_base64_image(300, 400, '#4169E1')}"
-                },
-                {
-                    "tipo": "calca",
-                    "cor": "preta",
-                    "estilo": "social",
-                    "nome": "Calça Preta Social",
-                    "imagem_original": f"data:image/png;base64,{self.create_realistic_base64_image(300, 500, '#000000')}"
-                }
-            ]
-            
-            for item in clothing_items:
-                logger.info(f"🔵 Creating clothing: {item['nome']} (image size: {len(item['imagem_original'])} chars)")
-                response = requests.post(f"{self.base_url}/upload-roupa", json=item, headers=headers)
+    def test_sugerir_look_endpoint(self):
+        """
+        Test the POST /api/sugerir-look endpoint specifically
+        Focus on investigating JSON response issues
+        """
+        logger.info("=" * 60)
+        logger.info("TESTING POST /api/sugerir-look ENDPOINT")
+        logger.info("=" * 60)
+        
+        headers = {"Authorization": f"Bearer {self.token}"}
+        
+        # Test data as specified in the review request
+        test_data = {
+            "ocasiao": "trabalho",
+            "temperatura": "amena"
+        }
+        
+        logger.info(f"Making request to: {self.base_url}/sugerir-look")
+        logger.info(f"Request data: {test_data}")
+        logger.info(f"User has {len(self.clothing_ids)} clothing items")
+        
+        # Make the API call
+        response = requests.post(f"{self.base_url}/sugerir-look", data=test_data, headers=headers)
+        
+        logger.info(f"Response status code: {response.status_code}")
+        logger.info(f"Response headers: {dict(response.headers)}")
+        
+        if response.status_code == 200:
+            try:
+                response_data = response.json()
+                logger.info("✅ API call successful")
+                logger.info("=" * 40)
+                logger.info("RESPONSE ANALYSIS:")
+                logger.info("=" * 40)
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    self.clothing_ids.append(data["id"])
-                    logger.info(f"✅ Clothing created: {item['nome']} (ID: {data['id']})")
-                else:
-                    logger.error(f"❌ Failed to create clothing {item['nome']}: {response.status_code} - {response.text}")
-                    return False
-            
-            return len(self.clothing_ids) > 0
-            
-        except Exception as e:
-            logger.error(f"❌ Error creating clothing: {str(e)}")
-            return False
-    
-    def test_fal_ai_integration(self) -> Dict[str, Any]:
-        """Test the Fal.ai virtual try-on integration with detailed logging"""
-        try:
-            headers = {"Authorization": f"Bearer {self.token}"}
-            
-            # Test with single clothing item first
-            test_data = {"roupa_ids": [self.clothing_ids[0]]}
-            
-            logger.info(f"🔵 Testing Fal.ai integration with clothing ID: {self.clothing_ids[0]}")
-            logger.info(f"🔵 Making request to: {self.base_url}/gerar-look-visual")
-            
-            response = requests.post(
-                f"{self.base_url}/gerar-look-visual", 
-                data=test_data, 
-                headers=headers,
-                timeout=60  # Longer timeout for AI processing
-            )
-            
-            logger.info(f"🔵 Response status code: {response.status_code}")
-            logger.info(f"🔵 Response headers: {dict(response.headers)}")
-            
-            if response.status_code == 200:
-                result = response.json()
+                # Analyze the response structure
+                logger.info(f"Response keys: {list(response_data.keys())}")
                 
-                # Log the complete response structure
-                logger.info(f"🟢 FAL.AI API RESPONSE ANALYSIS:")
-                logger.info(f"🟢 Response keys: {list(result.keys())}")
-                logger.info(f"🟢 Full response: {json.dumps(result, indent=2, ensure_ascii=False)}")
+                # Focus on the sugestao_texto field
+                sugestao_texto = response_data.get("sugestao_texto", "")
+                logger.info(f"sugestao_texto length: {len(sugestao_texto)} characters")
+                logger.info(f"sugestao_texto type: {type(sugestao_texto)}")
                 
-                # Analyze specific fields
-                if "tryon_image" in result:
-                    tryon_image = result["tryon_image"]
-                    if tryon_image:
-                        if tryon_image.startswith("data:image"):
-                            logger.info(f"🟢 tryon_image: Base64 image (length: {len(tryon_image)} chars)")
-                            logger.info(f"🟢 tryon_image preview: {tryon_image[:100]}...")
-                        elif tryon_image.startswith("http"):
-                            logger.info(f"🟢 tryon_image: URL - {tryon_image}")
-                        else:
-                            logger.info(f"🟢 tryon_image: Unknown format - {tryon_image[:100]}...")
-                    else:
-                        logger.warning(f"🟡 tryon_image is empty or null")
+                # Check if it looks like JSON
+                is_json_like = sugestao_texto.strip().startswith('{') and sugestao_texto.strip().endswith('}')
+                logger.info(f"Does sugestao_texto look like JSON? {is_json_like}")
                 
-                if "status" in result:
-                    logger.info(f"🟢 Status: {result['status']}")
+                # Show the actual content
+                logger.info("=" * 40)
+                logger.info("SUGESTAO_TEXTO CONTENT:")
+                logger.info("=" * 40)
+                logger.info(f"'{sugestao_texto}'")
                 
-                if "api_used" in result:
-                    logger.info(f"🟢 API Used: {result['api_used']}")
+                # Try to parse it as JSON to see if it's malformed JSON
+                if is_json_like:
+                    try:
+                        parsed_json = json.loads(sugestao_texto)
+                        logger.warning("⚠️  PROBLEM FOUND: sugestao_texto contains valid JSON instead of formatted text!")
+                        logger.info(f"Parsed JSON: {parsed_json}")
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"⚠️  PROBLEM FOUND: sugestao_texto contains malformed JSON: {e}")
                 
-                if "note" in result:
-                    logger.info(f"🟢 Note: {result['note']}")
+                # Show other fields
+                logger.info("=" * 40)
+                logger.info("OTHER RESPONSE FIELDS:")
+                logger.info("=" * 40)
+                for key, value in response_data.items():
+                    if key != "sugestao_texto":
+                        logger.info(f"{key}: {value}")
                 
-                # Test with multiple clothing items
-                if len(self.clothing_ids) > 1:
-                    logger.info(f"🔵 Testing with multiple clothing items: {self.clothing_ids}")
-                    multi_test_data = {"roupa_ids": self.clothing_ids}
-                    
-                    multi_response = requests.post(
-                        f"{self.base_url}/gerar-look-visual", 
-                        data=multi_test_data, 
-                        headers=headers,
-                        timeout=60
-                    )
-                    
-                    if multi_response.status_code == 200:
-                        multi_result = multi_response.json()
-                        logger.info(f"🟢 Multi-item test successful")
-                        logger.info(f"🟢 Multi-item response keys: {list(multi_result.keys())}")
-                        logger.info(f"🟢 Multi-item clothing_items count: {len(multi_result.get('clothing_items', []))}")
+                # Check if this is the expected format
+                expected_fields = ["sugestao_texto", "roupas_ids", "dicas", "ocasiao", "temperatura"]
+                missing_fields = [field for field in expected_fields if field not in response_data]
+                if missing_fields:
+                    logger.warning(f"⚠️  Missing expected fields: {missing_fields}")
                 
-                return {
-                    "success": True,
-                    "response": result,
-                    "analysis": {
-                        "has_tryon_image": "tryon_image" in result and result["tryon_image"] is not None,
-                        "image_type": self._analyze_image_type(result.get("tryon_image")),
-                        "api_used": result.get("api_used", "unknown"),
-                        "status": result.get("status", "unknown"),
-                        "is_fallback": result.get("api_used") == "fallback"
-                    }
-                }
-            else:
-                logger.error(f"❌ API call failed: {response.status_code}")
-                logger.error(f"❌ Error response: {response.text}")
-                return {
-                    "success": False,
-                    "error": f"HTTP {response.status_code}: {response.text}",
-                    "analysis": {"api_used": "failed"}
-                }
+                return True, response_data
                 
-        except Exception as e:
-            logger.error(f"❌ Error testing Fal.ai integration: {str(e)}")
-            return {
-                "success": False,
-                "error": str(e),
-                "analysis": {"api_used": "error"}
-            }
-    
-    def _analyze_image_type(self, image_data):
-        """Analyze the type of image data returned"""
-        if not image_data:
-            return "empty"
-        elif image_data.startswith("data:image"):
-            return "base64"
-        elif image_data.startswith("http"):
-            return "url"
+            except json.JSONDecodeError as e:
+                logger.error(f"❌ Failed to parse response as JSON: {e}")
+                logger.error(f"Raw response: {response.text}")
+                return False, None
         else:
-            return "unknown"
+            logger.error(f"❌ API call failed: {response.status_code}")
+            logger.error(f"Error response: {response.text}")
+            return False, None
     
     def check_backend_logs(self):
-        """Check backend logs for Fal.ai API details"""
+        """Check backend logs for AI response details"""
+        logger.info("=" * 60)
+        logger.info("CHECKING BACKEND LOGS")
+        logger.info("=" * 60)
+        
         try:
+            # Check supervisor backend logs
             import subprocess
-            logger.info(f"🔵 Checking backend logs for Fal.ai API calls...")
+            result = subprocess.run(
+                ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
+                capture_output=True,
+                text=True
+            )
             
-            # Get recent backend logs
+            if result.returncode == 0:
+                logger.info("Backend error logs (last 100 lines):")
+                logger.info("-" * 40)
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if any(keyword in line.lower() for keyword in ['json', 'parse', 'sugerir', 'response', 'failed']):
+                        logger.info(f"🔍 RELEVANT LOG: {line}")
+            else:
+                logger.warning("Could not read backend error logs")
+            
+            # Check output logs
             result = subprocess.run(
                 ["tail", "-n", "50", "/var/log/supervisor/backend.out.log"],
                 capture_output=True,
                 text=True
             )
             
-            if result.returncode == 0:
-                logs = result.stdout
-                logger.info(f"🟢 Recent backend logs:")
-                for line in logs.split('\n'):
-                    if any(keyword in line.lower() for keyword in ['fal', 'api', 'response', 'image', 'tryon']):
-                        logger.info(f"🟢 LOG: {line}")
+            if result.returncode == 0 and result.stdout.strip():
+                logger.info("Backend output logs (last 50 lines):")
+                logger.info("-" * 40)
+                lines = result.stdout.split('\n')
+                for line in lines:
+                    if 'sugerir-look' in line:
+                        logger.info(f"🔍 SUGERIR-LOOK LOG: {line}")
             else:
-                logger.warning(f"🟡 Could not read backend logs: {result.stderr}")
+                logger.info("No recent output logs")
                 
         except Exception as e:
-            logger.warning(f"🟡 Error checking logs: {str(e)}")
+            logger.error(f"Error checking logs: {e}")
+    
+    def run_specific_test(self):
+        """Run the specific test requested in the review"""
+        logger.info("🔍 STARTING SPECIFIC TEST FOR POST /api/sugerir-look JSON ISSUE")
+        logger.info("=" * 80)
+        
+        # Step 1: Create test user
+        if not self.create_test_user():
+            return False
+        
+        # Step 2: Create sample clothing
+        if not self.create_sample_clothing():
+            return False
+        
+        # Step 3: Test the sugerir-look endpoint
+        success, response_data = self.test_sugerir_look_endpoint()
+        
+        # Step 4: Check backend logs
+        self.check_backend_logs()
+        
+        # Step 5: Analysis and conclusions
+        logger.info("=" * 60)
+        logger.info("TEST ANALYSIS & CONCLUSIONS")
+        logger.info("=" * 60)
+        
+        if success and response_data:
+            sugestao_texto = response_data.get("sugestao_texto", "")
+            
+            # Determine the issue
+            if sugestao_texto.strip().startswith('{') and sugestao_texto.strip().endswith('}'):
+                logger.error("🚨 ISSUE CONFIRMED: AI is returning JSON in sugestao_texto field")
+                logger.error("   This explains why users see JSON instead of formatted text")
+                
+                try:
+                    json.loads(sugestao_texto)
+                    logger.error("   The JSON is valid, so parsing should work")
+                    logger.error("   Problem: AI is not following the prompt instructions properly")
+                except json.JSONDecodeError:
+                    logger.error("   The JSON is malformed, causing parsing to fail")
+                    logger.error("   Problem: AI returns malformed JSON, fallback should handle this")
+            else:
+                logger.info("✅ sugestao_texto appears to be formatted text (not JSON)")
+                logger.info("   The issue might be intermittent or already resolved")
+        
+        return success
 
 def main():
-    """Main test execution"""
-    logger.info("🚀 Starting Fal.ai API Integration Test")
-    logger.info("=" * 80)
+    """Main test function"""
+    tester = BackendTester()
+    success = tester.run_specific_test()
     
-    tester = FalAITester()
-    
-    # Step 1: Register user with body photo
-    logger.info("📋 STEP 1: Registering test user with body photo")
-    if not tester.register_test_user():
-        logger.error("❌ Failed to register user. Aborting test.")
-        return False
-    
-    # Step 2: Create clothing items
-    logger.info("📋 STEP 2: Creating test clothing items")
-    if not tester.create_test_clothing():
-        logger.error("❌ Failed to create clothing items. Aborting test.")
-        return False
-    
-    # Step 3: Test Fal.ai integration
-    logger.info("📋 STEP 3: Testing Fal.ai virtual try-on integration")
-    result = tester.test_fal_ai_integration()
-    
-    # Step 4: Check backend logs
-    logger.info("📋 STEP 4: Checking backend logs")
-    tester.check_backend_logs()
-    
-    # Final analysis
-    logger.info("=" * 80)
-    logger.info("🎯 FINAL ANALYSIS:")
-    
-    if result["success"]:
-        analysis = result["analysis"]
-        logger.info(f"✅ API call successful")
-        logger.info(f"🔍 Has tryon_image: {analysis['has_tryon_image']}")
-        logger.info(f"🔍 Image type: {analysis['image_type']}")
-        logger.info(f"🔍 API used: {analysis['api_used']}")
-        logger.info(f"🔍 Status: {analysis['status']}")
-        logger.info(f"🔍 Is fallback mode: {analysis['is_fallback']}")
-        
-        if analysis['is_fallback']:
-            logger.warning("🟡 IMPORTANT: API is running in fallback mode - Fal.ai not processing images")
-        else:
-            logger.info("🟢 GOOD: Fal.ai API appears to be processing images")
-            
+    if success:
+        logger.info("🎉 Test completed successfully")
     else:
-        logger.error(f"❌ Test failed: {result['error']}")
+        logger.error("💥 Test failed")
     
-    logger.info("=" * 80)
-    return result["success"]
+    return success
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()
