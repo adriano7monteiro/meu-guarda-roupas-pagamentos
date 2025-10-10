@@ -379,20 +379,33 @@ export default function GenerateLook() {
             {/* Visual Result */}
             {visualLookResult && (
               <View style={styles.visualResultSection}>
-                <Text style={styles.visualResultTitle}>Try-On Virtual ✨</Text>
+                <Text style={styles.visualResultTitle}>
+                  🎉 Try-On Virtual Gerado! 
+                </Text>
+                <Text style={styles.visualResultSubtitle}>
+                  {visualLookResult.api_used === 'fal.ai-fashn' ? '✨ Criado com IA' : '📷 Sua foto original'}
+                </Text>
+                
                 <View style={styles.visualResultCard}>
-                  {visualLookResult.tryon_image && (
-                    <View style={styles.tryonImageContainer}>
-                      <Image 
-                        source={{ uri: visualLookResult.tryon_image }} 
-                        style={styles.tryonImage}
-                        resizeMode="cover"
-                      />
+                  <View style={styles.tryonImageContainer}>
+                    <Image 
+                      source={{ uri: visualLookResult.tryon_image }} 
+                      style={styles.tryonImage}
+                      resizeMode="cover"
+                      onLoad={() => console.log('Try-on image loaded successfully')}
+                      onError={(error) => console.log('Try-on image load error:', error)}
+                    />
+                    <View style={styles.imageOverlay}>
+                      <Text style={styles.imageOverlayText}>
+                        {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA' : 'Original'}
+                      </Text>
                     </View>
-                  )}
+                  </View>
+                  
                   <Text style={styles.visualResultNote}>
                     {visualLookResult.note}
                   </Text>
+                  
                   <View style={styles.visualClothingList}>
                     <Text style={styles.visualClothingTitle}>Roupas aplicadas:</Text>
                     {visualLookResult.clothing_items.map((item: any, index: number) => (
@@ -400,6 +413,17 @@ export default function GenerateLook() {
                         • {item.nome} ({item.cor} {item.tipo})
                       </Text>
                     ))}
+                  </View>
+
+                  {/* Status indicator */}
+                  <View style={styles.statusIndicator}>
+                    <View style={[
+                      styles.statusDot, 
+                      visualLookResult.api_used === 'fal.ai-fashn' ? styles.successDot : styles.warningDot
+                    ]} />
+                    <Text style={styles.statusText}>
+                      Status: {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA Ativa' : 'Modo Fallback'}
+                    </Text>
                   </View>
                 </View>
               </View>
