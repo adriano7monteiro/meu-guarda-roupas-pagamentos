@@ -324,16 +324,25 @@ export default function GenerateLook() {
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.newLookButton} 
-                onPress={() => {
-                  setSuggestion(null);
-                  setSuggestedClothes([]);
-                }}
+                style={styles.visualTryonButton} 
+                onPress={generateVisualLook}
+                disabled={loading}
               >
-                <Ionicons name="refresh" size={20} color="#6c5ce7" />
-                <Text style={styles.newLookButtonText}>Novo Look</Text>
+                <Ionicons name="person" size={20} color="#fff" />
+                <Text style={styles.visualTryonButtonText}>Ver em Mim</Text>
               </TouchableOpacity>
             </View>
+
+            <TouchableOpacity 
+              style={styles.newLookButton} 
+              onPress={() => {
+                setSuggestion(null);
+                setSuggestedClothes([]);
+              }}
+            >
+              <Ionicons name="refresh" size={20} color="#6c5ce7" />
+              <Text style={styles.newLookButtonText}>Novo Look</Text>
+            </TouchableOpacity>
           </View>
         )}
 
