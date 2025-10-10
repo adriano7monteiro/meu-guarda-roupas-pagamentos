@@ -478,7 +478,15 @@ async def sugerir_look(
         
         # Parse response
         try:
-            ai_response = json.loads(response)
+            # Clean up markdown code blocks if present
+            clean_response = response.strip()
+            if clean_response.startswith('```json'):
+                clean_response = clean_response[7:]  # Remove ```json
+            if clean_response.endswith('```'):
+                clean_response = clean_response[:-3]  # Remove ```
+            clean_response = clean_response.strip()
+            
+            ai_response = json.loads(clean_response)
             return {
                 "sugestao_texto": ai_response.get("sugestao_texto", ""),
                 "roupas_ids": ai_response.get("roupas_ids", []),
