@@ -72,12 +72,13 @@ def test_basic_connection():
 
 def test_user_registration():
     """Test user registration"""
-    global auth_token, user_data
+    global auth_token, user_data, test_email
     
     import time
     timestamp = int(time.time())
+    test_email = f"usuario{timestamp}@teste.com"
     test_user = {
-        "email": f"usuario{timestamp}@teste.com",
+        "email": test_email,
         "password": "MinhaSenh@123",
         "nome": "Usuário Teste",
         "ocasiao_preferida": "trabalho"
