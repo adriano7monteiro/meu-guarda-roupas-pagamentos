@@ -178,7 +178,7 @@ async def login(login_data: UserLogin):
     }
 
 @api_router.get("/auth/me", response_model=UserProfile)
-async def get_me(current_user=security):
+async def get_me(current_user=Depends(security)):
     user = await get_current_user(current_user)
     return UserProfile(
         email=user["email"],
