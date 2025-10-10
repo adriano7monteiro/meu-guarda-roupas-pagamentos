@@ -204,6 +204,83 @@ async def upload_foto_corpo(
     
     return {"message": "Foto do corpo atualizada com sucesso"}
 
+# Virtual Try-on route
+@api_router.post("/gerar-look-visual")
+async def gerar_look_visual(
+    roupa_ids: List[str] = Form(...),
+    current_user=Depends(security)
+):
+    try:
+        user = await get_current_user(current_user)
+        logging.info(f"Generating visual look for user: {user['id']}")
+        
+        # Get user's body photo
+        if not user.get("foto_corpo"):
+            raise HTTPException(status_code=400, detail="Você precisa fazer upload da sua foto do corpo primeiro no perfil.")
+        
+        # Get selected clothing items
+        clothing_items = []
+        for roupa_id in roupa_ids:
+            roupa = await db.clothing_items.find_one({
+                "id": roupa_id,
+                "user_id": user["id"]
+            })
+            if roupa:
+                clothing_items.append(roupa)
+        
+        if not clothing_items:
+            raise HTTPException(status_code=400, detail="Nenhuma roupa válida selecionada.")
+        
+        # For now, we'll use the first clothing item for the try-on
+        # In a full implementation, we'd need to composite multiple items
+        first_clothing = clothing_items[0]
+        
+        # Prepare the virtual try-on API call (using Fal.ai FASHN)
+        import requests
+        
+        fal_api_url = "https://fal.run/fal-ai/fashn/tryon/v1.5"
+        
+        # Prepare the request payload
+        payload = {
+            "person_image_url": user["foto_corpo"],  # User's body photo (base64)
+            "garment_image_url": first_clothing["imagem_original"],  # Clothing image (base64)
+            "description": f"Virtual try-on: {first_clothing['nome']} ({first_clothing['cor']} {first_clothing['tipo']})"
+        }
+        
+        headers = {
+            "Authorization": f"Key fal-{os.environ.get('FAL_API_KEY', 'demo-key')}",
+            "Content-Type": "application/json"
+        }
+        
+        # For MVP, we'll return a mock response since we don't have FAL API key yet
+        # In production, you would make the actual API call:
+        # response = requests.post(fal_api_url, json=payload, headers=headers)
+        
+        # Mock response for demonstration
+        mock_result = {
+            "message": "Virtual try-on gerado com sucesso!",
+            "clothing_items": [
+                {
+                    "id": item["id"],
+                    "nome": item["nome"],
+                    "tipo": item["tipo"],
+                    "cor": item["cor"]
+                } for item in clothing_items
+            ],
+            "tryon_image": user["foto_corpo"],  # In real implementation, this would be the generated image
+            "status": "success",
+            "note": "Esta é uma versão de demonstração. Para ativar o try-on real, configure a chave da API Fal.ai no backend."
+        }
+        
+        logging.info(f"Virtual try-on completed for {len(clothing_items)} items")
+        return mock_result
+        
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logging.error(f"Error in gerar_look_visual: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+
 # Clothing routes
 @api_router.post("/upload-roupa")
 async def upload_roupa(
