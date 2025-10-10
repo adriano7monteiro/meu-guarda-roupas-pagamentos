@@ -651,4 +651,67 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  visualTryonButton: {
+    flex: 1,
+    backgroundColor: '#00b894',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  visualTryonButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  visualResultSection: {
+    marginBottom: 32,
+  },
+  visualResultTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  visualResultCard: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#00b894',
+  },
+  tryonImageContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  tryonImage: {
+    width: 200,
+    height: 250,
+    borderRadius: 12,
+    backgroundColor: '#636e72',
+  },
+  visualResultNote: {
+    color: '#00b894',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  visualClothingList: {
+    marginTop: 12,
+  },
+  visualClothingTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  visualClothingItem: {
+    color: '#999',
+    fontSize: 14,
+    marginBottom: 4,
+  },
 });
