@@ -354,7 +354,7 @@ async def create_look(
 async def get_looks(current_user=Depends(security)):
     user = await get_current_user(current_user)
     
-    looks = await db.looks.find({"user_id": user["id"]}).to_list(1000)
+    looks = await db.looks.find({"user_id": user["id"]}, {"_id": 0}).to_list(1000)
     return looks
 
 @api_router.post("/looks/{look_id}/favoritar")
