@@ -70,7 +70,9 @@ export default function UploadClothes() {
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permissão necessária', 'Precisamos de permissão para acessar suas fotos.');
+      showModal('error', 'Permissão Necessária', 'Precisamos de permissão para acessar suas fotos.', [
+        { text: 'OK', onPress: () => setModalVisible(false) }
+      ]);
       return false;
     }
     return true;
