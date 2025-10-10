@@ -487,10 +487,33 @@ async def sugerir_look(
                 "temperatura": temperatura
             }
         except json.JSONDecodeError:
+            # If JSON parsing fails, create a formatted response from the raw text
+            logging.warning(f"Failed to parse JSON response: {response[:200]}...")
+            
+            # Clean up the raw response to make it more readable
+            clean_response = response.strip()
+            
+            # Remove JSON formatting if present
+            if clean_response.startswith('{') and clean_response.endswith('}'):
+                # Try to extract text between quotes if it looks like malformed JSON
+                clean_response = clean_response.replace('{"sugestao_texto":', '').replace('"', '').strip()
+            
+            # Format as readable text
+            formatted_text = f"Para a ocasião '{ocasiao}', sugiro uma combinação elegante das suas roupas disponíveis. "
+            
+            if clean_response and len(clean_response) > 10:
+                formatted_text = clean_response
+            else:
+                # Create a basic suggestion based on available clothes
+                if roupas:
+                    selected_clothes = roupas[:3]  # Take first 3 items
+                    clothes_names = [r["nome"] for r in selected_clothes]
+                    formatted_text = f"Para a ocasião '{ocasiao}', recomendo combinar: {', '.join(clothes_names)}. Essas peças criam um look harmonioso e adequado para a situação."
+                
             return {
-                "sugestao_texto": response,
+                "sugestao_texto": formatted_text,
                 "roupas_ids": [roupa["id"] for roupa in roupas[:3]],  # Fallback
-                "dicas": "Consulte um personal stylist para dicas mais específicas.",
+                "dicas": "Lembre-se de ajustar os acessórios conforme a ocasião e considere o conforto além do estilo.",
                 "ocasiao": ocasiao,
                 "temperatura": temperatura
             }
