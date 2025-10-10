@@ -228,8 +228,12 @@ export default function Profile() {
           
           <View style={styles.bodyPhotoContainer}>
             {user.foto_corpo ? (
-              <View style={styles.bodyPhotoPlaceholder}>
-                <Ionicons name="person" size={60} color="#6c5ce7" />
+              <View style={styles.bodyPhotoWithImage}>
+                <Image 
+                  source={{ uri: user.foto_corpo }} 
+                  style={styles.bodyPhotoImage}
+                  resizeMode="cover"
+                />
                 <Text style={styles.bodyPhotoText}>Foto cadastrada ✓</Text>
               </View>
             ) : (
