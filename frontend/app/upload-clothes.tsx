@@ -124,6 +124,9 @@ export default function UploadClothes() {
         return;
       }
 
+      console.log('Uploading clothing with image length:', selectedImage.length);
+      console.log('Clothing data:', clothingData);
+
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/upload-roupa`, {
         method: 'POST',
         headers: {
@@ -137,6 +140,8 @@ export default function UploadClothes() {
       });
 
       const data = await response.json();
+      console.log('Response status:', response.status);
+      console.log('Response data:', data);
 
       if (response.ok) {
         Alert.alert('Sucesso', 'Roupa adicionada com sucesso!', [
