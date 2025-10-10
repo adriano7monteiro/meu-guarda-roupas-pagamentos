@@ -757,4 +757,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 4,
   },
+  imageOverlay: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  imageOverlayText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  statusIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#636e72',
+    gap: 8,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  successDot: {
+    backgroundColor: '#00b894',
+  },
+  warningDot: {
+    backgroundColor: '#fdcb6e',
+  },
+  statusText: {
+    color: '#999',
+    fontSize: 14,
+  },
 });
