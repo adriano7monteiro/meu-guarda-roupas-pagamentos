@@ -328,18 +328,14 @@ export default function UploadClothes() {
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Nome da roupa</Text>
             <View style={styles.inputWrapper}>
-              <Text 
-                style={styles.inputText}
-                onPress={() => {
-                  Alert.prompt(
-                    'Nome da roupa',
-                    'Digite o nome da roupa:',
-                    (text) => setClothingData(prev => ({ ...prev, nome: text || '' }))
-                  );
-                }}
-              >
-                {clothingData.nome || 'Ex: Camisa azul listrada'}
-              </Text>
+              <TextInput
+                style={styles.textInput}
+                value={clothingData.nome}
+                onChangeText={(text) => setClothingData(prev => ({ ...prev, nome: text }))}
+                placeholder="Ex: Camisa azul listrada"
+                placeholderTextColor="#999"
+                returnKeyType="done"
+              />
             </View>
           </View>
 
