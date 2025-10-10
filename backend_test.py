@@ -71,91 +71,51 @@ class FalAITester:
             # This is a minimal 1x1 PNG in base64
             return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
 
-    def register_test_user(self):
-        """Register a test user for virtual try-on testing"""
-        logger.info("=== REGISTERING TEST USER ===")
-        
-        user_data = {
-            "email": self.test_user_email,
-            "password": self.test_user_password,
-            "nome": self.test_user_name,
-            "ocasiao_preferida": "casual"
-        }
-        
+    def register_test_user(self) -> bool:
+        """Register a test user with body photo"""
         try:
-            response = requests.post(f"{self.base_url}/auth/register", json=user_data, timeout=10)
-            logger.info(f"Register response status: {response.status_code}")
+            # Create realistic body photo
+            body_photo = f"data:image/png;base64,{self.create_realistic_base64_image(400, 600, 'person')}"
+            
+            user_data = {
+                "email": f"test_fal_user_{int(time.time())}@test.com",
+                "password": "TestPassword123!",
+                "nome": "Fal AI Test User",
+                "ocasiao_preferida": "casual"
+            }
+            
+            logger.info(f"🔵 Registering test user: {user_data['email']}")
+            response = requests.post(f"{self.base_url}/auth/register", json=user_data)
             
             if response.status_code == 200:
                 data = response.json()
                 self.token = data["token"]
                 self.user_id = data["user"]["email"]  # Using email as identifier
-                logger.info(f"✅ User registered successfully: {self.user_id}")
-                return True
-            elif response.status_code == 400 and "already registered" in response.text:
-                logger.info("User already exists, attempting login...")
-                return self.login_test_user()
+                logger.info(f"✅ User registered successfully")
+                
+                # Upload body photo
+                headers = {"Authorization": f"Bearer {self.token}"}
+                photo_data = {"imagem": body_photo}
+                
+                logger.info(f"🔵 Uploading body photo (size: {len(body_photo)} chars)")
+                photo_response = requests.post(
+                    f"{self.base_url}/upload-foto-corpo", 
+                    data=photo_data, 
+                    headers=headers
+                )
+                
+                if photo_response.status_code == 200:
+                    logger.info(f"✅ Body photo uploaded successfully")
+                    return True
+                else:
+                    logger.error(f"❌ Failed to upload body photo: {photo_response.status_code} - {photo_response.text}")
+                    return False
             else:
-                logger.error(f"❌ Registration failed: {response.status_code} - {response.text}")
+                logger.error(f"❌ Failed to register user: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ Registration error: {str(e)}")
-            return False
-
-    def login_test_user(self):
-        """Login with test user"""
-        logger.info("=== LOGGING IN TEST USER ===")
-        
-        login_data = {
-            "email": self.test_user_email,
-            "password": self.test_user_password
-        }
-        
-        try:
-            response = requests.post(f"{self.base_url}/auth/login", json=login_data, timeout=10)
-            logger.info(f"Login response status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.token = data["token"]
-                self.user_id = data["user"]["email"]
-                logger.info(f"✅ Login successful: {self.user_id}")
-                return True
-            else:
-                logger.error(f"❌ Login failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"❌ Login error: {str(e)}")
-            return False
-
-    def upload_body_photo(self):
-        """Upload body photo for virtual try-on"""
-        logger.info("=== UPLOADING BODY PHOTO ===")
-        
-        if not self.token:
-            logger.error("❌ No authentication token available")
-            return False
-            
-        headers = {"Authorization": f"Bearer {self.token}"}
-        body_image = self.create_test_image_base64("body")
-        
-        data = {"imagem": body_image}
-        
-        try:
-            response = requests.post(f"{self.base_url}/upload-foto-corpo", data=data, headers=headers, timeout=10)
-            logger.info(f"Body photo upload response status: {response.status_code}")
-            
-            if response.status_code == 200:
-                logger.info("✅ Body photo uploaded successfully")
-                return True
-            else:
-                logger.error(f"❌ Body photo upload failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"❌ Body photo upload error: {str(e)}")
+            logger.error(f"❌ Error registering user: {str(e)}")
             return False
 
     def upload_test_clothing(self):
