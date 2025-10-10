@@ -672,28 +672,47 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 24,
   },
+  suggestionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
   suggestionTitle: {
     color: '#6c5ce7',
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 12,
+  },
+  suggestionContent: {
+    marginBottom: 16,
   },
   suggestionText: {
     color: '#fff',
     fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
+    lineHeight: 26,
+    textAlign: 'justify',
+  },
+  tipsSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#636e72',
+    paddingTop: 16,
+  },
+  tipsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
   },
   tipsTitle: {
     color: '#fdcb6e',
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
   },
   tipsText: {
     color: '#e0d9ff',
     fontSize: 15,
-    lineHeight: 22,
+    lineHeight: 24,
+    textAlign: 'justify',
   },
   clothesSection: {
     marginBottom: 32,
