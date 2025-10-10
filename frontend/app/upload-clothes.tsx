@@ -598,6 +598,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
+  textInput: {
+    color: '#fff',
+    fontSize: 16,
+    minHeight: 20,
+  },
   optionsScroll: {
     marginTop: 4,
   },
