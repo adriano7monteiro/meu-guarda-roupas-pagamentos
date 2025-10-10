@@ -550,13 +550,21 @@ const styles = StyleSheet.create({
     color: '#6c5ce7',
     fontSize: 16,
   },
-  
-  // Demo inputs (temporary)
-  demoInputs: {
-    marginTop: 40,
-    padding: 16,
+  inputTouchable: {
     backgroundColor: '#2d3436',
     borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#636e72',
+  },
+  placeholderText: {
+    color: '#999',
+  },
+  
+  // Demo section
+  demoSection: {
+    marginTop: 32,
+    alignItems: 'center',
   },
   demoTitle: {
     color: '#fdcb6e',
@@ -564,12 +572,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 12,
   },
-  demoInput: {
-    backgroundColor: '#636e72',
-    color: '#fff',
-    padding: 12,
+  demoButton: {
+    backgroundColor: '#fdcb6e',
     borderRadius: 8,
-    marginBottom: 8,
-    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+  },
+  demoButtonText: {
+    color: '#1a1a1a',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
