@@ -107,51 +107,63 @@ user_problem_statement: "Criar app Meu Look IA - app de sugestões de looks com 
 backend:
   - task: "Sistema de autenticação (registro/login)"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implementado sistema completo de auth com JWT, bcrypt, registro e login"
+        - working: true
+          agent: "testing"
+          comment: "Testado com sucesso: POST /api/auth/register, POST /api/auth/login, GET /api/auth/me. JWT funcionando corretamente, bcrypt para senhas, validação de dados OK. Corrigido problema de dependency injection com Depends(security)."
 
   - task: "Upload e gerenciamento de roupas"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implementado endpoints para upload, listagem e exclusão de roupas com base64"
+        - working: true
+          agent: "testing"
+          comment: "Testado com sucesso: POST /api/upload-roupa, GET /api/roupas, DELETE /api/roupas/{id}. Upload de imagens base64 funcionando, autenticação JWT obrigatória, listagem e exclusão OK. Corrigido problema de serialização ObjectId com exclusão de _id nas queries."
 
   - task: "Sugestão de looks com IA (OpenAI)"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implementado endpoint de sugestão usando emergentintegrations e GPT-4o-mini"
+        - working: true
+          agent: "testing"
+          comment: "Testado com sucesso: POST /api/sugerir-look. Integração com emergentintegrations funcionando, GPT-4o-mini respondendo corretamente, fallback para casos de erro de parsing JSON implementado. API key sk-emergent-55869Ff778123962f1 válida."
 
   - task: "Gerenciamento de looks salvos"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implementado criação, listagem, favoritar e exclusão de looks"
+        - working: true
+          agent: "testing"
+          comment: "Testado com sucesso: POST /api/looks, GET /api/looks, POST /api/looks/{id}/favoritar, DELETE /api/looks/{id}. Validação de roupas existentes funcionando, toggle de favoritos OK, exclusão segura implementada."
 
 frontend:
   - task: "Tela de autenticação (login/registro)"
