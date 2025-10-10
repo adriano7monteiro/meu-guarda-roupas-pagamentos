@@ -55,6 +55,7 @@ export default function GenerateLook() {
   const [suggestion, setSuggestion] = useState<LookSuggestion | null>(null);
   const [userClothes, setUserClothes] = useState<Clothing[]>([]);
   const [suggestedClothes, setSuggestedClothes] = useState<Clothing[]>([]);
+  const [visualLookResult, setVisualLookResult] = useState<any>(null);
   const modal = useModal();
 
   useEffect(() => {
