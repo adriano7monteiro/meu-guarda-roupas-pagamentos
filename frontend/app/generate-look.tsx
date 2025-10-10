@@ -353,14 +353,25 @@ export default function GenerateLook() {
             
             {/* AI Suggestion */}
             <View style={styles.suggestionCard}>
-              <Text style={styles.suggestionTitle}>Sugestão da IA:</Text>
-              <Text style={styles.suggestionText}>{suggestion.sugestao_texto}</Text>
+              <View style={styles.suggestionHeader}>
+                <Ionicons name="sparkles" size={24} color="#6c5ce7" />
+                <Text style={styles.suggestionTitle}>Sugestão Personalizada</Text>
+              </View>
               
-              {suggestion.dicas && (
-                <>
-                  <Text style={styles.tipsTitle}>Dicas:</Text>
+              <View style={styles.suggestionContent}>
+                <Text style={styles.suggestionText}>
+                  {suggestion.sugestao_texto}
+                </Text>
+              </View>
+              
+              {suggestion.dicas && suggestion.dicas.trim() !== '' && (
+                <View style={styles.tipsSection}>
+                  <View style={styles.tipsHeader}>
+                    <Ionicons name="bulb" size={20} color="#fdcb6e" />
+                    <Text style={styles.tipsTitle}>Dicas de Estilo</Text>
+                  </View>
                   <Text style={styles.tipsText}>{suggestion.dicas}</Text>
-                </>
+                </View>
               )}
             </View>
 
