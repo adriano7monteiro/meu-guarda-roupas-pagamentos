@@ -484,6 +484,56 @@ export default function GenerateLook() {
         buttons={modal.config.buttons}
         onClose={modal.hideModal}
       />
+
+      {/* Full Screen Image Modal */}
+      <Modal
+        visible={!!fullScreenImage}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setFullScreenImage(null)}
+      >
+        <View style={styles.fullScreenContainer}>
+          <TouchableOpacity 
+            style={styles.fullScreenBackdrop}
+            onPress={() => setFullScreenImage(null)}
+            activeOpacity={1}
+          >
+            <SafeAreaView style={styles.fullScreenContent}>
+              <View style={styles.fullScreenHeader}>
+                <Text style={styles.fullScreenTitle}>Try-On Virtual - Tela Cheia</Text>
+                <TouchableOpacity 
+                  style={styles.closeButton}
+                  onPress={() => setFullScreenImage(null)}
+                >
+                  <Ionicons name="close" size={28} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              
+              {fullScreenImage && (
+                <View style={styles.fullScreenImageContainer}>
+                  <Image 
+                    source={{ uri: fullScreenImage }} 
+                    style={styles.fullScreenImage}
+                    resizeMode="contain"
+                  />
+                </View>
+              )}
+              
+              <View style={styles.fullScreenFooter}>
+                <Text style={styles.fullScreenHint}>
+                  🔍 Visualização em alta qualidade
+                </Text>
+                <TouchableOpacity 
+                  style={styles.fullScreenCloseButton}
+                  onPress={() => setFullScreenImage(null)}
+                >
+                  <Text style={styles.fullScreenCloseText}>Fechar</Text>
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
