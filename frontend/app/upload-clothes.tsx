@@ -57,6 +57,16 @@ export default function UploadClothes() {
     buttons: [] as Array<{text: string, onPress: () => void, style?: 'primary' | 'secondary'}>
   });
 
+  const showModal = (
+    type: 'success' | 'error',
+    title: string,
+    message: string,
+    buttons: Array<{text: string, onPress: () => void, style?: 'primary' | 'secondary'}>
+  ) => {
+    setModalConfig({ type, title, message, buttons });
+    setModalVisible(true);
+  };
+
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
