@@ -248,29 +248,76 @@ async def gerar_look_visual(
         }
         
         headers = {
-            "Authorization": f"Key fal-{os.environ.get('FAL_API_KEY', 'demo-key')}",
+            "Authorization": f"Key {os.environ.get('FAL_API_KEY')}",
             "Content-Type": "application/json"
         }
         
-        # For MVP, we'll return a mock response since we don't have FAL API key yet
-        # In production, you would make the actual API call:
-        # response = requests.post(fal_api_url, json=payload, headers=headers)
+        try:
+            # Make the actual API call to Fal.ai
+            logging.info(f"Calling Fal.ai API with payload keys: {list(payload.keys())}")
+            api_response = requests.post(fal_api_url, json=payload, headers=headers, timeout=30)
+            
+            if api_response.status_code == 200:
+                fal_result = api_response.json()
+                logging.info(f"Fal.ai API success: {fal_result.get('status', 'unknown')}")
+                
+                # Extract the generated image from Fal.ai response
+                generated_image = fal_result.get("image", {}).get("url", user["foto_corpo"])
+                
+                result = {
+                    "message": "Virtual try-on gerado com sucesso com IA!",
+                    "clothing_items": [
+                        {
+                            "id": item["id"],
+                            "nome": item["nome"],
+                            "tipo": item["tipo"],
+                            "cor": item["cor"]
+                        } for item in clothing_items
+                    ],
+                    "tryon_image": generated_image,  # Real AI-generated image
+                    "status": "success",
+                    "note": f"Try-on virtual criado com IA! Roupa: {first_clothing['nome']}",
+                    "api_used": "fal.ai-fashn"
+                }
+            else:
+                logging.error(f"Fal.ai API error: {api_response.status_code} - {api_response.text}")
+                # Fallback to mock if API fails
+                result = {
+                    "message": "Try-on gerado (modo fallback)",
+                    "clothing_items": [
+                        {
+                            "id": item["id"],
+                            "nome": item["nome"],
+                            "tipo": item["tipo"],
+                            "cor": item["cor"]
+                        } for item in clothing_items
+                    ],
+                    "tryon_image": user["foto_corpo"],
+                    "status": "success",
+                    "note": f"API temporariamente indisponível. Mostrando sua foto original. Erro: {api_response.status_code}",
+                    "api_used": "fallback"
+                }
+                
+        except Exception as e:
+            logging.error(f"Error calling Fal.ai API: {str(e)}")
+            # Fallback to mock if API call fails
+            result = {
+                "message": "Try-on gerado (modo fallback)",
+                "clothing_items": [
+                    {
+                        "id": item["id"],
+                        "nome": item["nome"],
+                        "tipo": item["tipo"],
+                        "cor": item["cor"]
+                    } for item in clothing_items
+                ],
+                "tryon_image": user["foto_corpo"],
+                "status": "success",
+                "note": f"Erro na conexão com IA. Mostrando sua foto original. Erro: {str(e)}",
+                "api_used": "fallback"
+            }
         
-        # Mock response for demonstration
-        mock_result = {
-            "message": "Virtual try-on gerado com sucesso!",
-            "clothing_items": [
-                {
-                    "id": item["id"],
-                    "nome": item["nome"],
-                    "tipo": item["tipo"],
-                    "cor": item["cor"]
-                } for item in clothing_items
-            ],
-            "tryon_image": user["foto_corpo"],  # In real implementation, this would be the generated image
-            "status": "success",
-            "note": "Esta é uma versão de demonstração. Para ativar o try-on real, configure a chave da API Fal.ai no backend."
-        }
+        mock_result = result
         
         logging.info(f"Virtual try-on completed for {len(clothing_items)} items")
         return mock_result
