@@ -731,9 +731,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   tryonImage: {
-    width: 200,
-    height: 250,
-    borderRadius: 12,
+    width: 300,
+    height: 400,
+    borderRadius: 16,
     backgroundColor: '#636e72',
   },
   visualResultNote: {
