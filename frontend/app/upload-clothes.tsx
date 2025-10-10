@@ -174,7 +174,12 @@ export default function UploadClothes() {
           
           {selectedImage ? (
             <View style={styles.selectedImageContainer}>
-              <View style={styles.selectedImagePlaceholder}>
+              <View style={styles.selectedImageWithPhoto}>
+                <Image 
+                  source={{ uri: selectedImage }} 
+                  style={styles.selectedImagePhoto}
+                  resizeMode="cover"
+                />
                 <Text style={styles.imageSelectedText}>Imagem selecionada ✓</Text>
               </View>
               <TouchableOpacity 
