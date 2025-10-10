@@ -176,12 +176,23 @@ export default function GenerateLook() {
       const data = await response.json();
 
       if (response.ok) {
+        console.log('Visual look result:', data);
         setVisualLookResult(data);
         modal.showSuccess(
           'Try-On Virtual Gerado!', 
           data.note || 'Veja como as roupas ficam em você!',
           [
-            { text: 'Ver Resultado', onPress: () => modal.hideModal(), style: 'primary' }
+            { 
+              text: 'Ver Resultado', 
+              onPress: () => {
+                modal.hideModal();
+                // Scroll to the result section after modal closes
+                setTimeout(() => {
+                  console.log('Result should be visible now');
+                }, 300);
+              }, 
+              style: 'primary' 
+            }
           ]
         );
       } else {
