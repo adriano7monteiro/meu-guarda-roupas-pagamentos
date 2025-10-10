@@ -707,8 +707,15 @@ const styles = StyleSheet.create({
   },
   visualResultTitle: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  visualResultSubtitle: {
+    color: '#00b894',
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 16,
     textAlign: 'center',
   },
