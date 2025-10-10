@@ -212,7 +212,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
 
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && !nome)) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+      authModal.showError('Campos Obrigatórios', 'Por favor, preencha todos os campos');
       return;
     }
 
@@ -237,13 +237,13 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       if (response.ok) {
         await AsyncStorage.setItem('auth_token', data.token);
         onLogin(data.user);
-        Alert.alert('Sucesso', isLogin ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!');
+        authModal.showSuccess('Sucesso', isLogin ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!');
       } else {
-        Alert.alert('Erro', data.detail || 'Erro durante autenticação');
+        authModal.showError('Erro de Autenticação', data.detail || 'Erro durante autenticação');
       }
     } catch (error) {
       console.error('Auth error:', error);
-      Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      authModal.showError('Erro de Conexão', 'Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
     }
