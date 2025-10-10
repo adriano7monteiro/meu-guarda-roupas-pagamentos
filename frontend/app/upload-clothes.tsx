@@ -645,4 +645,75 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    width: '100%',
+    maxWidth: 400,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    backgroundColor: '#e17055',
+    padding: 20,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+  },
+  successHeader: {
+    backgroundColor: '#00b894',
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  modalBody: {
+    padding: 20,
+  },
+  modalMessage: {
+    color: '#fff',
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    padding: 20,
+    paddingTop: 0,
+    gap: 12,
+  },
+  modalButton: {
+    backgroundColor: '#636e72',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+  },
+  primaryButton: {
+    backgroundColor: '#6c5ce7',
+  },
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#636e72',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  primaryButtonText: {
+    color: '#fff',
+  },
+  secondaryButtonText: {
+    color: '#636e72',
+  },
 });
