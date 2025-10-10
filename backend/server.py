@@ -117,7 +117,7 @@ def create_jwt_token(user_id: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = security):
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, JWT_SECRET, algorithms=["HS256"])
         user_id = payload.get("user_id")
