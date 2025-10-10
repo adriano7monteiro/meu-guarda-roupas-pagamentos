@@ -73,10 +73,12 @@ def test_user_registration():
     """Test user registration"""
     global auth_token, user_data
     
+    import time
+    timestamp = int(time.time())
     test_user = {
-        "email": "maria.silva@teste.com",
+        "email": f"usuario{timestamp}@teste.com",
         "password": "MinhaSenh@123",
-        "nome": "Maria Silva",
+        "nome": "Usuário Teste",
         "ocasiao_preferida": "trabalho"
     }
     
