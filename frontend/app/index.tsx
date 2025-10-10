@@ -25,6 +25,7 @@ interface User {
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const modal = useModal();
 
   useEffect(() => {
     checkAuthStatus();
