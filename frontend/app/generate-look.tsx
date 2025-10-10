@@ -364,6 +364,35 @@ export default function GenerateLook() {
               ))}
             </View>
 
+            {/* Visual Result */}
+            {visualLookResult && (
+              <View style={styles.visualResultSection}>
+                <Text style={styles.visualResultTitle}>Try-On Virtual ✨</Text>
+                <View style={styles.visualResultCard}>
+                  {visualLookResult.tryon_image && (
+                    <View style={styles.tryonImageContainer}>
+                      <Image 
+                        source={{ uri: visualLookResult.tryon_image }} 
+                        style={styles.tryonImage}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  )}
+                  <Text style={styles.visualResultNote}>
+                    {visualLookResult.note}
+                  </Text>
+                  <View style={styles.visualClothingList}>
+                    <Text style={styles.visualClothingTitle}>Roupas aplicadas:</Text>
+                    {visualLookResult.clothing_items.map((item: any, index: number) => (
+                      <Text key={index} style={styles.visualClothingItem}>
+                        • {item.nome} ({item.cor} {item.tipo})
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              </View>
+            )}
+
             {/* Action Buttons */}
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity style={styles.saveButton} onPress={saveLook}>
