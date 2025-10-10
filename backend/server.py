@@ -192,7 +192,7 @@ async def get_me(current_user=Depends(security)):
 @api_router.post("/upload-foto-corpo")
 async def upload_foto_corpo(
     imagem: str = Form(...),
-    current_user=security
+    current_user=Depends(security)
 ):
     user = await get_current_user(current_user)
     
@@ -208,7 +208,7 @@ async def upload_foto_corpo(
 @api_router.post("/upload-roupa")
 async def upload_roupa(
     roupa_data: ClothingItemCreate,
-    current_user=security
+    current_user=Depends(security)
 ):
     user = await get_current_user(current_user)
     
@@ -223,14 +223,14 @@ async def upload_roupa(
     return {"message": "Roupa cadastrada com sucesso", "id": clothing.id}
 
 @api_router.get("/roupas")
-async def get_roupas(current_user=security):
+async def get_roupas(current_user=Depends(security)):
     user = await get_current_user(current_user)
     
     roupas = await db.clothing_items.find({"user_id": user["id"]}).to_list(1000)
     return roupas
 
 @api_router.delete("/roupas/{roupa_id}")
-async def delete_roupa(roupa_id: str, current_user=security):
+async def delete_roupa(roupa_id: str, current_user=Depends(security)):
     user = await get_current_user(current_user)
     
     result = await db.clothing_items.delete_one({
@@ -248,7 +248,7 @@ async def delete_roupa(roupa_id: str, current_user=security):
 async def sugerir_look(
     ocasiao: str = Form(...),
     temperatura: Optional[str] = Form(None),
-    current_user=security
+    current_user=Depends(security)
 ):
     user = await get_current_user(current_user)
     
@@ -328,7 +328,7 @@ async def sugerir_look(
 @api_router.post("/looks")
 async def create_look(
     look_data: LookCreate,
-    current_user=security
+    current_user=Depends(security)
 ):
     user = await get_current_user(current_user)
     
@@ -351,14 +351,14 @@ async def create_look(
     return {"message": "Look salvo com sucesso", "id": look.id}
 
 @api_router.get("/looks")
-async def get_looks(current_user=security):
+async def get_looks(current_user=Depends(security)):
     user = await get_current_user(current_user)
     
     looks = await db.looks.find({"user_id": user["id"]}).to_list(1000)
     return looks
 
 @api_router.post("/looks/{look_id}/favoritar")
-async def toggle_favorite_look(look_id: str, current_user=security):
+async def toggle_favorite_look(look_id: str, current_user=Depends(security)):
     user = await get_current_user(current_user)
     
     look = await db.looks.find_one({
@@ -379,7 +379,7 @@ async def toggle_favorite_look(look_id: str, current_user=security):
     return {"message": f"Look {'adicionado aos' if new_favorite_status else 'removido dos'} favoritos"}
 
 @api_router.delete("/looks/{look_id}")
-async def delete_look(look_id: str, current_user=security):
+async def delete_look(look_id: str, current_user=Depends(security)):
     user = await get_current_user(current_user)
     
     result = await db.looks.delete_one({
