@@ -259,10 +259,28 @@ async def gerar_look_visual(
             
             if api_response.status_code == 200:
                 fal_result = api_response.json()
-                logging.info(f"Fal.ai API success: {fal_result.get('status', 'unknown')}")
+                logging.info(f"Fal.ai API success response keys: {list(fal_result.keys())}")
+                logging.info(f"Fal.ai API full response: {fal_result}")
                 
-                # Extract the generated image from Fal.ai response
-                generated_image = fal_result.get("image", {}).get("url", user["foto_corpo"])
+                # Extract the generated image from Fal.ai response (correct structure)
+                generated_image = None
+                
+                # Try different possible response structures
+                if "data" in fal_result and "url" in fal_result["data"]:
+                    generated_image = fal_result["data"]["url"]
+                elif "image" in fal_result:
+                    if isinstance(fal_result["image"], dict):
+                        generated_image = fal_result["image"].get("url")
+                    elif isinstance(fal_result["image"], str):
+                        generated_image = fal_result["image"]
+                elif "url" in fal_result:
+                    generated_image = fal_result["url"]
+                
+                if not generated_image:
+                    logging.warning(f"Could not extract image from Fal.ai response: {fal_result}")
+                    generated_image = user["foto_corpo"]  # Fallback to original
+                
+                logging.info(f"Extracted image URL: {generated_image[:100]}..." if generated_image else "No image extracted")
                 
                 result = {
                     "message": "Virtual try-on gerado com sucesso com IA!",
