@@ -108,7 +108,7 @@ export default function UploadClothes() {
     }
   };
 
-  const uploadClothing = async () => {
+  const uploadClothing = async (retryCount = 0) => {
     if (!selectedImage || !clothingData.nome || !clothingData.tipo || 
         !clothingData.cor || !clothingData.estilo) {
       Alert.alert('Erro', 'Por favor, preencha todos os campos e selecione uma imagem.');
@@ -121,38 +121,82 @@ export default function UploadClothes() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
         Alert.alert('Erro', 'Token de autenticação não encontrado.');
+        setLoading(false);
         return;
       }
 
-      console.log('Uploading clothing with image length:', selectedImage.length);
+      console.log('Uploading clothing - attempt:', retryCount + 1);
+      console.log('Image size:', selectedImage.length, 'characters');
       console.log('Clothing data:', clothingData);
+
+      // Create request with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/upload-roupa`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token.trim()}`, // Trim token to avoid extra spaces
         },
         body: JSON.stringify({
           ...clothingData,
           imagem_original: selectedImage,
         }),
+        signal: controller.signal,
       });
 
-      const data = await response.json();
+      clearTimeout(timeoutId);
+
       console.log('Response status:', response.status);
-      console.log('Response data:', data);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (response.ok) {
+        const data = await response.json();
+        console.log('Success response:', data);
         Alert.alert('Sucesso', 'Roupa adicionada com sucesso!', [
           { text: 'OK', onPress: () => router.back() }
         ]);
+        return;
+      } 
+      
+      const errorText = await response.text();
+      console.log('Error response:', errorText);
+
+      // Handle specific error cases
+      if (response.status === 403) {
+        console.log('403 Forbidden - attempting retry...');
+        if (retryCount < 2) {
+          setLoading(false);
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+          return uploadClothing(retryCount + 1); // Retry
+        } else {
+          Alert.alert('Erro', 'Problema de autenticação. Tente fazer login novamente.');
+        }
+      } else if (response.status === 401) {
+        Alert.alert('Erro', 'Sessão expirada. Faça login novamente.');
       } else {
-        Alert.alert('Erro', data.detail || 'Erro ao adicionar roupa.');
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { detail: errorText || 'Erro desconhecido' };
+        }
+        Alert.alert('Erro', errorData.detail || `Erro ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('Error uploading clothing:', error);
-      Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      console.error('Upload error:', error);
+      
+      if (error.name === 'AbortError') {
+        Alert.alert('Erro', 'Upload cancelado por timeout. Tente novamente com uma imagem menor.');
+      } else if (retryCount < 2) {
+        console.log('Connection error - attempting retry...');
+        setLoading(false);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return uploadClothing(retryCount + 1);
+      } else {
+        Alert.alert('Erro', 'Erro de conexão após várias tentativas. Verifique sua internet e tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
