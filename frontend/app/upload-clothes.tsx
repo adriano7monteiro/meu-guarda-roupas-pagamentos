@@ -388,6 +388,20 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#00b894',
   },
+  selectedImageWithPhoto: {
+    width: width - 40,
+    height: 220,
+    backgroundColor: '#2d3436',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#00b894',
+  },
+  selectedImagePhoto: {
+    width: '100%',
+    height: 180,
+    backgroundColor: '#2d3436',
+  },
   imageSelectedText: {
     color: '#00b894',
     fontSize: 18,
