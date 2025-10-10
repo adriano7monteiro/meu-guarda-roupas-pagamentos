@@ -1,41 +1,75 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Meu Look IA - Virtual Try-on Focus
-Testing the new POST /api/gerar-look-visual endpoint with Fal.ai integration
+Backend Test Suite for Meu Look IA - Focused on Fal.ai API Integration
+Testing the virtual try-on feature with detailed logging of Fal.ai responses
 """
 
 import requests
 import json
 import base64
 import logging
-from datetime import datetime
-import os
+import sys
+from typing import Dict, Any
+import time
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging to capture detailed API responses
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('/app/fal_api_test.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
-# Backend URL from environment
+# Get backend URL from environment
 BACKEND_URL = "https://outfit-ai-12.preview.emergentagent.com/api"
 
-class VirtualTryOnTester:
+class FalAITester:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.token = None
         self.user_id = None
-        self.test_user_email = "tryon_test@example.com"
-        self.test_user_password = "TestPassword123!"
-        self.test_user_name = "Virtual TryOn Tester"
         self.clothing_ids = []
         
-    def create_test_image_base64(self, image_type="body"):
-        """Create a simple test image in base64 format"""
-        if image_type == "body":
-            # Simple body photo placeholder
-            return "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEAPwA/wA=="
-        else:
-            # Simple clothing item placeholder
-            return "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEAPwA/wB=="
+    def create_realistic_base64_image(self, width=400, height=600, color="person"):
+        """Create a more realistic base64 image for testing pose detection"""
+        try:
+            from PIL import Image, ImageDraw
+            import io
+            
+            # Create a larger image that might work better with pose detection
+            img = Image.new('RGB', (width, height), color='white')
+            draw = ImageDraw.Draw(img)
+            
+            if color == "person":
+                # Draw a simple human silhouette
+                # Head
+                draw.ellipse([width//2-30, 50, width//2+30, 110], fill='#D2B48C')
+                # Body
+                draw.rectangle([width//2-40, 110, width//2+40, 350], fill='#4169E1')
+                # Arms
+                draw.rectangle([width//2-80, 130, width//2-40, 300], fill='#D2B48C')
+                draw.rectangle([width//2+40, 130, width//2+80, 300], fill='#D2B48C')
+                # Legs
+                draw.rectangle([width//2-35, 350, width//2-10, 550], fill='#000080')
+                draw.rectangle([width//2+10, 350, width//2+35, 550], fill='#000080')
+            else:
+                # Draw clothing item
+                draw.rectangle([50, 50, width-50, height-50], fill=color)
+                draw.rectangle([60, 60, width-60, height-60], outline='black', width=3)
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_data = buffer.getvalue()
+            return base64.b64encode(img_data).decode('utf-8')
+            
+        except ImportError:
+            # Fallback: create a simple base64 image without PIL
+            # This is a minimal 1x1 PNG in base64
+            return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
 
     def register_test_user(self):
         """Register a test user for virtual try-on testing"""
