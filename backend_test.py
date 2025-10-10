@@ -51,6 +51,7 @@ auth_token = None
 user_data = None
 test_roupa_id = None
 test_look_id = None
+test_email = None
 
 def test_basic_connection():
     """Test basic API connection"""
