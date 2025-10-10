@@ -256,13 +256,21 @@ export default function MyWardrobe() {
               ) : (
                 filteredItems.map((item) => (
                   <View key={item.id} style={styles.clothingCard}>
-                    <View style={styles.clothingImagePlaceholder}>
-                      <Ionicons 
-                        name={CLOTHING_TYPE_ICONS[item.tipo] || 'shirt'} 
-                        size={32} 
-                        color="#6c5ce7" 
+                    {item.imagem_original ? (
+                      <Image 
+                        source={{ uri: item.imagem_original }} 
+                        style={styles.clothingImage}
+                        resizeMode="cover"
                       />
-                    </View>
+                    ) : (
+                      <View style={styles.clothingImagePlaceholder}>
+                        <Ionicons 
+                          name={CLOTHING_TYPE_ICONS[item.tipo] || 'shirt'} 
+                          size={32} 
+                          color="#6c5ce7" 
+                        />
+                      </View>
+                    )}
                     
                     <View style={styles.clothingInfo}>
                       <Text style={styles.clothingName}>{item.nome}</Text>
