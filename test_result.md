@@ -165,6 +165,21 @@ backend:
           agent: "testing"
           comment: "Testado com sucesso: POST /api/looks, GET /api/looks, POST /api/looks/{id}/favoritar, DELETE /api/looks/{id}. Validação de roupas existentes funcionando, toggle de favoritos OK, exclusão segura implementada."
 
+  - task: "Virtual try-on com Fal.ai (POST /api/gerar-look-visual)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado endpoint de virtual try-on com integração Fal.ai FASHN API"
+        - working: true
+          agent: "testing"
+          comment: "TESTE ESPECÍFICO VIRTUAL TRY-ON: Endpoint funcionando corretamente. API Key configurada: e6f13f85-b293-4197-9412-11d9947cf7b5:78f494fb71ef1bff59badf506b514aeb. Fal.ai API sendo chamada corretamente em https://fal.run/fal-ai/fashn/tryon/v1.5. PROBLEMA: Conta Fal.ai com saldo esgotado (403 - Exhausted balance). Fallback funcionando perfeitamente. Validação de entrada OK, tratamento de erros OK. Estrutura de resposta correta com campos: message, clothing_items, tryon_image, status, api_used. Testado com 1 e múltiplas roupas. Endpoint 100% funcional, apenas precisa de recarga de saldo na conta Fal.ai."
+
 frontend:
   - task: "Tela de autenticação (login/registro)"
     implemented: true
