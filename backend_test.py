@@ -107,50 +107,52 @@ class VirtualTryOnTester:
             self.log_test("User Login", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
     
+    def upload_body_photo(self):
+        """Upload body photo for virtual try-on"""
+        try:
+            body_image = self.create_test_image_base64(400, 600, "body")
+            
+            form_data = {"imagem": body_image}
+            headers = {"Authorization": f"Bearer {self.token}"}
+            
+            response = requests.post(f"{self.base_url}/upload-foto-corpo", data=form_data, headers=headers)
+            
+            if response.status_code == 200:
+                self.log_test("Upload Body Photo", True, "Body photo uploaded successfully")
+                return True
+            else:
+                self.log_test("Upload Body Photo", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Upload Body Photo", False, f"Exception: {str(e)}")
+            return False
+    
     def create_sample_clothing(self):
         """Create sample clothing items for testing"""
-        # Simple base64 image (1x1 pixel PNG)
-        sample_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        clothing_image = self.create_test_image_base64(300, 300, "clothing")
         
-        clothing_items = [
-            {
-                "tipo": "camiseta",
-                "cor": "azul",
-                "estilo": "casual",
-                "nome": "Camiseta Azul Casual",
-                "imagem_original": sample_image
-            },
-            {
-                "tipo": "calca",
-                "cor": "preta",
-                "estilo": "social",
-                "nome": "Calça Social Preta",
-                "imagem_original": sample_image
-            },
-            {
-                "tipo": "sapato",
-                "cor": "marrom",
-                "estilo": "casual",
-                "nome": "Sapato Casual Marrom",
-                "imagem_original": sample_image
-            }
-        ]
+        clothing_data = {
+            "tipo": "camiseta",
+            "cor": "vermelha",
+            "estilo": "casual",
+            "nome": "Camiseta Teste Try-On",
+            "imagem_original": clothing_image
+        }
         
         headers = {"Authorization": f"Bearer {self.token}"}
         
-        for item in clothing_items:
-            logger.info(f"Creating clothing item: {item['nome']}")
-            response = requests.post(f"{self.base_url}/upload-roupa", json=item, headers=headers)
-            
-            if response.status_code == 200:
-                data = response.json()
-                self.clothing_ids.append(data["id"])
-                logger.info(f"✅ Clothing item created: {item['nome']} (ID: {data['id']})")
-            else:
-                logger.error(f"❌ Failed to create clothing item {item['nome']}: {response.status_code} - {response.text}")
-                return False
+        logger.info(f"Creating clothing item: {clothing_data['nome']}")
+        response = requests.post(f"{self.base_url}/upload-roupa", json=clothing_data, headers=headers)
         
-        return len(self.clothing_ids) > 0
+        if response.status_code == 200:
+            data = response.json()
+            self.clothing_ids.append(data["id"])
+            self.log_test("Upload Clothing", True, f"Clothing uploaded with ID: {data['id']}")
+            return True
+        else:
+            self.log_test("Upload Clothing", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
     
     def test_sugerir_look_endpoint(self):
         """
