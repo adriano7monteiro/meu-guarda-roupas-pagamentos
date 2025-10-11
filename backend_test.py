@@ -219,104 +219,112 @@ class VirtualTryOnTester:
             return False
     
     def check_backend_logs(self):
-        """Check backend logs for AI response details"""
-        logger.info("=" * 60)
-        logger.info("CHECKING BACKEND LOGS")
-        logger.info("=" * 60)
-        
+        """Check backend logs for detailed error information"""
         try:
-            # Check supervisor backend logs
+            logger.info("=" * 60)
+            logger.info("CHECKING BACKEND LOGS FOR FAL.AI ERRORS")
+            logger.info("=" * 60)
+            
+            # Check supervisor logs
             import subprocess
             result = subprocess.run(
-                ["tail", "-n", "100", "/var/log/supervisor/backend.err.log"],
+                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
                 capture_output=True,
                 text=True
             )
             
             if result.returncode == 0:
-                logger.info("Backend error logs (last 100 lines):")
-                logger.info("-" * 40)
-                lines = result.stdout.split('\n')
-                for line in lines:
-                    if any(keyword in line.lower() for keyword in ['json', 'parse', 'sugerir', 'response', 'failed']):
-                        logger.info(f"🔍 RELEVANT LOG: {line}")
+                logs = result.stdout
+                logger.info(f"🔍 Backend Error Logs (last 50 lines):")
+                logger.info(logs)
+                
+                # Look for specific Fal.ai errors
+                if "401" in logs and "No user found for Key ID" in logs:
+                    logger.error("❌ FOUND: 401 Authentication error with Fal.ai API")
+                    return "401_auth_error"
+                elif "422" in logs and "Failed to detect body pose" in logs:
+                    logger.error("❌ FOUND: 422 Body pose detection error")
+                    return "422_pose_error"
+                elif "403" in logs and "Exhausted balance" in logs:
+                    logger.error("❌ FOUND: 403 Exhausted balance error")
+                    return "403_balance_error"
+                else:
+                    logger.info("ℹ️ No specific Fal.ai errors found in recent logs")
+                    return "no_specific_error"
             else:
-                logger.warning("Could not read backend error logs")
-            
-            # Check output logs
-            result = subprocess.run(
-                ["tail", "-n", "50", "/var/log/supervisor/backend.out.log"],
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode == 0 and result.stdout.strip():
-                logger.info("Backend output logs (last 50 lines):")
-                logger.info("-" * 40)
-                lines = result.stdout.split('\n')
-                for line in lines:
-                    if 'sugerir-look' in line:
-                        logger.info(f"🔍 SUGERIR-LOOK LOG: {line}")
-            else:
-                logger.info("No recent output logs")
+                logger.warning("⚠️ Could not read backend logs")
+                return "log_read_error"
                 
         except Exception as e:
-            logger.error(f"Error checking logs: {e}")
+            logger.error(f"⚠️ Error checking logs: {str(e)}")
+            return "log_check_exception"
     
-    def run_specific_test(self):
-        """Run the specific test requested in the review"""
-        logger.info("🔍 STARTING SPECIFIC TEST FOR POST /api/sugerir-look JSON ISSUE")
-        logger.info("=" * 80)
+    def run_virtual_tryon_tests(self):
+        """Run all virtual try-on tests in sequence"""
+        logger.info("🚀 Starting Virtual Try-On Test Suite")
+        logger.info("=" * 50)
         
-        # Step 1: Create test user
-        if not self.create_test_user():
-            return False
+        # Test sequence
+        tests = [
+            ("User Registration/Login", self.create_test_user),
+            ("Upload Body Photo", self.upload_body_photo),
+            ("Upload Clothing", self.create_sample_clothing),
+            ("Virtual Try-On API", self.test_virtual_tryon_api)
+        ]
         
-        # Step 2: Create sample clothing
-        if not self.create_sample_clothing():
-            return False
+        for test_name, test_func in tests:
+            logger.info(f"\n📋 Running: {test_name}")
+            success = test_func()
+            if not success and test_name != "Virtual Try-On API":
+                logger.error(f"❌ Stopping tests due to failure in: {test_name}")
+                break
         
-        # Step 3: Test the sugerir-look endpoint
-        success, response_data = self.test_sugerir_look_endpoint()
+        # Always check logs for debugging
+        logger.info(f"\n📋 Checking Backend Logs")
+        log_status = self.check_backend_logs()
         
-        # Step 4: Check backend logs
-        self.check_backend_logs()
+        # Summary
+        logger.info("\n" + "=" * 50)
+        logger.info("📊 TEST SUMMARY")
+        logger.info("=" * 50)
         
-        # Step 5: Analysis and conclusions
-        logger.info("=" * 60)
-        logger.info("TEST ANALYSIS & CONCLUSIONS")
-        logger.info("=" * 60)
+        passed = sum(1 for result in self.test_results if result["success"])
+        total = len(self.test_results)
         
-        if success and response_data:
-            sugestao_texto = response_data.get("sugestao_texto", "")
-            
-            # Determine the issue
-            if sugestao_texto.strip().startswith('{') and sugestao_texto.strip().endswith('}'):
-                logger.error("🚨 ISSUE CONFIRMED: AI is returning JSON in sugestao_texto field")
-                logger.error("   This explains why users see JSON instead of formatted text")
-                
-                try:
-                    json.loads(sugestao_texto)
-                    logger.error("   The JSON is valid, so parsing should work")
-                    logger.error("   Problem: AI is not following the prompt instructions properly")
-                except json.JSONDecodeError:
-                    logger.error("   The JSON is malformed, causing parsing to fail")
-                    logger.error("   Problem: AI returns malformed JSON, fallback should handle this")
-            else:
-                logger.info("✅ sugestao_texto appears to be formatted text (not JSON)")
-                logger.info("   The issue might be intermittent or already resolved")
+        logger.info(f"Tests Passed: {passed}/{total}")
         
-        return success
+        for result in self.test_results:
+            status = "✅" if result["success"] else "❌"
+            logger.info(f"{status} {result['test']}")
+            if result["details"]:
+                logger.info(f"   {result['details']}")
+        
+        # Specific analysis for virtual try-on
+        logger.info(f"\n🔍 VIRTUAL TRY-ON ANALYSIS:")
+        logger.info(f"Backend Log Status: {log_status}")
+        
+        if log_status == "401_auth_error":
+            logger.error("❌ CRITICAL: Fal.ai API Key authentication failed")
+            logger.error("   Current key: fashionai-12:78f494fb71ef1bff59badf506b514aeb")
+            logger.error("   Action needed: Verify API key validity with Fal.ai")
+        elif log_status == "422_pose_error":
+            logger.warning("⚠️ WARNING: Fal.ai cannot detect body pose in uploaded images")
+            logger.warning("   Action needed: Use real human photos with clear body poses")
+        elif log_status == "403_balance_error":
+            logger.warning("⚠️ WARNING: Fal.ai account balance exhausted")
+            logger.warning("   Action needed: Add credits to Fal.ai account")
+        
+        return passed == total
 
 def main():
     """Main test function"""
-    tester = BackendTester()
-    success = tester.run_specific_test()
+    tester = VirtualTryOnTester()
+    success = tester.run_virtual_tryon_tests()
     
     if success:
-        logger.info("🎉 Test completed successfully")
+        logger.info("🎉 All tests passed!")
     else:
-        logger.error("💥 Test failed")
+        logger.error("⚠️ Some tests failed - check details above")
     
     return success
 
