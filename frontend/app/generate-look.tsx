@@ -206,7 +206,7 @@ export default function GenerateLook() {
       console.error('Error generating visual look:', error);
       modal.showError('Erro', 'Erro de conexão. Tente novamente.');
     } finally {
-      setLoading(false);
+      setTryonLoading(false);
     }
   };
 
