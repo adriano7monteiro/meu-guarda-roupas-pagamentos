@@ -46,26 +46,57 @@ class VirtualTryOnTester:
     
     def create_test_image_base64(self, width=400, height=600, image_type="body"):
         """Create a realistic test image in base64 format"""
-        # Create a simple colored rectangle as base64 image
-        if image_type == "body":
-            # Create a body-like image (taller rectangle)
-            color = "lightblue"
-        else:
-            # Create a clothing item (square-ish)
-            color = "red"
-            height = width
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+            import io
             
-        # Simple SVG converted to base64
-        svg_content = f'''<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="{color}"/>
-            <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16" fill="white">
-                {"Test Body Photo" if image_type == "body" else "Test Clothing"}
-            </text>
-        </svg>'''
-        
-        # Convert SVG to base64 (simulating a real image)
-        svg_b64 = base64.b64encode(svg_content.encode()).decode()
-        return f"data:image/svg+xml;base64,{svg_b64}"
+            # Create a new image with RGB mode
+            if image_type == "body":
+                # Create a body-like image (taller rectangle)
+                color = (173, 216, 230)  # lightblue
+                img = Image.new('RGB', (width, height), color)
+            else:
+                # Create a clothing item (square-ish)
+                color = (255, 0, 0)  # red
+                img = Image.new('RGB', (width, width), color)
+                height = width
+            
+            # Add some text to the image
+            draw = ImageDraw.Draw(img)
+            try:
+                # Try to use a default font
+                font = ImageFont.load_default()
+            except:
+                font = None
+            
+            text = "Test Body Photo" if image_type == "body" else "Test Clothing"
+            
+            # Calculate text position (center)
+            if font:
+                bbox = draw.textbbox((0, 0), text, font=font)
+                text_width = bbox[2] - bbox[0]
+                text_height = bbox[3] - bbox[1]
+            else:
+                text_width = len(text) * 6  # Approximate
+                text_height = 11
+            
+            x = (img.width - text_width) // 2
+            y = (img.height - text_height) // 2
+            
+            draw.text((x, y), text, fill=(255, 255, 255), font=font)
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='JPEG', quality=85)
+            img_b64 = base64.b64encode(buffer.getvalue()).decode()
+            
+            return f"data:image/jpeg;base64,{img_b64}"
+            
+        except ImportError:
+            # Fallback to a simple 1x1 pixel image if PIL is not available
+            # This is a minimal valid JPEG base64 image
+            minimal_jpeg = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
+            return f"data:image/jpeg;base64,{minimal_jpeg}"
     
     def create_test_user(self):
         """Create a test user for testing"""
