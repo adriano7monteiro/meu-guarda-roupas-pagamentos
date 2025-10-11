@@ -1,0 +1,105 @@
+<analysis>
+The previous AI engineer successfully built the core Meu Look IA application from scratch, addressing numerous user requests and debugging critical issues. The development followed an iterative approach, starting with basic setup and progressively adding features and refining the UI/UX. Key milestones included setting up the Expo frontend and FastAPI backend, implementing user authentication, and creating core screens for clothing upload, wardrobe management, and look generation.
+
+Significant effort was dedicated to image handling, initially fixing issues where profile and clothing photos were not displayed correctly (due to incorrect usage of base64). A major feature, virtual try-on, was implemented using Fal.ai FASHN API, which required extensive debugging related to API key configuration, handling exhausted balance errors, addressing failed to detect body pose issues (due to synthetic images), and correcting the extraction of the generated image URL from the API response. UI/UX was enhanced by replacing all  calls with a custom, globally accessible modal component, improving text input fields, adding a loading indicator for the AI try-on process, and implementing full-screen image viewing with visual cues. The text-based AI suggestions were also refined to prevent raw JSON output, ensuring a natural, formatted user experience. The current task involves adding social sharing functionality.
+</analysis>
+
+<product_requirements>
+The Meu Look IA application aims to help users organize clothes and receive AI-driven outfit suggestions. Users can upload photos of clothes, footwear, and accessories, along with a full-body photo. The app's AI capabilities include:
+1.  Background removal from clothing items (currently not implemented, uses original image).
+2.  Virtual try-on: showing the user wearing different combinations using their own body photo and uploaded clothes, powered by external AI (Fal.ai FASHN).
+3.  Automatic look suggestions based on weather, occasion, and personal preferences, using a text-based AI (OpenAI GPT via Emergent LLM key).
+
+Key functionalities implemented so far:
+-   User authentication (login, registration).
+-   Upload of clothes, footwear, accessories (saves base64 images).
+-   Upload of user's full-body photo (saves base64 image).
+-   Try-on virtual via Fal.ai FASHN API, displaying generated images of user wearing selected clothes.
+-   Automated look suggestions using OpenAI GPT, formatted for better readability.
+-   Display of user's wardrobe with clothing thumbnails.
+-   Modal system to replace all native alerts for consistent UI.
+-   Full-screen view for generated try-on images.
+-   Loading indicator for AI-driven processes.
+</product_requirements>
+
+<key_technical_concepts>
+-   **Frontend:** React Native with Expo Router for navigation,  for stack,  for state,  for HTTP,  for media.
+-   **Backend:** FastAPI with MongoDB for data storage,  for JWT,  for LLM integration.
+-   **AI Integration:** OpenAI GPT (text suggestions via ), Fal.ai FASHN API (virtual try-on), Emergent LLM Key.
+-   **Image Handling:**  encoding for all images (profile, clothes, generated try-on).
+-   **UI/UX:** Custom modals,  for loading,  for interactions.
+</key_technical_concepts>
+
+<code_architecture>
+The application follows a full-stack architecture with an Expo React Native frontend, a FastAPI backend, and a MongoDB database.
+
+
+
+-   ****:
+    -   **Importance**: This is the core of the backend logic, handling API endpoints, database interactions, and integrations with external AI services.
+    -   **Changes Made**:
+        -   Initial setup for user authentication, clothing upload, look generation (text-based), and weather integration.
+        -   Implemented  endpoint for Fal.ai FASHN virtual try-on.
+        -   Configured Fal.ai API key and activated real API calls, replacing initial mock logic.
+        -   Fixed incorrect URL extraction from Fal.ai's response.
+        -   Added detailed logging for debugging API calls and responses.
+        -   Improved text AI suggestion parsing to handle markdown-wrapped JSON and prevent raw JSON display.
+        -   Integrated  library for external API calls.
+-   ****:
+    -   **Importance**: The main entry point and initial screen (AuthScreen/Dashboard) for the Expo application, handling user authentication and global navigation.
+    -   **Changes Made**:
+        -   Initial setup of authentication UI and dashboard.
+        -   Replaced  calls with  hook and  component.
+        -   Implemented a  function.
+-   ****:
+    -   **Importance**: Manages user profile, including uploading and displaying the full-body photo.
+    -   **Changes Made**:
+        -   Corrected display logic to show the actual base64  image instead of a placeholder icon.
+        -   Added  component imports and styling for the body photo.
+-   ****:
+    -   **Importance**: Handles the process of adding new clothing items, including photo upload, categorization, and saving to the database.
+    -   **Changes Made**:
+        -   Implemented image preview for selected clothing photos.
+        -   Added retry logic, timeout handling, and token trimming for robust image uploads.
+        -   Modified post-save navigation to offer Ver no Guarda-roupa or Adicionar Outra options.
+        -   Replaced  calls with  for all success/error feedback.
+        -   Replaced  for Nome da roupa with a native .
+-   ****:
+    -   **Importance**: Displays all clothes uploaded by the user in a gallery format.
+    -   **Changes Made**:
+        -   Updated to display actual base64 images of clothing items as thumbnails instead of generic icons.
+-   ****:
+    -   **Importance**: The central screen for generating text-based and virtual try-on looks.
+    -   **Changes Made**:
+        -   Implemented UI for Gerar Meu Look (text suggestions) and Ver em Mim (virtual try-on).
+        -   Integrated Fal.ai FASHN API for virtual try-on, displaying generated images.
+        -   Added a loading indicator () for the Ver em Mim button.
+        -   Increased the display size of the generated try-on image.
+        -   Implemented full-screen image viewing on tap, with visual cues for interactivity.
+        -   Enhanced text suggestion display with structured sections (, ).
+        -   Replaced  calls with .
+-   ****:
+    -   **Importance**: A reusable React Native modal component for displaying alerts, messages, and confirmations throughout the app.
+    -   **Changes Made**: New file created to provide a consistent and customizable UI/UX for user feedback. Supports different types (success, error, warning, info) and custom buttons.
+-   ****:
+    -   **Importance**: A custom React hook to simplify the management and display of the  component across different screens.
+    -   **Changes Made**: New file created to encapsulate modal state and helper functions (, , etc.).
+-   ****:
+    -   **Importance**: Manages frontend dependencies.
+    -   **Changes Made**: Added , , , , , , , .
+
+</code_architecture>
+
+<pending_tasks>
+-   Implement automatic background removal for uploaded clothing images (user decided to postpone).
+-   Fully update , , and  to use the new global modal system (some alerts may still exist).
+-   Integrate OpenWeatherMap API for weather-based look suggestions.
+</pending_tasks>
+
+<current_work>
+Immediately before this summary request, the AI engineer was working on adding social sharing functionality to the Gerar Look screen (). Specifically, the task is to include buttons for sharing the generated try-on images on WhatsApp and Instagram. The initial step for this task has been completed, which involved installing the necessary Expo dependencies:  and . The next steps would involve implementing the actual sharing functions using these libraries and then adding the UI buttons to the  file. The goal is to allow users to easily share their AI-generated outfits directly from the app.
+</current_work>
+
+<optional_next_step>
+Implement the sharing functions for WhatsApp and Instagram in  and add the corresponding UI buttons.
+</optional_next_step>

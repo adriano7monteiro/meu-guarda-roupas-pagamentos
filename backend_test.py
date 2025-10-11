@@ -19,7 +19,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Get backend URL from frontend env
-BACKEND_URL = "https://outfit-ai-12.preview.emergentagent.com/api"
+BACKEND_URL = "https://fashionai-12.preview.emergentagent.com/api"
 
 class BackendTester:
     def __init__(self):
