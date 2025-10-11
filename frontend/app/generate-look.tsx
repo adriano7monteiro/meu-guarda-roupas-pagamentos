@@ -520,6 +520,28 @@ export default function GenerateLook() {
                       Status: {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA Ativa' : 'Modo Fallback'}
                     </Text>
                   </View>
+
+                  {/* Share Buttons */}
+                  <View style={styles.shareSection}>
+                    <Text style={styles.shareTitle}>Compartilhar meu look:</Text>
+                    <View style={styles.shareButtonsContainer}>
+                      <TouchableOpacity 
+                        style={styles.whatsappButton}
+                        onPress={shareToWhatsApp}
+                      >
+                        <Ionicons name="logo-whatsapp" size={24} color="#fff" />
+                        <Text style={styles.shareButtonText}>WhatsApp</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity 
+                        style={styles.instagramButton}
+                        onPress={shareToInstagram}
+                      >
+                        <Ionicons name="logo-instagram" size={24} color="#fff" />
+                        <Text style={styles.shareButtonText}>Instagram</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
               </View>
             )}
