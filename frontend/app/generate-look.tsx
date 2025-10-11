@@ -992,4 +992,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  
+  // Loading styles for try-on button
+  loadingButton: {
+    backgroundColor: '#636e72',
+  },
+  loadingSpinner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  spinnerDot: {
+    color: '#fff',
+    fontSize: 8,
+    lineHeight: 8,
+  },
+  loadingButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
 });
