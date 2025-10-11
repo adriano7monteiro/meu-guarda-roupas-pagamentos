@@ -154,92 +154,69 @@ class VirtualTryOnTester:
             self.log_test("Upload Clothing", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
     
-    def test_sugerir_look_endpoint(self):
-        """
-        Test the POST /api/sugerir-look endpoint specifically
-        Focus on investigating JSON response issues
-        """
-        logger.info("=" * 60)
-        logger.info("TESTING POST /api/sugerir-look ENDPOINT")
-        logger.info("=" * 60)
-        
-        headers = {"Authorization": f"Bearer {self.token}"}
-        
-        # Test data as specified in the review request
-        test_data = {
-            "ocasiao": "trabalho",
-            "temperatura": "amena"
-        }
-        
-        logger.info(f"Making request to: {self.base_url}/sugerir-look")
-        logger.info(f"Request data: {test_data}")
-        logger.info(f"User has {len(self.clothing_ids)} clothing items")
-        
-        # Make the API call
-        response = requests.post(f"{self.base_url}/sugerir-look", data=test_data, headers=headers)
-        
-        logger.info(f"Response status code: {response.status_code}")
-        logger.info(f"Response headers: {dict(response.headers)}")
-        
-        if response.status_code == 200:
-            try:
-                response_data = response.json()
-                logger.info("✅ API call successful")
-                logger.info("=" * 40)
-                logger.info("RESPONSE ANALYSIS:")
-                logger.info("=" * 40)
+    def test_virtual_tryon_api(self):
+        """Test the main virtual try-on API endpoint"""
+        try:
+            if not self.clothing_ids:
+                self.log_test("Virtual Try-On API", False, "No clothing ID available - upload clothing first")
+                return False
+            
+            form_data = {"roupa_ids": self.clothing_ids}
+            headers = {"Authorization": f"Bearer {self.token}"}
+            
+            logger.info("=" * 60)
+            logger.info("TESTING POST /api/gerar-look-visual ENDPOINT")
+            logger.info("=" * 60)
+            logger.info(f"🔍 Testing Virtual Try-On with clothing ID: {self.clothing_ids[0]}")
+            logger.info(f"🔍 API Key being used: fashionai-12:78f494fb71ef1bff59badf506b514aeb")
+            logger.info(f"🔍 Fal.ai endpoint: https://fal.run/fal-ai/fashn/tryon/v1.5")
+            
+            response = requests.post(f"{self.base_url}/gerar-look-visual", data=form_data, headers=headers)
+            
+            logger.info(f"🔍 Response Status: {response.status_code}")
+            logger.info(f"🔍 Response Headers: {dict(response.headers)}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                logger.info(f"🔍 Response Keys: {list(data.keys())}")
+                logger.info(f"🔍 Full Response: {json.dumps(data, indent=2)}")
                 
-                # Analyze the response structure
-                logger.info(f"Response keys: {list(response_data.keys())}")
+                # Check response structure
+                required_fields = ["message", "clothing_items", "tryon_image", "status", "api_used"]
+                missing_fields = [field for field in required_fields if field not in data]
                 
-                # Focus on the sugestao_texto field
-                sugestao_texto = response_data.get("sugestao_texto", "")
-                logger.info(f"sugestao_texto length: {len(sugestao_texto)} characters")
-                logger.info(f"sugestao_texto type: {type(sugestao_texto)}")
-                
-                # Check if it looks like JSON
-                is_json_like = sugestao_texto.strip().startswith('{') and sugestao_texto.strip().endswith('}')
-                logger.info(f"Does sugestao_texto look like JSON? {is_json_like}")
-                
-                # Show the actual content
-                logger.info("=" * 40)
-                logger.info("SUGESTAO_TEXTO CONTENT:")
-                logger.info("=" * 40)
-                logger.info(f"'{sugestao_texto}'")
-                
-                # Try to parse it as JSON to see if it's malformed JSON
-                if is_json_like:
-                    try:
-                        parsed_json = json.loads(sugestao_texto)
-                        logger.warning("⚠️  PROBLEM FOUND: sugestao_texto contains valid JSON instead of formatted text!")
-                        logger.info(f"Parsed JSON: {parsed_json}")
-                    except json.JSONDecodeError as e:
-                        logger.warning(f"⚠️  PROBLEM FOUND: sugestao_texto contains malformed JSON: {e}")
-                
-                # Show other fields
-                logger.info("=" * 40)
-                logger.info("OTHER RESPONSE FIELDS:")
-                logger.info("=" * 40)
-                for key, value in response_data.items():
-                    if key != "sugestao_texto":
-                        logger.info(f"{key}: {value}")
-                
-                # Check if this is the expected format
-                expected_fields = ["sugestao_texto", "roupas_ids", "dicas", "ocasiao", "temperatura"]
-                missing_fields = [field for field in expected_fields if field not in response_data]
                 if missing_fields:
-                    logger.warning(f"⚠️  Missing expected fields: {missing_fields}")
+                    self.log_test("Virtual Try-On API", False, f"Missing fields: {missing_fields}")
+                    return False
                 
-                return True, response_data
+                # Check if API was called or fallback was used
+                api_used = data.get("api_used", "unknown")
+                tryon_image = data.get("tryon_image", "")
+                status = data.get("status", "")
+                note = data.get("note", "")
                 
-            except json.JSONDecodeError as e:
-                logger.error(f"❌ Failed to parse response as JSON: {e}")
-                logger.error(f"Raw response: {response.text}")
-                return False, None
-        else:
-            logger.error(f"❌ API call failed: {response.status_code}")
-            logger.error(f"Error response: {response.text}")
-            return False, None
+                logger.info(f"🔍 API Used: {api_used}")
+                logger.info(f"🔍 Status: {status}")
+                logger.info(f"🔍 Note: {note}")
+                logger.info(f"🔍 Try-on Image Length: {len(tryon_image)} chars")
+                
+                if api_used == "fallback":
+                    self.log_test("Virtual Try-On API", False, f"API in fallback mode. Note: {note}")
+                    return False
+                elif api_used == "fal.ai-fashn":
+                    self.log_test("Virtual Try-On API", True, f"Fal.ai API working successfully. Image generated: {len(tryon_image)} chars")
+                    return True
+                else:
+                    self.log_test("Virtual Try-On API", True, f"API responded successfully with status: {status}")
+                    return True
+                    
+            else:
+                self.log_test("Virtual Try-On API", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_test("Virtual Try-On API", False, f"Exception: {str(e)}")
+            return False
     
     def check_backend_logs(self):
         """Check backend logs for AI response details"""
