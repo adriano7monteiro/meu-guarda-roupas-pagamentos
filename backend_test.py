@@ -23,12 +23,13 @@ logger = logging.getLogger(__name__)
 # Get backend URL from frontend env
 BACKEND_URL = "https://fashionai-12.preview.emergentagent.com/api"
 
-class BackendTester:
+class VirtualTryOnTester:
     def __init__(self):
         self.base_url = BACKEND_URL
         self.token = None
         self.user_id = None
         self.clothing_ids = []
+        self.test_results = []
         
     def create_test_user(self):
         """Create a test user for testing"""
