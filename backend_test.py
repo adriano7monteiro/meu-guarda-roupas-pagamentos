@@ -31,26 +31,80 @@ class VirtualTryOnTester:
         self.clothing_ids = []
         self.test_results = []
         
+    def log_test(self, test_name: str, success: bool, details: str = ""):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        logger.info(f"{status} {test_name}")
+        if details:
+            logger.info(f"   Details: {details}")
+        
+        self.test_results.append({
+            "test": test_name,
+            "success": success,
+            "details": details
+        })
+    
+    def create_test_image_base64(self, width=400, height=600, image_type="body"):
+        """Create a realistic test image in base64 format"""
+        # Create a simple colored rectangle as base64 image
+        if image_type == "body":
+            # Create a body-like image (taller rectangle)
+            color = "lightblue"
+        else:
+            # Create a clothing item (square-ish)
+            color = "red"
+            height = width
+            
+        # Simple SVG converted to base64
+        svg_content = f'''<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100%" height="100%" fill="{color}"/>
+            <text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial" font-size="16" fill="white">
+                {"Test Body Photo" if image_type == "body" else "Test Clothing"}
+            </text>
+        </svg>'''
+        
+        # Convert SVG to base64 (simulating a real image)
+        svg_b64 = base64.b64encode(svg_content.encode()).decode()
+        return f"data:image/svg+xml;base64,{svg_b64}"
+    
     def create_test_user(self):
         """Create a test user for testing"""
         user_data = {
-            "email": f"testuser_{datetime.now().strftime('%Y%m%d_%H%M%S')}@test.com",
+            "email": f"tryontest_{datetime.now().strftime('%Y%m%d_%H%M%S')}@test.com",
             "password": "testpass123",
-            "nome": "Usuario Teste",
+            "nome": "Virtual Try-On Tester",
             "ocasiao_preferida": "casual"
         }
         
-        logger.info("Creating test user...")
+        logger.info("Creating test user for virtual try-on...")
         response = requests.post(f"{self.base_url}/auth/register", json=user_data)
         
         if response.status_code == 200:
             data = response.json()
             self.token = data["token"]
             self.user_id = data["user"]["email"]
-            logger.info(f"✅ Test user created successfully: {self.user_id}")
+            self.log_test("User Registration", True, f"User created: {self.user_id}")
+            return True
+        elif response.status_code == 400 and "already registered" in response.text:
+            # Try login instead
+            return self.login_existing_user(user_data["email"], user_data["password"])
+        else:
+            self.log_test("User Registration", False, f"Status: {response.status_code}, Response: {response.text}")
+            return False
+    
+    def login_existing_user(self, email: str, password: str):
+        """Login with existing user"""
+        login_data = {"email": email, "password": password}
+        response = requests.post(f"{self.base_url}/auth/login", json=login_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            self.token = data["token"]
+            self.user_id = data["user"]["email"]
+            self.log_test("User Login", True, f"Logged in: {self.user_id}")
             return True
         else:
-            logger.error(f"❌ Failed to create test user: {response.status_code} - {response.text}")
+            self.log_test("User Login", False, f"Status: {response.status_code}, Response: {response.text}")
             return False
     
     def create_sample_clothing(self):
