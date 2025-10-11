@@ -305,7 +305,7 @@ class VirtualTryOnTester:
         
         if log_status == "401_auth_error":
             logger.error("❌ CRITICAL: Fal.ai API Key authentication failed")
-            logger.error("   Current key: fashionai-12:78f494fb71ef1bff59badf506b514aeb")
+            logger.error("   Current key: b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b")
             logger.error("   Action needed: Verify API key validity with Fal.ai")
         elif log_status == "422_pose_error":
             logger.warning("⚠️ WARNING: Fal.ai cannot detect body pose in uploaded images")
