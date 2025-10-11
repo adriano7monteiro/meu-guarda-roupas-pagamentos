@@ -462,12 +462,28 @@ export default function GenerateLook() {
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={styles.visualTryonButton} 
+                style={[
+                  styles.visualTryonButton, 
+                  tryonLoading && styles.loadingButton
+                ]} 
                 onPress={generateVisualLook}
-                disabled={loading}
+                disabled={tryonLoading}
               >
-                <Ionicons name="person" size={20} color="#fff" />
-                <Text style={styles.visualTryonButtonText}>Ver em Mim</Text>
+                {tryonLoading ? (
+                  <>
+                    <View style={styles.loadingSpinner}>
+                      <Text style={styles.spinnerDot}>●</Text>
+                      <Text style={styles.spinnerDot}>●</Text>
+                      <Text style={styles.spinnerDot}>●</Text>
+                    </View>
+                    <Text style={styles.loadingButtonText}>Gerando IA...</Text>
+                  </>
+                ) : (
+                  <>
+                    <Ionicons name="person" size={20} color="#fff" />
+                    <Text style={styles.visualTryonButtonText}>Ver em Mim</Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
 
