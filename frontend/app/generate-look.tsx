@@ -213,6 +213,73 @@ export default function GenerateLook() {
     }
   };
 
+  const shareToWhatsApp = async () => {
+    try {
+      if (!visualLookResult?.tryon_image) return;
+
+      const message = `Olha só meu look criado com IA! 👗✨\n\nCriado pelo app Meu Look IA 🤖`;
+      
+      if (Platform.OS === 'web') {
+        const url = `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}\n\nImagem: ${encodeURIComponent(visualLookResult.tryon_image)}`;
+        await Linking.openURL(url);
+      } else {
+        const url = `whatsapp://send?text=${encodeURIComponent(message)}`;
+        const canOpen = await Linking.canOpenURL(url);
+        
+        if (canOpen) {
+          await Linking.openURL(url);
+        } else {
+          modal.showInfo('WhatsApp', 'WhatsApp não está instalado no seu dispositivo.');
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing to WhatsApp:', error);
+      modal.showError('Erro', 'Erro ao compartilhar no WhatsApp.');
+    }
+  };
+
+  const shareToInstagram = async () => {
+    try {
+      if (!visualLookResult?.tryon_image) return;
+
+      if (Platform.OS === 'web') {
+        modal.showInfo(
+          'Compartilhar no Instagram',
+          'Para compartilhar no Instagram via web, salve a imagem e faça upload manualmente no Instagram.',
+          [
+            { text: 'Abrir Instagram', onPress: () => {
+              modal.hideModal();
+              Linking.openURL('https://www.instagram.com');
+            }, style: 'primary' },
+            { text: 'OK', onPress: () => modal.hideModal() }
+          ]
+        );
+      } else {
+        // Para mobile, tentar compartilhar via sistema
+        const isAvailable = await Sharing.isAvailableAsync();
+        
+        if (isAvailable) {
+          await Sharing.shareAsync(visualLookResult.tryon_image, {
+            mimeType: 'image/png',
+            dialogTitle: 'Compartilhar meu look criado com IA!'
+          });
+        } else {
+          const instagramUrl = 'instagram://camera';
+          const canOpen = await Linking.canOpenURL(instagramUrl);
+          
+          if (canOpen) {
+            await Linking.openURL(instagramUrl);
+          } else {
+            modal.showInfo('Instagram', 'Instagram não está instalado no seu dispositivo.');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing to Instagram:', error);
+      modal.showError('Erro', 'Erro ao compartilhar no Instagram.');
+    }
+  };
+
   const saveLook = async () => {
     if (!suggestion) return;
 
