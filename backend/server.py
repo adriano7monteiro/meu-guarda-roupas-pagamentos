@@ -266,7 +266,7 @@ async def gerar_look_visual(
         logging.info(f"Sending to Fal.ai: model_image={len(payload['model_image'])} chars, garment_image={len(payload['garment_image'])} chars")
         
         headers = {
-            "Authorization": f"Bearer {os.environ.get('FAL_API_KEY')}",
+            "Authorization": f"Key {os.environ.get('FAL_API_KEY')}",
             "Content-Type": "application/json"
         }
         
