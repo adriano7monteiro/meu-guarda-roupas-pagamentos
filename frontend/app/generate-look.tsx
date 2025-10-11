@@ -155,7 +155,7 @@ export default function GenerateLook() {
   const generateVisualLook = async () => {
     if (!suggestion) return;
 
-    setLoading(true);
+    setTryonLoading(true);
 
     try {
       const token = await AsyncStorage.getItem('auth_token');
