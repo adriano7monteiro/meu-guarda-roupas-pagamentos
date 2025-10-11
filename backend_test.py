@@ -168,7 +168,7 @@ class VirtualTryOnTester:
             logger.info("TESTING POST /api/gerar-look-visual ENDPOINT")
             logger.info("=" * 60)
             logger.info(f"🔍 Testing Virtual Try-On with clothing ID: {self.clothing_ids[0]}")
-            logger.info(f"🔍 API Key being used: fashionai-12:78f494fb71ef1bff59badf506b514aeb")
+            logger.info(f"🔍 API Key being used: b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b")
             logger.info(f"🔍 Fal.ai endpoint: https://fal.run/fal-ai/fashn/tryon/v1.5")
             
             response = requests.post(f"{self.base_url}/gerar-look-visual", data=form_data, headers=headers)
