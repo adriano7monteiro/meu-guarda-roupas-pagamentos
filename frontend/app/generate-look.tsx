@@ -18,6 +18,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
+import * as Sharing from 'expo-sharing';
+import * as Linking from 'expo-linking';
 
 const OCCASIONS = [
   { id: 'trabalho', label: 'Trabalho', icon: 'briefcase' as const },
