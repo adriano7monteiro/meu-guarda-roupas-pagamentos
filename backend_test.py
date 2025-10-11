@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Meu Look IA
-Specific focus on POST /api/sugerir-look endpoint to investigate JSON response issues
+Backend Test Suite for Meu Look IA - Virtual Try-On Focus
+URGENT TEST: Verificar funcionalidade de virtual try-on
+Testing the virtual try-on functionality as requested by user
 """
 
 import requests
@@ -9,6 +10,7 @@ import json
 import base64
 import logging
 import os
+import time
 from datetime import datetime
 
 # Configure logging to see detailed output
