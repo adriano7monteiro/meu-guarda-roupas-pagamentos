@@ -472,11 +472,7 @@ export default function GenerateLook() {
               >
                 {tryonLoading ? (
                   <>
-                    <View style={styles.loadingSpinner}>
-                      <Text style={styles.spinnerDot}>●</Text>
-                      <Text style={styles.spinnerDot}>●</Text>
-                      <Text style={styles.spinnerDot}>●</Text>
-                    </View>
+                    <ActivityIndicator size="small" color="#fff" />
                     <Text style={styles.loadingButtonText}>Gerando IA...</Text>
                   </>
                 ) : (
