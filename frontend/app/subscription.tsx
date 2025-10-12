@@ -60,11 +60,14 @@ const PLANS = [
 ];
 
 function SubscriptionContent() {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [selectedPlan, setSelectedPlan] = useState('semestral');
   const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
   const modal = useModal();
+  
+  // Use Stripe hooks only on native platforms
+  const stripeHooks = Platform.OS !== 'web' && useStripe ? useStripe() : { initPaymentSheet: null, presentPaymentSheet: null };
+  const { initPaymentSheet, presentPaymentSheet } = stripeHooks;
 
   useEffect(() => {
     fetchSubscriptionStatus();
