@@ -49,7 +49,8 @@ const PLANS = [
   },
 ];
 
-export default function Subscription() {
+function SubscriptionContent() {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [selectedPlan, setSelectedPlan] = useState('semestral');
   const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
