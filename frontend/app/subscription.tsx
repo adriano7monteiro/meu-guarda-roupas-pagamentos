@@ -15,16 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
-
-// Import Stripe only on native platforms
-let StripeProvider: any = null;
-let useStripe: any = null;
-
-if (Platform.OS !== 'web') {
-  const stripeModule = require('@stripe/stripe-react-native');
-  StripeProvider = stripeModule.StripeProvider;
-  useStripe = stripeModule.useStripe;
-}
+import { StripeProvider, useStripe } from '../utils/stripeProvider';
 
 const PLANS = [
   {
