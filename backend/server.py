@@ -582,13 +582,25 @@ async def create_look(
 ):
     user = await get_current_user(current_user)
     
+    logging.info(f"Creating look for user {user['id']}")
+    logging.info(f"Look data: {look_data.dict()}")
+    logging.info(f"Roupas IDs to validate: {look_data.roupas_ids}")
+    
     # Validate that all clothing items exist and belong to user
     for roupa_id in look_data.roupas_ids:
+        logging.info(f"Validating roupa_id: {roupa_id}")
         roupa = await db.clothing_items.find_one({
             "id": roupa_id,
             "user_id": user["id"]
         })
+        logging.info(f"Found roupa: {roupa is not None}")
         if not roupa:
+            # Check if the item exists for any user
+            any_roupa = await db.clothing_items.find_one({"id": roupa_id})
+            if any_roupa:
+                logging.error(f"Roupa {roupa_id} exists but belongs to user {any_roupa.get('user_id')}, not {user['id']}")
+            else:
+                logging.error(f"Roupa {roupa_id} does not exist in database")
             raise HTTPException(status_code=400, detail=f"Roupa {roupa_id} não encontrada")
     
     # Create look
@@ -598,6 +610,7 @@ async def create_look(
     look = Look(**look_dict)
     await db.looks.insert_one(look.dict())
     
+    logging.info(f"Look created successfully: {look.id}")
     return {"message": "Look salvo com sucesso", "id": look.id}
 
 @api_router.get("/looks")
