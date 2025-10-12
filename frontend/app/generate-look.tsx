@@ -57,6 +57,7 @@ interface LookSuggestion {
 export default function GenerateLook() {
   const [selectedOccasion, setSelectedOccasion] = useState('');
   const [selectedTemperature, setSelectedTemperature] = useState('');
+  const [contextDetails, setContextDetails] = useState('');
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<LookSuggestion | null>(null);
   const [userClothes, setUserClothes] = useState<Clothing[]>([]);
