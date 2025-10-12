@@ -641,6 +641,141 @@ async def delete_look(look_id: str, current_user=Depends(security)):
     
     return {"message": "Look removido com sucesso"}
 
+# Subscription/Payment models
+class CreateSubscriptionRequest(BaseModel):
+    plano: str  # mensal, semestral, anual
+    
+class SubscriptionResponse(BaseModel):
+    client_secret: str
+    subscription_id: str
+
+# Subscription routes
+@api_router.post("/criar-assinatura")
+async def criar_assinatura(
+    request: CreateSubscriptionRequest,
+    current_user=Depends(security)
+):
+    try:
+        user = await get_current_user(current_user)
+        
+        # Map plan names to prices (in centavos for BRL)
+        planos = {
+            "mensal": {"price": 1990, "name": "Plano Mensal", "interval": "month"},
+            "semestral": {"price": 9900, "name": "Plano Semestral", "interval_count": 6, "interval": "month"},
+            "anual": {"price": 17990, "name": "Plano Anual", "interval": "year"}
+        }
+        
+        if request.plano not in planos:
+            raise HTTPException(status_code=400, detail="Plano inválido")
+        
+        plano_info = planos[request.plano]
+        
+        # Create or retrieve Stripe customer
+        stripe_customer_id = user.get("stripe_customer_id")
+        if not stripe_customer_id:
+            customer = stripe.Customer.create(
+                email=user["email"],
+                name=user["nome"],
+                metadata={"user_id": user["id"]}
+            )
+            stripe_customer_id = customer.id
+            
+            # Save customer ID
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$set": {"stripe_customer_id": stripe_customer_id}}
+            )
+        
+        # Create price if not exists (for simplicity, creating on-the-fly)
+        price = stripe.Price.create(
+            unit_amount=plano_info["price"],
+            currency="brl",
+            recurring={
+                "interval": plano_info["interval"],
+                "interval_count": plano_info.get("interval_count", 1)
+            },
+            product_data={"name": plano_info["name"]}
+        )
+        
+        # Create subscription
+        subscription = stripe.Subscription.create(
+            customer=stripe_customer_id,
+            items=[{"price": price.id}],
+            payment_behavior="default_incomplete",
+            payment_settings={"save_default_payment_method": "on_subscription"},
+            expand=["latest_invoice.payment_intent"]
+        )
+        
+        return {
+            "client_secret": subscription.latest_invoice.payment_intent.client_secret,
+            "subscription_id": subscription.id
+        }
+        
+    except Exception as e:
+        logging.error(f"Error creating subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao criar assinatura: {str(e)}")
+
+@api_router.post("/confirmar-assinatura")
+async def confirmar_assinatura(
+    subscription_id: str = Form(...),
+    current_user=Depends(security)
+):
+    try:
+        user = await get_current_user(current_user)
+        
+        # Retrieve subscription from Stripe
+        subscription = stripe.Subscription.retrieve(subscription_id)
+        
+        if subscription.status == "active":
+            # Calculate expiration date based on plan
+            current_period_end = datetime.fromtimestamp(subscription.current_period_end)
+            
+            # Determine plan type from subscription
+            plano_tipo = "mensal"  # default
+            interval = subscription.plan.interval
+            interval_count = subscription.plan.interval_count
+            
+            if interval == "year":
+                plano_tipo = "anual"
+            elif interval == "month":
+                if interval_count == 6:
+                    plano_tipo = "semestral"
+                else:
+                    plano_tipo = "mensal"
+            
+            # Update user subscription info
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$set": {
+                    "plano_ativo": plano_tipo,
+                    "stripe_subscription_id": subscription_id,
+                    "data_expiracao_plano": current_period_end
+                }}
+            )
+            
+            return {
+                "message": "Assinatura ativada com sucesso!",
+                "plano": plano_tipo,
+                "expira_em": current_period_end.isoformat()
+            }
+        else:
+            raise HTTPException(status_code=400, detail="Pagamento ainda não confirmado")
+            
+    except Exception as e:
+        logging.error(f"Error confirming subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao confirmar assinatura: {str(e)}")
+
+@api_router.get("/status-assinatura")
+async def status_assinatura(current_user=Depends(security)):
+    user = await get_current_user(current_user)
+    
+    return {
+        "plano_ativo": user.get("plano_ativo", "free"),
+        "looks_usados": user.get("looks_usados", 0),
+        "looks_restantes": max(0, 5 - user.get("looks_usados", 0)) if user.get("plano_ativo", "free") == "free" else "ilimitado",
+        "data_expiracao": user.get("data_expiracao_plano").isoformat() if user.get("data_expiracao_plano") else None
+    }
+
 # Basic routes
 @api_router.get("/")
 async def root():
