@@ -202,6 +202,26 @@ export default function GenerateLook() {
             }
           ]
         );
+      } else if (response.status === 403) {
+        // User hit the free limit, show upgrade modal
+        modal.showWarning(
+          '🎨 Limite Atingido!',
+          'Você já usou seus 5 looks gratuitos. Assine um plano para continuar criando looks ilimitados com IA!',
+          [
+            {
+              text: 'Ver Planos',
+              onPress: () => {
+                modal.hideModal();
+                router.push('/subscription' as any);
+              },
+              style: 'primary',
+            },
+            {
+              text: 'Depois',
+              onPress: () => modal.hideModal(),
+            },
+          ]
+        );
       } else {
         modal.showError('Erro', data.detail || 'Erro ao gerar try-on visual.');
       }
