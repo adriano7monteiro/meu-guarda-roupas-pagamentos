@@ -491,7 +491,7 @@ async def sugerir_look(
     Ocasião: {ocasiao}
     Temperatura: {temperatura or "não informada"}
     
-    Roupas disponíveis:
+    Roupas disponíveis no guarda-roupa do usuário:
     {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
     
     Crie uma sugestão de look detalhada e bem formatada. Responda em JSON com:
@@ -501,11 +501,15 @@ async def sugerir_look(
         "dicas": "Dicas práticas de estilo, acessórios ou ocasiões onde usar este look"
     }}
     
-    IMPORTANTE: 
+    REGRAS CRÍTICAS: 
+    - No campo "roupas_ids", você DEVE usar APENAS os IDs exatos das roupas da lista acima
+    - NUNCA invente IDs ou nomes de roupas que não estão na lista
+    - Os IDs são as strings no campo "id" de cada roupa (exemplo: "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    - Escolha APENAS entre as roupas listadas acima que o usuário realmente possui
     - No campo "sugestao_texto", escreva um texto fluido e bem formatado (não use formato de lista ou bullet points)
-    - Seja específico sobre as peças escolhidas e explique por que elas funcionam bem juntas
-    - Use linguagem amigável e inspiradora
+    - Mencione as peças pelo NOME que está na lista (campo "nome"), não invente roupas
     - Escolha no mínimo 2 e no máximo 4 peças que combinem bem entre si
+    - Use linguagem amigável e inspiradora
     """
     
     try:
