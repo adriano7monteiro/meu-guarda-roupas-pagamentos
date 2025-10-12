@@ -841,6 +841,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  contextInput: {
+    backgroundColor: '#2d3436',
+    borderRadius: 12,
+    padding: 16,
+    color: '#fff',
+    fontSize: 16,
+    minHeight: 100,
+    borderWidth: 1,
+    borderColor: '#636e72',
+  },
+  charCounter: {
+    color: '#999',
+    fontSize: 12,
+    textAlign: 'right',
+    marginTop: 8,
+  },
   suggestionCard: {
     backgroundColor: '#2d3436',
     borderRadius: 16,
