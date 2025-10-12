@@ -392,6 +392,14 @@ async def gerar_look_visual(
         
         mock_result = result
         
+        # Increment looks counter for free users
+        if plano_ativo == "free":
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$inc": {"looks_usados": 1}}
+            )
+            logging.info(f"Incremented looks counter for user {user['id']}: {looks_usados + 1}/5")
+        
         logging.info(f"Virtual try-on completed for {len(clothing_items)} items")
         return mock_result
         
