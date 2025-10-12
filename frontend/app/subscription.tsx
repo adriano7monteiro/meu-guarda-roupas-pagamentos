@@ -94,6 +94,21 @@ function SubscriptionContent() {
   };
 
   const handleSubscribe = async () => {
+    // Check if running on web
+    if (Platform.OS === 'web') {
+      modal.showWarning(
+        '📱 Use o App Mobile',
+        'O pagamento com Stripe funciona apenas no app mobile (iOS/Android). Abra este app no Expo Go do seu celular para assinar!',
+        [
+          {
+            text: 'Entendi',
+            onPress: () => modal.hideModal(),
+          },
+        ]
+      );
+      return;
+    }
+
     setLoading(true);
     
     try {
