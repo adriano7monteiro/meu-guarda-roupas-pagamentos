@@ -710,17 +710,6 @@ async def criar_assinatura(
                 {"$set": {"stripe_customer_id": stripe_customer_id}}
             )
         
-        # Create a price if not exists (for simplicity, creating on-the-fly)
-        price = stripe.Price.create(
-            unit_amount=plano_info["price"],
-            currency="brl",
-            recurring={
-                "interval": plano_info["interval"],
-                "interval_count": plano_info.get("interval_count", 1)
-            },
-            product_data={"name": plano_info["name"]}
-        )
-        
         # Calculate expiration date
         if plano_info["interval"] == "year":
             expiration_date = datetime.utcnow() + timedelta(days=365)
@@ -729,27 +718,27 @@ async def criar_assinatura(
         else:
             expiration_date = datetime.utcnow() + timedelta(days=30)
         
-        # For simplicity in mobile app, activate subscription immediately
-        # In production, you'd use Stripe Checkout or Payment Sheet
-        subscription = stripe.Subscription.create(
-            customer=stripe_customer_id,
-            items=[{"price": price.id}],
-        )
+        # For MVP: Activate plan directly without Stripe subscription
+        # TODO: In production, integrate Stripe Checkout or Payment Sheet
+        # to collect payment before activating the plan
         
         # Update user with subscription info
         await db.users.update_one(
             {"id": user["id"]},
             {"$set": {
                 "plano_ativo": request.plano,
-                "stripe_subscription_id": subscription.id,
+                "stripe_customer_id": stripe_customer_id,
                 "data_expiracao_plano": expiration_date
             }}
         )
         
+        logging.info(f"Plan activated for user {user['id']}: {request.plano} until {expiration_date}")
+        
         return {
-            "subscription_id": subscription.id,
-            "status": subscription.status,
-            "message": "Assinatura ativada com sucesso!"
+            "message": "Assinatura ativada com sucesso!",
+            "plano": request.plano,
+            "expira_em": expiration_date.isoformat(),
+            "status": "active"
         }
         
     except Exception as e:
