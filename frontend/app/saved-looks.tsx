@@ -9,6 +9,9 @@ import {
   ScrollView,
   Alert,
   RefreshControl,
+  Image,
+  Modal,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -21,6 +24,7 @@ interface Look {
   ocasiao: string;
   clima?: string;
   favorito: boolean;
+  imagem_look?: string;
   created_at: string;
 }
 
