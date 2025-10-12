@@ -639,6 +639,11 @@ const styles = StyleSheet.create({
 export default function Subscription() {
   const [publishableKey] = useState('pk_live_51SHSpFDGCWpP7oWO6LM77jTz9HYKiqqJsIgfyhMyhBrpIobpXW84HqfdI4d8PqsCDgZX572D4J7zHuMel2MxiRCI00ORm43AvR');
 
+  // Only wrap with StripeProvider on native platforms
+  if (Platform.OS === 'web' || !StripeProvider) {
+    return <SubscriptionContent />;
+  }
+
   return (
     <StripeProvider publishableKey={publishableKey}>
       <SubscriptionContent />
