@@ -8,13 +8,23 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
-import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+
+// Import Stripe only on native platforms
+let StripeProvider: any = null;
+let useStripe: any = null;
+
+if (Platform.OS !== 'web') {
+  const stripeModule = require('@stripe/stripe-react-native');
+  StripeProvider = stripeModule.StripeProvider;
+  useStripe = stripeModule.useStripe;
+}
 
 const PLANS = [
   {
