@@ -126,6 +126,23 @@ export default function Index() {
             </View>
           </TouchableOpacity>
 
+          {/* Premium Banner */}
+          <TouchableOpacity 
+            style={styles.premiumBanner}
+            onPress={() => router.push('/subscription' as any)}
+          >
+            <View style={styles.premiumContent}>
+              <View style={styles.premiumIcon}>
+                <Ionicons name="diamond" size={24} color="#FFD700" />
+              </View>
+              <View style={styles.premiumText}>
+                <Text style={styles.premiumTitle}>Assine o Premium</Text>
+                <Text style={styles.premiumSubtitle}>Looks ilimitados por R$ 19,90/mês</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#FFD700" />
+            </View>
+          </TouchableOpacity>
+
           {/* Secondary Actions Grid */}
           <View style={styles.secondaryGrid}>
             <TouchableOpacity 
