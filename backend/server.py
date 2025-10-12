@@ -105,6 +105,7 @@ class LookCreate(BaseModel):
     roupas_ids: List[str]
     ocasiao: str
     clima: Optional[str] = None
+    imagem_look: Optional[str] = None
 
 class SugestaoLook(BaseModel):
     sugestao_texto: str
