@@ -43,6 +43,11 @@ class User(BaseModel):
     nome: str
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str = "casual"
+    looks_usados: int = 0  # Contador de looks gratuitos usados
+    plano_ativo: str = "free"  # free, mensal, semestral, anual
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+    data_expiracao_plano: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserCreate(BaseModel):
