@@ -126,6 +126,9 @@ export default function GenerateLook() {
       if (selectedTemperature) {
         formData.append('temperatura', selectedTemperature);
       }
+      if (contextDetails.trim()) {
+        formData.append('detalhes_contexto', contextDetails.trim());
+      }
 
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/sugerir-look`, {
         method: 'POST',
