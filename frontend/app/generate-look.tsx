@@ -307,18 +307,26 @@ export default function GenerateLook() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
+      // Prepare look data
+      const lookData: any = {
+        nome: `Look ${suggestion.ocasiao}`,
+        roupas_ids: suggestion.roupas_ids,
+        ocasiao: suggestion.ocasiao,
+        clima: suggestion.temperatura,
+      };
+
+      // Include try-on image if available
+      if (visualLookResult && visualLookResult.tryon_image) {
+        lookData.imagem_look = visualLookResult.tryon_image;
+      }
+
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          nome: `Look ${suggestion.ocasiao}`,
-          roupas_ids: suggestion.roupas_ids,
-          ocasiao: suggestion.ocasiao,
-          clima: suggestion.temperatura,
-        }),
+        body: JSON.stringify(lookData),
       });
 
       if (response.ok) {
@@ -330,7 +338,8 @@ export default function GenerateLook() {
           { text: 'OK', onPress: () => modal.hideModal() }
         ]);
       } else {
-        modal.showError('Erro', 'Erro ao salvar look.');
+        const errorData = await response.json();
+        modal.showError('Erro', errorData.detail || 'Erro ao salvar look.');
       }
     } catch (error) {
       console.error('Error saving look:', error);
