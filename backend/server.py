@@ -489,11 +489,13 @@ async def sugerir_look(
     valid_ids = [r["id"] for r in roupas_context]
     
     # Create AI prompt
+    contexto_adicional = f"\nDetalhes adicionais fornecidos pelo usuário: {detalhes_contexto}" if detalhes_contexto else ""
+    
     prompt = f"""
     Como personal stylist virtual, sugira uma combinação de roupas para o usuário.
     
     Ocasião: {ocasiao}
-    Temperatura: {temperatura or "não informada"}
+    Temperatura: {temperatura or "não informada"}{contexto_adicional}
     
     Roupas disponíveis no guarda-roupa do usuário:
     {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
