@@ -721,20 +721,35 @@ async def criar_assinatura(
             product_data={"name": plano_info["name"]}
         )
         
-        # Create subscription
+        # Create subscription with trial (simplified approach)
         subscription = stripe.Subscription.create(
             customer=stripe_customer_id,
             items=[{"price": price.id}],
             payment_behavior="default_incomplete",
             payment_settings={"save_default_payment_method": "on_subscription"},
-            expand=["latest_invoice.payment_intent"]
+            expand=["latest_invoice"]
         )
         
+        # Check if we have payment intent
+        client_secret = None
+        if hasattr(subscription, 'latest_invoice') and subscription.latest_invoice:
+            if hasattr(subscription.latest_invoice, 'payment_intent') and subscription.latest_invoice.payment_intent:
+                if isinstance(subscription.latest_invoice.payment_intent, str):
+                    # Need to retrieve the payment intent
+                    payment_intent = stripe.PaymentIntent.retrieve(subscription.latest_invoice.payment_intent)
+                    client_secret = payment_intent.client_secret
+                else:
+                    client_secret = subscription.latest_invoice.payment_intent.client_secret
+        
         return {
-            "client_secret": subscription.latest_invoice.payment_intent.client_secret,
-            "subscription_id": subscription.id
+            "subscription_id": subscription.id,
+            "client_secret": client_secret,
+            "status": subscription.status
         }
         
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe error creating subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro do Stripe: {str(e)}")
     except Exception as e:
         logging.error(f"Error creating subscription: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar assinatura: {str(e)}")
