@@ -14,7 +14,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
-import { StripeProvider, useStripe, CardField } from '@stripe/stripe-react-native';
+import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 
 const PLANS = [
   {
@@ -50,13 +50,11 @@ const PLANS = [
 ];
 
 function SubscriptionContent() {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [selectedPlan, setSelectedPlan] = useState('semestral');
   const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
-  const [publishableKey, setPublishableKey] = useState('');
-  const [paymentIntentId, setPaymentIntentId] = useState('');
   const modal = useModal();
-  const { confirmPayment } = useStripe();
 
   useEffect(() => {
     fetchSubscriptionStatus();
@@ -92,7 +90,7 @@ function SubscriptionContent() {
         return;
       }
 
-      // Call backend to create subscription and get client_secret
+      // Call backend to create subscription
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/criar-assinatura`, {
         method: 'POST',
         headers: {
@@ -107,51 +105,9 @@ function SubscriptionContent() {
       const data = await response.json();
 
       if (response.ok) {
-        setPublishableKey(data.publishable_key);
-        setPaymentIntentId(data.client_secret.split('_secret_')[0]);
-        
-        // Initialize and present payment sheet
-        const { error: paymentError } = await confirmPayment(data.client_secret, {
-          paymentMethodType: 'Card',
-        });
-
-        if (paymentError) {
-          modal.showError('Erro no Pagamento', paymentError.message || 'Erro ao processar pagamento.');
-        } else {
-          // Payment successful, confirm on backend
-          await confirmSubscriptionPayment(paymentIntentId);
-        }
-      } else {
-        modal.showError('Erro', data.detail || 'Erro ao criar assinatura.');
-      }
-    } catch (error) {
-      console.error('Error creating subscription:', error);
-      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const confirmSubscriptionPayment = async (paymentId: string) => {
-    try {
-      const token = await AsyncStorage.getItem('auth_token');
-      if (!token) return;
-
-      const formData = new FormData();
-      formData.append('payment_intent_id', paymentId);
-
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/confirmar-pagamento`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+        // Subscription activated successfully
         modal.showSuccess(
-          '🎉 Pagamento Confirmado!',
+          '🎉 Assinatura Ativada!',
           `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
           [
             {
@@ -166,10 +122,54 @@ function SubscriptionContent() {
           ]
         );
       } else {
-        modal.showError('Erro', 'Erro ao confirmar pagamento.');
+        modal.showError('Erro', data.detail || 'Erro ao criar assinatura.');
       }
     } catch (error) {
-      console.error('Error confirming payment:', error);
+      console.error('Error creating subscription:', error);
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmSubscription = async (subscriptionId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) return;
+
+      const formData = new FormData();
+      formData.append('subscription_id', subscriptionId);
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/confirmar-assinatura`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        modal.showSuccess(
+          '🎉 Assinatura Ativada!',
+          `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
+          [
+            {
+              text: 'Começar a Usar',
+              onPress: () => {
+                modal.hideModal();
+                router.push('/generate-look' as any);
+              },
+              style: 'primary',
+            },
+          ]
+        );
+        fetchSubscriptionStatus();
+      } else {
+        modal.showError('Erro', 'Erro ao confirmar assinatura.');
+      }
+    } catch (error) {
+      console.error('Error confirming subscription:', error);
       modal.showError('Erro', 'Erro de conexão. Tente novamente.');
     }
   };
@@ -298,33 +298,6 @@ function SubscriptionContent() {
           ))}
         </View>
 
-        {/* Card Input */}
-        <View style={styles.paymentSection}>
-          <Text style={styles.paymentTitle}>💳 Informações de Pagamento</Text>
-          <CardField
-            postalCodeEnabled={false}
-            placeholders={{
-              number: '4242 4242 4242 4242',
-            }}
-            cardStyle={{
-              backgroundColor: '#2d3436',
-              textColor: '#FFFFFF',
-              borderRadius: 12,
-            }}
-            style={{
-              width: '100%',
-              height: 50,
-              marginVertical: 12,
-            }}
-            onCardChange={(cardDetails) => {
-              console.log('Card details:', cardDetails);
-            }}
-          />
-          <Text style={styles.testCardHint}>
-            💡 Cartão de teste: 4242 4242 4242 4242, qualquer CVV e data futura
-          </Text>
-        </View>
-
         {/* Subscribe Button */}
         <TouchableOpacity 
           style={[
@@ -343,14 +316,11 @@ function SubscriptionContent() {
           ) : (
             <>
               <Ionicons name="card" size={24} color="#fff" />
-              <Text style={styles.subscribeButtonText}>Assinar e Pagar Agora</Text>
+              <Text style={styles.subscribeButtonText}>Assinar Agora</Text>
             </>
           )}
         </TouchableOpacity>
 
-        <Text style={styles.disclaimer}>
-          🔒 Pagamento seguro processado pelo Stripe
-        </Text>
         <Text style={styles.disclaimer}>
           * Cobrança recorrente. Cancele quando quiser. Acesso continua até o fim do período pago.
         </Text>
@@ -368,16 +338,6 @@ function SubscriptionContent() {
         onClose={modal.hideModal}
       />
     </SafeAreaView>
-  );
-}
-
-export default function Subscription() {
-  const [publishableKey, setPublishableKey] = useState('pk_live_51SHSpFDGCWpP7oWO6LM77jTz9HYKiqqJsIgfyhMyhBrpIobpXW84HqfdI4d8PqsCDgZX572D4J7zHuMel2MxiRCI00ORm43AvR');
-
-  return (
-    <StripeProvider publishableKey={publishableKey}>
-      <SubscriptionContent />
-    </StripeProvider>
   );
 }
 
@@ -561,21 +521,6 @@ const styles = StyleSheet.create({
   featureText: {
     color: '#fff',
     fontSize: 15,
-  },
-  paymentSection: {
-    paddingHorizontal: 20,
-    marginTop: 24,
-  },
-  paymentTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  testCardHint: {
-    color: '#fdcb6e',
-    fontSize: 13,
-    fontStyle: 'italic',
   },
   subscribeButton: {
     marginHorizontal: 20,
