@@ -30,6 +30,9 @@ db = client[os.environ['DB_NAME']]
 JWT_SECRET = "meu-look-ia-secret-key-2025"
 security = HTTPBearer()
 
+# Stripe configuration
+stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+
 # Create the main app without a prefix
 app = FastAPI()
 
