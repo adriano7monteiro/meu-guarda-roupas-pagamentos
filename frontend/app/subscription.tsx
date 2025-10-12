@@ -49,14 +49,11 @@ const PLANS = [
   },
 ];
 
-function SubscriptionContent() {
+export default function Subscription() {
   const [selectedPlan, setSelectedPlan] = useState('semestral');
   const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
-  const [publishableKey, setPublishableKey] = useState('');
-  const [paymentIntentId, setPaymentIntentId] = useState('');
   const modal = useModal();
-  const { confirmPayment } = useStripe();
 
   useEffect(() => {
     fetchSubscriptionStatus();
