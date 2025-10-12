@@ -710,7 +710,7 @@ async def criar_assinatura(
                 {"$set": {"stripe_customer_id": stripe_customer_id}}
             )
         
-        # Create price if not exists (for simplicity, creating on-the-fly)
+        # Create a price if not exists (for simplicity, creating on-the-fly)
         price = stripe.Price.create(
             unit_amount=plano_info["price"],
             currency="brl",
@@ -721,30 +721,35 @@ async def criar_assinatura(
             product_data={"name": plano_info["name"]}
         )
         
-        # Create subscription with trial (simplified approach)
+        # Calculate expiration date
+        if plano_info["interval"] == "year":
+            expiration_date = datetime.utcnow() + timedelta(days=365)
+        elif plano_info.get("interval_count") == 6:
+            expiration_date = datetime.utcnow() + timedelta(days=180)
+        else:
+            expiration_date = datetime.utcnow() + timedelta(days=30)
+        
+        # For simplicity in mobile app, activate subscription immediately
+        # In production, you'd use Stripe Checkout or Payment Sheet
         subscription = stripe.Subscription.create(
             customer=stripe_customer_id,
             items=[{"price": price.id}],
-            payment_behavior="default_incomplete",
-            payment_settings={"save_default_payment_method": "on_subscription"},
-            expand=["latest_invoice"]
         )
         
-        # Check if we have payment intent
-        client_secret = None
-        if hasattr(subscription, 'latest_invoice') and subscription.latest_invoice:
-            if hasattr(subscription.latest_invoice, 'payment_intent') and subscription.latest_invoice.payment_intent:
-                if isinstance(subscription.latest_invoice.payment_intent, str):
-                    # Need to retrieve the payment intent
-                    payment_intent = stripe.PaymentIntent.retrieve(subscription.latest_invoice.payment_intent)
-                    client_secret = payment_intent.client_secret
-                else:
-                    client_secret = subscription.latest_invoice.payment_intent.client_secret
+        # Update user with subscription info
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": {
+                "plano_ativo": request.plano,
+                "stripe_subscription_id": subscription.id,
+                "data_expiracao_plano": expiration_date
+            }}
+        )
         
         return {
             "subscription_id": subscription.id,
-            "client_secret": client_secret,
-            "status": subscription.status
+            "status": subscription.status,
+            "message": "Assinatura ativada com sucesso!"
         }
         
     except stripe.error.StripeError as e:
