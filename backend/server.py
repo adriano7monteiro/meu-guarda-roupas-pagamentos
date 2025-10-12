@@ -463,6 +463,7 @@ async def delete_roupa(roupa_id: str, current_user=Depends(security)):
 async def sugerir_look(
     ocasiao: str = Form(...),
     temperatura: Optional[str] = Form(None),
+    detalhes_contexto: Optional[str] = Form(None),
     current_user=Depends(security)
 ):
     user = await get_current_user(current_user)
