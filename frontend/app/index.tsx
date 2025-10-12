@@ -459,6 +459,40 @@ const styles = StyleSheet.create({
     marginTop: 8,
     textAlign: 'center',
   },
+  premiumBanner: {
+    backgroundColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+  },
+  premiumContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  premiumIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  premiumText: {
+    flex: 1,
+  },
+  premiumTitle: {
+    color: '#FFD700',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  premiumSubtitle: {
+    color: '#fff',
+    fontSize: 14,
+    marginTop: 2,
+  },
   secondaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
