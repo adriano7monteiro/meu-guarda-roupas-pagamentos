@@ -700,7 +700,7 @@ async def criar_assinatura(
             customer = stripe.Customer.create(
                 email=user["email"],
                 name=user["nome"],
-                metadata={"user_id": user["id"]}
+                metadata={"user_id": user["id"], "plano": request.plano}
             )
             stripe_customer_id = customer.id
             
@@ -710,35 +710,84 @@ async def criar_assinatura(
                 {"$set": {"stripe_customer_id": stripe_customer_id}}
             )
         
-        # Calculate expiration date
-        if plano_info["interval"] == "year":
-            expiration_date = datetime.utcnow() + timedelta(days=365)
-        elif plano_info.get("interval_count") == 6:
-            expiration_date = datetime.utcnow() + timedelta(days=180)
-        else:
-            expiration_date = datetime.utcnow() + timedelta(days=30)
+        # Create or retrieve product and price
+        try:
+            # Try to find existing price
+            prices = stripe.Price.list(
+                active=True,
+                currency='brl',
+                product_data={'name': plano_info["name"]},
+                limit=1
+            )
+            
+            if prices.data:
+                price_id = prices.data[0].id
+            else:
+                # Create new price
+                price = stripe.Price.create(
+                    unit_amount=plano_info["price"],
+                    currency="brl",
+                    recurring={
+                        "interval": plano_info["interval"],
+                        "interval_count": plano_info.get("interval_count", 1)
+                    },
+                    product_data={"name": plano_info["name"]}
+                )
+                price_id = price.id
+        except Exception as e:
+            logging.error(f"Error finding/creating price: {str(e)}")
+            # Create new price as fallback
+            price = stripe.Price.create(
+                unit_amount=plano_info["price"],
+                currency="brl",
+                recurring={
+                    "interval": plano_info["interval"],
+                    "interval_count": plano_info.get("interval_count", 1)
+                },
+                product_data={"name": plano_info["name"]}
+            )
+            price_id = price.id
         
-        # For MVP: Activate plan directly without Stripe subscription
-        # TODO: In production, integrate Stripe Checkout or Payment Sheet
-        # to collect payment before activating the plan
+        # Create subscription with payment pending
+        subscription = stripe.Subscription.create(
+            customer=stripe_customer_id,
+            items=[{"price": price_id}],
+            payment_behavior="default_incomplete",
+            payment_settings={
+                "save_default_payment_method": "on_subscription",
+                "payment_method_types": ["card"]
+            },
+            expand=["latest_invoice.payment_intent"],
+            metadata={
+                "user_id": user["id"],
+                "plano": request.plano
+            }
+        )
         
-        # Update user with subscription info
+        # Get the payment intent client secret
+        payment_intent = subscription.latest_invoice.payment_intent
+        
+        if not payment_intent:
+            raise HTTPException(status_code=500, detail="Erro ao criar intenção de pagamento")
+        
+        # Save pending subscription info
         await db.users.update_one(
             {"id": user["id"]},
             {"$set": {
-                "plano_ativo": request.plano,
-                "stripe_customer_id": stripe_customer_id,
-                "data_expiracao_plano": expiration_date
+                "stripe_subscription_id": subscription.id,
+                "stripe_payment_intent_id": payment_intent.id
             }}
         )
         
-        logging.info(f"Plan activated for user {user['id']}: {request.plano} until {expiration_date}")
+        logging.info(f"Subscription created for user {user['id']}: {subscription.id}")
         
         return {
-            "message": "Assinatura ativada com sucesso!",
+            "subscription_id": subscription.id,
+            "client_secret": payment_intent.client_secret,
+            "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
+            "customer_id": stripe_customer_id,
             "plano": request.plano,
-            "expira_em": expiration_date.isoformat(),
-            "status": "active"
+            "valor": plano_info["price"] / 100  # Convert to reais
         }
         
     except Exception as e:
