@@ -90,7 +90,7 @@ function SubscriptionContent() {
         return;
       }
 
-      // Call backend to create subscription
+      // Step 1: Create subscription and get payment intent from backend
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/criar-assinatura`, {
         method: 'POST',
         headers: {
@@ -104,10 +104,70 @@ function SubscriptionContent() {
 
       const data = await response.json();
 
+      if (!response.ok) {
+        modal.showError('Erro', data.detail || 'Erro ao criar assinatura.');
+        return;
+      }
+
+      // Step 2: Initialize Payment Sheet with client_secret from backend
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: 'Meu Look IA',
+        paymentIntentClientSecret: data.client_secret,
+        customerId: data.customer_id,
+        defaultBillingDetails: {
+          name: 'Cliente',
+        },
+        allowsDelayedPaymentMethods: false,
+      });
+
+      if (initError) {
+        modal.showError('Erro', `Erro ao inicializar pagamento: ${initError.message}`);
+        return;
+      }
+
+      // Step 3: Present the Payment Sheet to user
+      const { error: presentError } = await presentPaymentSheet();
+
+      if (presentError) {
+        // User cancelled or error occurred
+        if (presentError.code === 'Canceled') {
+          modal.showWarning('Pagamento Cancelado', 'Você cancelou o pagamento.');
+        } else {
+          modal.showError('Erro no Pagamento', presentError.message);
+        }
+        return;
+      }
+
+      // Step 4: Payment successful! Confirm on backend
+      await confirmPayment(data.subscription_id);
+
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmPayment = async (paymentIntentId: string) => {
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) return;
+
+      const formData = new FormData();
+      formData.append('payment_intent_id', paymentIntentId);
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/confirmar-pagamento`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
       if (response.ok) {
-        // Subscription activated successfully
         modal.showSuccess(
-          '🎉 Assinatura Ativada!',
+          '🎉 Pagamento Confirmado!',
           `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
           [
             {
@@ -122,13 +182,10 @@ function SubscriptionContent() {
           ]
         );
       } else {
-        modal.showError('Erro', data.detail || 'Erro ao criar assinatura.');
+        modal.showError('Erro', 'Erro ao confirmar pagamento. Entre em contato com o suporte.');
       }
     } catch (error) {
-      console.error('Error creating subscription:', error);
-      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
-    } finally {
-      setLoading(false);
+      console.error('Error confirming payment:', error);
     }
   };
 
