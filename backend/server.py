@@ -223,6 +223,32 @@ async def gerar_look_visual(
         user = await get_current_user(current_user)
         logging.info(f"Generating visual look for user: {user['id']}")
         
+        # Check subscription/plan limits
+        looks_usados = user.get("looks_usados", 0)
+        plano_ativo = user.get("plano_ativo", "free")
+        data_expiracao = user.get("data_expiracao_plano")
+        
+        # Verify if user has access to generate looks
+        tem_plano_ativo = False
+        if plano_ativo != "free" and data_expiracao:
+            # Check if plan is still valid
+            if data_expiracao > datetime.utcnow():
+                tem_plano_ativo = True
+            else:
+                # Plan expired, reset to free
+                await db.users.update_one(
+                    {"id": user["id"]},
+                    {"$set": {"plano_ativo": "free", "data_expiracao_plano": None}}
+                )
+                plano_ativo = "free"
+        
+        # Check if free user exceeded limit
+        if plano_ativo == "free" and looks_usados >= 5:
+            raise HTTPException(
+                status_code=403, 
+                detail="Você atingiu o limite de 5 looks gratuitos. Assine um plano para continuar usando!"
+            )
+        
         # Get user's body photo
         if not user.get("foto_corpo"):
             raise HTTPException(status_code=400, detail="Você precisa fazer upload da sua foto do corpo primeiro no perfil.")
