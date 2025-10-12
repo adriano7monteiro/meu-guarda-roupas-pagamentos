@@ -103,24 +103,19 @@ export default function Subscription() {
       const data = await response.json();
 
       if (response.ok) {
-        // In a real app, you would initialize Stripe payment sheet here
-        // For now, we'll simulate successful payment
+        // Subscription activated successfully
         modal.showSuccess(
-          'Assinatura Criada!',
-          'Processando pagamento... (Em produção, aqui seria aberta a tela de pagamento do Stripe)',
+          '🎉 Assinatura Ativada!',
+          `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
           [
             {
-              text: 'Simular Pagamento Aprovado',
-              onPress: async () => {
+              text: 'Começar a Usar',
+              onPress: () => {
                 modal.hideModal();
-                // Simulate payment confirmation
-                await confirmSubscription(data.subscription_id);
+                fetchSubscriptionStatus();
+                router.push('/generate-look' as any);
               },
               style: 'primary',
-            },
-            {
-              text: 'Cancelar',
-              onPress: () => modal.hideModal(),
             },
           ]
         );
