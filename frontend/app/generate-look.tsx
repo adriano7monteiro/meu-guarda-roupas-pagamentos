@@ -440,6 +440,32 @@ export default function GenerateLook() {
               ))}
             </View>
 
+            {/* Context Details Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Detalhes adicionais (opcional)</Text>
+              <Text style={styles.sectionSubtitle}>
+                Conte mais sobre o ambiente ou contexto para uma sugestão mais personalizada
+              </Text>
+              
+              <TextInput
+                style={styles.contextInput}
+                placeholder="Ex: Reunião formal no escritório, jantar romântico, festa ao ar livre..."
+                placeholderTextColor="#666"
+                value={contextDetails}
+                onChangeText={setContextDetails}
+                multiline
+                numberOfLines={3}
+                maxLength={200}
+                textAlignVertical="top"
+              />
+              
+              {contextDetails.length > 0 && (
+                <Text style={styles.charCounter}>
+                  {contextDetails.length}/200 caracteres
+                </Text>
+              )}
+            </View>
+
             {/* Generate Button */}
             <TouchableOpacity 
               style={[styles.generateButton, loading && styles.disabledButton]}
