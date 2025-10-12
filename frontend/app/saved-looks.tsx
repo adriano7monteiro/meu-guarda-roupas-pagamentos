@@ -42,6 +42,7 @@ export default function SavedLooks() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('todos');
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const filters = [
     { id: 'todos', label: 'Todos' },
