@@ -906,6 +906,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  disabledButton: {
+    backgroundColor: '#636e72',
+    opacity: 0.6,
+  },
   newLookButton: {
     flex: 1,
     backgroundColor: 'transparent',
