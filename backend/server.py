@@ -794,33 +794,31 @@ async def criar_assinatura(
         logging.error(f"Error creating subscription: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar assinatura: {str(e)}")
 
-@api_router.post("/confirmar-assinatura")
-async def confirmar_assinatura(
-    subscription_id: str = Form(...),
+@api_router.post("/confirmar-pagamento")
+async def confirmar_pagamento(
+    payment_intent_id: str = Form(...),
     current_user=Depends(security)
 ):
     try:
         user = await get_current_user(current_user)
+        logging.info(f"Confirming payment for user {user['id']}, payment_intent: {payment_intent_id}")
         
-        # Retrieve subscription from Stripe
-        subscription = stripe.Subscription.retrieve(subscription_id)
+        # Retrieve payment intent from Stripe
+        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         
-        if subscription.status == "active":
+        if payment_intent.status == "succeeded":
+            # Get the subscription
+            subscription_id = user.get("stripe_subscription_id")
+            if not subscription_id:
+                raise HTTPException(status_code=400, detail="Assinatura não encontrada")
+            
+            subscription = stripe.Subscription.retrieve(subscription_id)
+            
             # Calculate expiration date based on plan
             current_period_end = datetime.fromtimestamp(subscription.current_period_end)
             
-            # Determine plan type from subscription
-            plano_tipo = "mensal"  # default
-            interval = subscription.plan.interval
-            interval_count = subscription.plan.interval_count
-            
-            if interval == "year":
-                plano_tipo = "anual"
-            elif interval == "month":
-                if interval_count == 6:
-                    plano_tipo = "semestral"
-                else:
-                    plano_tipo = "mensal"
+            # Get plan from subscription metadata
+            plano_tipo = subscription.metadata.get("plano", "mensal")
             
             # Update user subscription info
             await db.users.update_one(
@@ -832,17 +830,23 @@ async def confirmar_assinatura(
                 }}
             )
             
+            logging.info(f"Payment confirmed and plan activated for user {user['id']}: {plano_tipo}")
+            
             return {
-                "message": "Assinatura ativada com sucesso!",
+                "message": "Pagamento confirmado! Assinatura ativada com sucesso!",
                 "plano": plano_tipo,
-                "expira_em": current_period_end.isoformat()
+                "expira_em": current_period_end.isoformat(),
+                "status": "active"
             }
         else:
-            raise HTTPException(status_code=400, detail="Pagamento ainda não confirmado")
+            return {
+                "message": "Pagamento ainda em processamento",
+                "status": payment_intent.status
+            }
             
     except Exception as e:
-        logging.error(f"Error confirming subscription: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erro ao confirmar assinatura: {str(e)}")
+        logging.error(f"Error confirming payment: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao confirmar pagamento: {str(e)}")
 
 @api_router.get("/status-assinatura")
 async def status_assinatura(current_user=Depends(security)):
