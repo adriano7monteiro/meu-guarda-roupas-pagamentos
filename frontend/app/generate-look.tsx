@@ -577,9 +577,18 @@ export default function GenerateLook() {
 
             {/* Action Buttons */}
             <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity style={styles.saveButton} onPress={saveLook}>
+              <TouchableOpacity 
+                style={[
+                  styles.saveButton,
+                  !visualLookResult && styles.disabledButton
+                ]} 
+                onPress={saveLook}
+                disabled={!visualLookResult}
+              >
                 <Ionicons name="heart" size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>Salvar Look</Text>
+                <Text style={styles.saveButtonText}>
+                  {visualLookResult ? 'Salvar Look' : 'Gere a visualização primeiro'}
+                </Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
