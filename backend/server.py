@@ -484,6 +484,9 @@ async def sugerir_look(
             "nome": roupa["nome"]
         })
     
+    # Create list of valid IDs for the prompt
+    valid_ids = [r["id"] for r in roupas_context]
+    
     # Create AI prompt
     prompt = f"""
     Como personal stylist virtual, sugira uma combinação de roupas para o usuário.
@@ -494,22 +497,22 @@ async def sugerir_look(
     Roupas disponíveis no guarda-roupa do usuário:
     {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
     
-    Crie uma sugestão de look detalhada e bem formatada. Responda em JSON com:
+    IDs VÁLIDOS que você DEVE usar (copie exatamente):
+    {json.dumps(valid_ids, indent=2)}
+    
+    Crie uma sugestão de look detalhada. Responda APENAS com JSON válido (sem markdown):
     {{
-        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si. Evite linguagem técnica e seja conversacional.",
-        "roupas_ids": ["id1", "id2", "id3"],
-        "dicas": "Dicas práticas de estilo, acessórios ou ocasiões onde usar este look"
+        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si.",
+        "roupas_ids": ["cole aqui os IDs da lista acima"],
+        "dicas": "Dicas práticas de estilo e acessórios"
     }}
     
-    REGRAS CRÍTICAS: 
-    - No campo "roupas_ids", você DEVE usar APENAS os IDs exatos das roupas da lista acima
-    - NUNCA invente IDs ou nomes de roupas que não estão na lista
-    - Os IDs são as strings no campo "id" de cada roupa (exemplo: "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
-    - Escolha APENAS entre as roupas listadas acima que o usuário realmente possui
-    - No campo "sugestao_texto", escreva um texto fluido e bem formatado (não use formato de lista ou bullet points)
-    - Mencione as peças pelo NOME que está na lista (campo "nome"), não invente roupas
-    - Escolha no mínimo 2 e no máximo 4 peças que combinem bem entre si
-    - Use linguagem amigável e inspiradora
+    ⚠️ REGRAS OBRIGATÓRIAS: 
+    1. No campo "roupas_ids", copie EXATAMENTE os IDs da lista "IDs VÁLIDOS" acima
+    2. NUNCA use nomes como "jaqueta_jeans" ou "tenis_branco" - use apenas os IDs UUID
+    3. Um ID válido tem este formato: "4b4914ed-0f45-47a9-bef3-d0178e603776"
+    4. Escolha 2 a 4 peças que combinem bem
+    5. No "sugestao_texto", mencione as peças pelo campo "nome" da lista
     """
     
     try:
