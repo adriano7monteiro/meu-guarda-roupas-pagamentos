@@ -307,6 +307,25 @@ export default function SavedLooks() {
                   
                   return (
                     <View key={look.id} style={styles.lookCard}>
+                      {/* Look Image (if available) */}
+                      {look.imagem_look && (
+                        <TouchableOpacity
+                          style={styles.lookImageContainer}
+                          onPress={() => setFullScreenImage(look.imagem_look!)}
+                          activeOpacity={0.8}
+                        >
+                          <Image
+                            source={{ uri: look.imagem_look }}
+                            style={styles.lookImage}
+                            resizeMode="cover"
+                          />
+                          <View style={styles.imageOverlay}>
+                            <Ionicons name="expand" size={20} color="#fff" />
+                            <Text style={styles.imageOverlayText}>Toque para ampliar</Text>
+                          </View>
+                        </TouchableOpacity>
+                      )}
+                      
                       <View style={styles.lookHeader}>
                         <View style={styles.lookInfo}>
                           <Text style={styles.lookName}>{look.nome}</Text>
