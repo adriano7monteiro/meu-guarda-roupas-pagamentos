@@ -752,9 +752,6 @@ async def criar_assinatura(
             "message": "Assinatura ativada com sucesso!"
         }
         
-    except stripe.error.StripeError as e:
-        logging.error(f"Stripe error creating subscription: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erro do Stripe: {str(e)}")
     except Exception as e:
         logging.error(f"Error creating subscription: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar assinatura: {str(e)}")
