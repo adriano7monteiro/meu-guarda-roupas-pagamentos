@@ -268,14 +268,14 @@ function SubscriptionContent() {
   };
 
   const handleCancelSubscription = async () => {
-    modal.showConfirm(
+    modal.showWarning(
       '⚠️ Cancelar Assinatura',
       'Tem certeza que deseja cancelar? Você continuará com acesso premium até o fim do período pago.',
       [
         {
           text: 'Voltar',
           onPress: () => modal.hideModal(),
-          style: 'cancel',
+          style: 'secondary',
         },
         {
           text: 'Sim, Cancelar',
@@ -323,7 +323,7 @@ function SubscriptionContent() {
               setLoading(false);
             }
           },
-          style: 'destructive',
+          style: 'danger',
         },
       ]
     );
