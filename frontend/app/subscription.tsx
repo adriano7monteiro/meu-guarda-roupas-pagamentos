@@ -126,17 +126,14 @@ function SubscriptionContent() {
         paymentIntentClientSecret: data.client_secret,
         customerId: data.customer_id,
         defaultBillingDetails: {
-          name: 'Cliente',
           address: {
             country: 'BR',
           },
         },
-        allowsDelayedPaymentMethods: false,
+        returnURL: 'meulookia://stripe-redirect',
         appearance: {
-          primaryButton: {
-            colors: {
-              background: '#6c5ce7',
-            },
+          colors: {
+            primary: '#6c5ce7',
           },
         },
       });
