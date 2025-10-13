@@ -23,7 +23,7 @@ if plano_mensal:
     print(f"  - ID: {plano_mensal['_id']}")
     print(f"  - Nome: {plano_mensal['name']}")
     print(f"  - Preço atual: R${plano_mensal['price']:.2f}")
-    print(f"  - Looks: {plano_mensal['looks']}")
+    print(f"  - Intervalo: {plano_mensal['interval']}")
     
     # Atualizar o preço para R$1,00
     result = db.plans.update_one(
@@ -35,7 +35,7 @@ if plano_mensal:
         print("\n✅ Preço atualizado com sucesso!")
         
         # Verificar atualização
-        plano_atualizado = db.plans.find_one({"name": "Mensal"})
+        plano_atualizado = db.plans.find_one({"name": "Plano Mensal"})
         print(f"  - Novo preço: R${plano_atualizado['price']:.2f}")
     else:
         print("\n⚠️ Nenhuma alteração foi feita (o preço já era R$1,00?)")
