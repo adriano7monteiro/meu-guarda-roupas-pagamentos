@@ -748,64 +748,37 @@ async def criar_assinatura(
             )
             price_id = price.id
         
-        # Create subscription with payment pending
-        subscription = stripe.Subscription.create(
+        # Create a PaymentIntent for the first payment
+        # This is simpler and more reliable for mobile Payment Sheet
+        payment_intent = stripe.PaymentIntent.create(
+            amount=plano_info["price"],
+            currency="brl",
             customer=stripe_customer_id,
-            items=[{"price": price_id}],
-            payment_behavior="default_incomplete",
-            payment_settings={
-                "save_default_payment_method": "on_subscription",
-                "payment_method_types": ["card"]
-            },
-            expand=["latest_invoice.payment_intent"],
             metadata={
                 "user_id": user["id"],
-                "plano": request.plano
-            }
+                "plano": request.plano,
+                "price_id": price_id
+            },
+            automatic_payment_methods={
+                "enabled": True,
+            },
         )
         
-        # Get the payment intent client secret safely
-        payment_intent = None
-        client_secret = None
-        
-        # Check if latest_invoice exists and has payment_intent
-        if hasattr(subscription, 'latest_invoice') and subscription.latest_invoice:
-            invoice = subscription.latest_invoice
-            
-            # Payment intent could be an object or a string ID
-            if hasattr(invoice, 'payment_intent') and invoice.payment_intent:
-                if isinstance(invoice.payment_intent, str):
-                    # It's an ID, need to retrieve it
-                    payment_intent = stripe.PaymentIntent.retrieve(invoice.payment_intent)
-                else:
-                    # It's already an object
-                    payment_intent = invoice.payment_intent
-                
-                if payment_intent and hasattr(payment_intent, 'client_secret'):
-                    client_secret = payment_intent.client_secret
-        
-        if not client_secret:
-            logging.error(f"No client_secret found for subscription {subscription.id}")
-            raise HTTPException(
-                status_code=500, 
-                detail="Erro ao obter client_secret do pagamento. Verifique se há um método de pagamento padrão configurado."
-            )
-        
-        # Save pending subscription info
-        payment_intent_id = payment_intent.id if payment_intent else None
+        # Save payment info (we'll create subscription after payment succeeds)
         await db.users.update_one(
             {"id": user["id"]},
             {"$set": {
-                "stripe_subscription_id": subscription.id,
-                "stripe_payment_intent_id": payment_intent_id
+                "stripe_payment_intent_id": payment_intent.id,
+                "stripe_pending_plan": request.plano,
+                "stripe_pending_price_id": price_id
             }}
         )
         
-        logging.info(f"Subscription created for user {user['id']}: {subscription.id}, payment_intent: {payment_intent_id}")
+        logging.info(f"Payment intent created for user {user['id']}: {payment_intent.id}")
         
         return {
-            "subscription_id": subscription.id,
-            "client_secret": client_secret,
+            "payment_intent_id": payment_intent.id,
+            "client_secret": payment_intent.client_secret,
             "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
             "customer_id": stripe_customer_id,
             "plano": request.plano,
