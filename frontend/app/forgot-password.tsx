@@ -302,6 +302,16 @@ export default function ForgotPassword() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modal.isVisible}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        buttons={modal.buttons}
+        onClose={modal.hideModal}
+      />
     </SafeAreaView>
   );
 }
