@@ -794,14 +794,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
   },
-  inputTouchable: {
-    backgroundColor: '#2d3436',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#636e72',
-  },
-  placeholderText: {
-    color: '#999',
-  },
 });
