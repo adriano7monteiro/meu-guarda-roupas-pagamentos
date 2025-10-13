@@ -82,11 +82,3 @@ android-sdk/
 # Note: .env files are now tracked in version control
 # Only local environment overrides are ignored
 *.env.local
--e 
-# Environment files
-*.env
-*.env.*
--e 
-# Environment files
-*.env
-*.env.*
