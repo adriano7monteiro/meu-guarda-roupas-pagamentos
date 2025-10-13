@@ -306,10 +306,10 @@ export default function ForgotPassword() {
       {/* Custom Modal */}
       <CustomModal
         visible={modal.isVisible}
-        type={modal.type}
-        title={modal.title}
-        message={modal.message}
-        buttons={modal.buttons}
+        type={modal.config.type}
+        title={modal.config.title}
+        message={modal.config.message}
+        buttons={modal.config.buttons}
         onClose={modal.hideModal}
       />
     </SafeAreaView>
