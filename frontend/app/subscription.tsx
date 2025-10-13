@@ -338,6 +338,39 @@ function SubscriptionContent() {
           </View>
         )}
 
+        {/* Manage Subscription - Cancel/Reactivate */}
+        {subscriptionStatus && subscriptionStatus.plano_ativo !== 'free' && (
+          <View style={styles.manageCard}>
+            <View style={styles.manageHeader}>
+              <Ionicons name="settings" size={24} color="#ff6348" />
+              <Text style={styles.manageTitle}>Gerenciar Assinatura</Text>
+            </View>
+            
+            <Text style={styles.manageDescription}>
+              Você pode cancelar sua assinatura a qualquer momento. Continuará com acesso até o fim do período pago.
+            </Text>
+            
+            <TouchableOpacity 
+              style={styles.cancelButton}
+              onPress={handleCancelSubscription}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Ionicons name="close-circle" size={20} color="#fff" />
+                  <Text style={styles.cancelButtonText}>Cancelar Assinatura</Text>
+                </>
+              )}
+            </TouchableOpacity>
+            
+            <Text style={styles.manageNote}>
+              ℹ️ Após cancelar, você pode reativar antes do fim do período pago
+            </Text>
+          </View>
+        )}
+
         {/* Plans */}
         <View style={styles.plansSection}>
           <Text style={styles.sectionTitle}>Escolha seu plano</Text>
