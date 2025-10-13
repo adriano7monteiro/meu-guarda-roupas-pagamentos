@@ -786,7 +786,19 @@ async def criar_assinatura(
         )
         
         # Get the PaymentIntent from the subscription's first invoice
-        payment_intent = subscription.latest_invoice.payment_intent
+        # Handle both expanded and non-expanded responses
+        latest_invoice = subscription.latest_invoice
+        
+        if isinstance(latest_invoice, dict):
+            payment_intent = latest_invoice.get('payment_intent')
+        else:
+            # If not expanded, fetch the invoice
+            invoice = stripe.Invoice.retrieve(latest_invoice, expand=['payment_intent'])
+            payment_intent = invoice.payment_intent
+        
+        # Handle payment_intent as string or object
+        if isinstance(payment_intent, str):
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent)
         
         # Save subscription info
         await db.users.update_one(
