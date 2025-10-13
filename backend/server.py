@@ -509,25 +509,30 @@ async def gerar_look_visual(
         # All items processed successfully!
         logging.info(f"✅ All {len(clothing_items)} items processed successfully!")
         
-        # final_image now contains the result with all garments applied
+        # current_image now contains the result with all garments applied
         result = {
             "message": f"Look gerado com sucesso com {len(clothing_items)} {'peça' if len(clothing_items) == 1 else 'peças'}!",
             "clothing_items": processed_items,
-                            "nome": item["nome"],
-                            "tipo": item["tipo"],
-                            "cor": item["cor"]
-                        } for item in clothing_items
-                    ],
-                    "tryon_image": generated_image,  # Real AI-generated image
-                    "status": "success",
-                    "note": f"Try-on virtual criado com IA! Roupa: {first_clothing['nome']}",
-                    "api_used": "fal.ai-fashn"
-                }
-            else:
-                logging.error(f"Fal.ai API error: {api_response.status_code} - {api_response.text}")
-                # Fallback to mock if API fails
-                result = {
-                    "message": "Try-on gerado (modo fallback)",
+            "tryon_image": current_image,  # Final result with all garments
+            "status": "success",
+            "note": f"Try-on virtual com {len(clothing_items)} peças criado com IA!",
+            "api_used": "fal.ai-fashn-sequential"
+        }
+        
+        # Increment user's looks counter (only once, not per garment)
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$inc": {"looks_usados": 1}}
+        )
+        
+        logging.info(f"Incremented looks counter for user {user['id']}: {looks_usados + 1}/{5 if plano_ativo == 'free' else 'unlimited'}")
+        logging.info(f"Virtual try-on completed for {len(clothing_items)} items")
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
                     "clothing_items": [
                         {
                             "id": item["id"],
