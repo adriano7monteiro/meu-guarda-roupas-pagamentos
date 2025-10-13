@@ -1188,7 +1188,7 @@ async def confirmar_pagamento(
             if update_result.modified_count == 0:
                 logging.warning(f"[CONFIRM] ⚠️  No document updated for user {user['id']} - maybe already activated?")
             else:
-                logging.info(f"[CONFIRM] ✅ User document updated successfully")
+                logging.info("[CONFIRM] ✅ User document updated successfully")
             
             logging.info(f"[CONFIRM] ✅✅✅ Payment confirmed and plan activated for user {user['id']}: {plano_tipo}, expires: {expiration_date.strftime('%d/%m/%Y')}")
             
