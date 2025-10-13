@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Meu Look IA",
+    "slug": "meu-look-ia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "frontend",
+    "scheme": "meulookia",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
