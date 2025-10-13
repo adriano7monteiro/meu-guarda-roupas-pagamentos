@@ -693,17 +693,18 @@ async def criar_assinatura(
     try:
         user = await get_current_user(current_user)
         
-        # Map plan names to prices (in centavos for BRL)
-        planos = {
-            "mensal": {"price": 100, "name": "Plano Mensal", "interval": "month"},  # R$ 1,00 para testes
-            "semestral": {"price": 9900, "name": "Plano Semestral", "interval_count": 6, "interval": "month"},
-            "anual": {"price": 17990, "name": "Plano Anual", "interval": "year"}
+        # Get plan from database
+        plano = await db.plans.find_one({"id": request.plano, "active": True})
+        
+        if not plano:
+            raise HTTPException(status_code=400, detail="Plano inválido ou inativo")
+        
+        plano_info = {
+            "price": plano["price"],
+            "name": plano["name"],
+            "interval": plano["interval"],
+            "interval_count": plano.get("interval_count", 1)
         }
-        
-        if request.plano not in planos:
-            raise HTTPException(status_code=400, detail="Plano inválido")
-        
-        plano_info = planos[request.plano]
         
         # Create or retrieve Stripe customer
         stripe_customer_id = user.get("stripe_customer_id")
