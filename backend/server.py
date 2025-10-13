@@ -905,11 +905,41 @@ async def confirmar_pagamento(
 async def status_assinatura(current_user=Depends(security)):
     user = await get_current_user(current_user)
     
+    plano_ativo = user.get("plano_ativo", "free")
+    looks_usados = user.get("looks_usados", 0)
+    data_expiracao = user.get("data_expiracao_plano")
+    
+    # Check if plan has expired
+    plan_expired = False
+    if plano_ativo != "free" and data_expiracao:
+        if data_expiracao < datetime.utcnow():
+            plan_expired = True
+            # Reset to free plan
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$set": {"plano_ativo": "free", "data_expiracao_plano": None}}
+            )
+            plano_ativo = "free"
+    
+    # Get plan details if active
+    plan_details = None
+    if plano_ativo != "free":
+        plan = await db.plans.find_one({"id": plano_ativo}, {"_id": 0})
+        if plan:
+            plan_details = {
+                "name": plan["name"],
+                "badge": plan.get("badge"),
+                "color": plan.get("color", "#FFD700")
+            }
+    
     return {
-        "plano_ativo": user.get("plano_ativo", "free"),
-        "looks_usados": user.get("looks_usados", 0),
-        "looks_restantes": max(0, 5 - user.get("looks_usados", 0)) if user.get("plano_ativo", "free") == "free" else "ilimitado",
-        "data_expiracao": user.get("data_expiracao_plano").isoformat() if user.get("data_expiracao_plano") else None
+        "plano_ativo": plano_ativo,
+        "plan_details": plan_details,
+        "is_premium": plano_ativo != "free",
+        "looks_usados": looks_usados,
+        "looks_restantes": max(0, 5 - looks_usados) if plano_ativo == "free" else "ilimitado",
+        "data_expiracao": data_expiracao.isoformat() if data_expiracao else None,
+        "plan_expired": plan_expired
     }
 
 @api_router.get("/planos")
