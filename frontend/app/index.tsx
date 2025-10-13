@@ -804,6 +804,18 @@ const styles = StyleSheet.create({
     color: '#6c5ce7',
     fontSize: 16,
   },
+  forgotPasswordButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 6,
+  },
+  forgotPasswordText: {
+    color: '#6c5ce7',
+    fontSize: 14,
+    textDecorationLine: 'underline',
+  },
   inputTouchable: {
     backgroundColor: '#2d3436',
     borderRadius: 12,
