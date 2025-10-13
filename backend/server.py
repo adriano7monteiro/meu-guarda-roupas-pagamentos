@@ -990,9 +990,13 @@ async def reativar_assinatura(current_user=Depends(security)):
                 "details": "Sua assinatura continuará renovando automaticamente"
             }
             
-        except stripe.error.StripeError as e:
-            logging.error(f"[REACTIVATE] Stripe error: {str(e)}")
-            raise HTTPException(status_code=400, detail=f"Erro ao reativar no Stripe: {str(e)}")
+        except Exception as stripe_error:
+            # Capturar qualquer erro do Stripe
+            if 'Stripe' in str(type(stripe_error)):
+                logging.error(f"[REACTIVATE] Stripe error: {str(stripe_error)}")
+                raise HTTPException(status_code=400, detail=f"Erro ao reativar no Stripe: {str(stripe_error)}")
+            else:
+                raise
             
     except HTTPException:
         raise
