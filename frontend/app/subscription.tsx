@@ -190,7 +190,12 @@ function SubscriptionContent() {
         body: formData,
       });
 
+      console.log('Confirm payment response status:', response.status);
+      
       if (response.ok) {
+        const data = await response.json();
+        console.log('Payment confirmed successfully:', data);
+        
         modal.showSuccess(
           '🎉 Pagamento Confirmado!',
           `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
@@ -207,7 +212,13 @@ function SubscriptionContent() {
           ]
         );
       } else {
-        modal.showError('Erro', 'Erro ao confirmar pagamento. Entre em contato com o suporte.');
+        const errorData = await response.json().catch(() => ({ detail: 'Erro desconhecido' }));
+        console.error('Payment confirmation failed:', response.status, errorData);
+        
+        modal.showError(
+          'Erro ao Confirmar Pagamento', 
+          errorData.detail || 'Erro ao confirmar pagamento. Entre em contato com o suporte.'
+        );
       }
     } catch (error) {
       console.error('Error confirming payment:', error);
