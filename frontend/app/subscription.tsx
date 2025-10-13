@@ -158,7 +158,7 @@ function SubscriptionContent() {
       }
 
       // Step 4: Payment successful! Confirm on backend
-      await confirmPayment(data.subscription_id);
+      await confirmPayment(data.payment_intent_id);
 
     } catch (error) {
       console.error('Error creating subscription:', error);
