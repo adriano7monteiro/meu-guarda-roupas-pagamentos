@@ -62,8 +62,13 @@ print(f"\n📤 Enviando webhook simulado para o backend...")
 print(f"  - Tipo: invoice.payment_succeeded")
 print(f"  - Customer: {customer_id}")
 print(f"  - Amount: R$1,00")
+print(f"  - Modo: Sem verificação de assinatura (teste local)")
 
 try:
+    # Temporariamente desabilitar webhook secret para teste
+    print(f"\n⚠️  Para o teste funcionar, vamos enviar sem webhook secret.")
+    print(f"   Em produção, o Stripe sempre envia com assinatura válida.")
+    
     # Enviar para o endpoint de webhook localmente
     response = requests.post(
         'http://localhost:8001/api/stripe-webhook',
