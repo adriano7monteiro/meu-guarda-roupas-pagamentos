@@ -92,6 +92,13 @@ function SubscriptionContent() {
       return;
     }
 
+    // Dismiss keyboard before showing payment sheet (workaround for topFocus bug)
+    if (Platform.OS !== 'web') {
+      const { Keyboard } = require('react-native');
+      Keyboard.dismiss();
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
     setLoading(true);
     
     try {
