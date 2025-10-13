@@ -455,7 +455,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
           {isLogin && (
             <TouchableOpacity
               style={styles.forgotPasswordButton}
-              onPress={() => router.push('/forgot-password' as any)}
+              onPress={() => router.push('/forgot-password')}
             >
               <Ionicons name="key-outline" size={16} color="#6c5ce7" />
               <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
