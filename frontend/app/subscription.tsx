@@ -318,7 +318,15 @@ function SubscriptionContent() {
           <Text style={styles.sectionTitle}>Escolha seu plano</Text>
           <Text style={styles.sectionSubtitle}>Desbloqueie looks ilimitados com IA!</Text>
           
-          {PLANS.map((plan) => (
+          {loadingPlans ? (
+            <ActivityIndicator size="large" color="#6c5ce7" style={{marginTop: 20}} />
+          ) : plans.length === 0 ? (
+            <Text style={{color: '#999', textAlign: 'center', marginTop: 20}}>
+              Nenhum plano disponível no momento.
+            </Text>
+          ) : null}
+          
+          {plans.map((plan) => (
             <TouchableOpacity
               key={plan.id}
               style={[
