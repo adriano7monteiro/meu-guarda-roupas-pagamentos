@@ -32,6 +32,7 @@ security = HTTPBearer()
 
 # Stripe configuration
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 
 # Create the main app without a prefix
 app = FastAPI()
