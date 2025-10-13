@@ -799,26 +799,36 @@ async def criar_assinatura(
         logging.info(f"Latest invoice: {latest_invoice.id if hasattr(latest_invoice, 'id') else latest_invoice}")
         
         # Extract payment_intent
+        payment_intent = None
         if hasattr(latest_invoice, 'payment_intent'):
             payment_intent = latest_invoice.payment_intent
         elif isinstance(latest_invoice, dict):
             payment_intent = latest_invoice.get('payment_intent')
-        else:
-            # Last resort - fetch invoice separately
-            invoice = stripe.Invoice.retrieve(
-                latest_invoice if isinstance(latest_invoice, str) else latest_invoice.id,
-                expand=['payment_intent']
-            )
-            payment_intent = invoice.payment_intent
         
-        logging.info(f"Payment intent: {payment_intent.id if hasattr(payment_intent, 'id') else payment_intent}")
+        logging.info(f"Payment intent: {payment_intent}")
+        
+        # If no payment_intent exists, fetch the invoice and check
+        if not payment_intent:
+            invoice_id = latest_invoice.id if hasattr(latest_invoice, 'id') else latest_invoice
+            logging.info(f"No payment_intent found, fetching invoice separately: {invoice_id}")
+            
+            invoice = stripe.Invoice.retrieve(invoice_id)
+            logging.info(f"Invoice status: {invoice.status}, payment_intent: {invoice.payment_intent}")
+            
+            # If invoice has no payment_intent, it needs to be finalized
+            if not invoice.payment_intent and invoice.status == 'draft':
+                logging.info("Invoice is draft, finalizing to create payment_intent...")
+                invoice = stripe.Invoice.finalize_invoice(invoice_id)
+                logging.info(f"Invoice finalized, payment_intent: {invoice.payment_intent}")
+            
+            payment_intent = invoice.payment_intent
         
         # Handle payment_intent as string or object
         if isinstance(payment_intent, str):
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent)
         
         if not payment_intent:
-            raise ValueError("Could not retrieve payment_intent from subscription")
+            raise ValueError(f"Could not retrieve payment_intent from subscription. Invoice status: {invoice.status if 'invoice' in locals() else 'unknown'}")
         
         # Extract id and client_secret safely
         payment_intent_id = payment_intent.id if hasattr(payment_intent, 'id') else payment_intent.get('id')
