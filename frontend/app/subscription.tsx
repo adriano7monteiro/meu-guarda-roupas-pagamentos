@@ -127,8 +127,18 @@ function SubscriptionContent() {
         customerId: data.customer_id,
         defaultBillingDetails: {
           name: 'Cliente',
+          address: {
+            country: 'BR',
+          },
         },
         allowsDelayedPaymentMethods: false,
+        appearance: {
+          primaryButton: {
+            colors: {
+              background: '#6c5ce7',
+            },
+          },
+        },
       });
 
       if (initError) {
