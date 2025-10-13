@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import * as SplashScreenExpo from 'expo-splash-screen';
-
-const { width, height } = Dimensions.get('window');
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Prevent auto-hiding of splash screen
 SplashScreenExpo.preventAutoHideAsync();
