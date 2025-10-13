@@ -684,7 +684,7 @@ async def criar_assinatura(
         
         # Map plan names to prices (in centavos for BRL)
         planos = {
-            "mensal": {"price": 1990, "name": "Plano Mensal", "interval": "month"},
+            "mensal": {"price": 100, "name": "Plano Mensal", "interval": "month"},  # R$ 1,00 para testes
             "semestral": {"price": 9900, "name": "Plano Semestral", "interval_count": 6, "interval": "month"},
             "anual": {"price": 17990, "name": "Plano Anual", "interval": "year"}
         }
