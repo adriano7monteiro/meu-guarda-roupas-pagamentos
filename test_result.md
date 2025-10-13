@@ -253,9 +253,23 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Exibir plano ativo na home com badge premium"
+    implemented: true
+    working: "NA"
+    file: "index.tsx, server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado card premium dinâmico na home. Quando usuário tem plano ativo, exibe card dourado com nome do plano, badge, contador de looks ilimitados e data de renovação. Para usuários free, mostra banner de upgrade com contador de looks restantes (X/5). Backend endpoint /api/status-assinatura atualizado para retornar plan_details com nome, badge e cor do plano. Script seed_plans.py criado e executado para popular banco com 3 planos (Mensal R$19,90, Semestral R$99,00, Anual R$179,90)."
+
 agent_communication:
     - agent: "main"
       message: "Implementei o MVP básico do backend com todas as funcionalidades principais: auth, upload de roupas, sugestão de looks com IA e gerenciamento de looks. Frontend tem tela inicial funcionando mas precisa das telas secundárias. Pronto para testar backend."
+    - agent: "main"
+      message: "Implementei funcionalidade de exibir plano ativo na home. Card premium dinâmico que mostra status da assinatura: para usuários premium, exibe nome do plano, badge dourado, ícone de infinito (looks ilimitados) e data de renovação. Para usuários free, mostra banner de upgrade com contador de looks gratuitos restantes (X/5). Backend retorna detalhes completos do plano incluindo nome, badge e cor. Planos populados no banco via script seed. Pronto para testar."
     - agent: "testing"
       message: "Teste completo do backend realizado com sucesso! Todos os 12 testes passaram (12/12). Corrigidos 2 problemas críticos: dependency injection com Depends(security) e serialização ObjectId nas queries GET. Sistema de autenticação JWT funcionando, integração com emergentintegrations/GPT-4o-mini OK, CRUD de roupas e looks funcionando perfeitamente. Backend está 100% funcional e pronto para produção."
     - agent: "testing"
