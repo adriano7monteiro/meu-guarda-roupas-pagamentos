@@ -201,11 +201,11 @@ function SubscriptionContent() {
           `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
           [
             {
-              text: 'Começar a Usar',
+              text: 'OK',
               onPress: () => {
                 modal.hideModal();
                 fetchSubscriptionStatus();
-                router.push('/generate-look' as any);
+                router.push('/' as any);
               },
               style: 'primary',
             },
