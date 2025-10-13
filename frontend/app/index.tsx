@@ -347,6 +347,21 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       if (response.ok) {
         await AsyncStorage.setItem('auth_token', data.token);
         onLogin(data.user);
+        
+        // Fetch subscription status after login
+        try {
+          const subResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/status-assinatura`, {
+            headers: {
+              'Authorization': `Bearer ${data.token}`,
+            },
+          });
+          if (subResponse.ok) {
+            console.log('Subscription status fetched after login');
+          }
+        } catch (err) {
+          console.error('Failed to fetch subscription status after login:', err);
+        }
+        
         authModal.showSuccess('Sucesso', isLogin ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!');
       } else {
         authModal.showError('Erro de Autenticação', data.detail || 'Erro durante autenticação');
