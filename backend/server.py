@@ -885,6 +885,117 @@ async def criar_assinatura(
         logging.error(f"Error creating subscription: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Erro ao criar assinatura: {str(e)}")
 
+@api_router.post("/cancelar-assinatura")
+async def cancelar_assinatura(current_user=Depends(security)):
+    """
+    Cancela a assinatura ativa do usuário
+    """
+    try:
+        user = await get_current_user(current_user)
+        
+        logging.info(f"[CANCEL] Starting subscription cancellation for user {user['id']}")
+        
+        # Verificar se usuário tem assinatura ativa
+        if not user.get('stripe_subscription_id'):
+            raise HTTPException(status_code=400, detail="Usuário não possui assinatura ativa")
+        
+        subscription_id = user['stripe_subscription_id']
+        
+        # Cancelar subscription no Stripe
+        # cancel_at_period_end=True mantém o acesso até o fim do período pago
+        try:
+            subscription = stripe.Subscription.modify(
+                subscription_id,
+                cancel_at_period_end=True
+            )
+            logging.info(f"[CANCEL] Subscription {subscription_id} marked for cancellation at period end")
+            
+            # Atualizar banco de dados para refletir cancelamento pendente
+            await db.users.update_one(
+                {"id": user["id"]},
+                {
+                    "$set": {
+                        "subscription_cancel_at_period_end": True,
+                        "subscription_canceled_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            logging.info(f"[CANCEL] User {user['email']} subscription will cancel at {subscription.cancel_at}")
+            
+            return {
+                "success": True,
+                "message": "Assinatura cancelada com sucesso",
+                "cancel_at": subscription.cancel_at,
+                "current_period_end": subscription.current_period_end,
+                "details": "Você continuará tendo acesso premium até o fim do período pago"
+            }
+            
+        except stripe.error.StripeError as e:
+            logging.error(f"[CANCEL] Stripe error: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Erro ao cancelar no Stripe: {str(e)}")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"[CANCEL] Error cancelling subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao cancelar assinatura: {str(e)}")
+
+@api_router.post("/reativar-assinatura")
+async def reativar_assinatura(current_user=Depends(security)):
+    """
+    Reativa uma assinatura que foi marcada para cancelamento
+    """
+    try:
+        user = await get_current_user(current_user)
+        
+        logging.info(f"[REACTIVATE] Starting subscription reactivation for user {user['id']}")
+        
+        # Verificar se usuário tem assinatura
+        if not user.get('stripe_subscription_id'):
+            raise HTTPException(status_code=400, detail="Usuário não possui assinatura")
+        
+        subscription_id = user['stripe_subscription_id']
+        
+        # Reativar subscription no Stripe
+        try:
+            subscription = stripe.Subscription.modify(
+                subscription_id,
+                cancel_at_period_end=False
+            )
+            logging.info(f"[REACTIVATE] Subscription {subscription_id} reactivated")
+            
+            # Atualizar banco de dados
+            await db.users.update_one(
+                {"id": user["id"]},
+                {
+                    "$set": {
+                        "subscription_cancel_at_period_end": False
+                    },
+                    "$unset": {
+                        "subscription_canceled_at": ""
+                    }
+                }
+            )
+            
+            logging.info(f"[REACTIVATE] User {user['email']} subscription reactivated")
+            
+            return {
+                "success": True,
+                "message": "Assinatura reativada com sucesso",
+                "details": "Sua assinatura continuará renovando automaticamente"
+            }
+            
+        except stripe.error.StripeError as e:
+            logging.error(f"[REACTIVATE] Stripe error: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Erro ao reativar no Stripe: {str(e)}")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"[REACTIVATE] Error reactivating subscription: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao reativar assinatura: {str(e)}")
+
 @api_router.post("/confirmar-pagamento")
 async def confirmar_pagamento(
     payment_intent_id: str = Form(...),
