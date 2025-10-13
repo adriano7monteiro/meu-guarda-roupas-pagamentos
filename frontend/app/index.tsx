@@ -39,6 +39,7 @@ interface SubscriptionStatus {
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   const modal = useModal();
 
   useEffect(() => {
