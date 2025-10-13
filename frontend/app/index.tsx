@@ -457,6 +457,17 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
               {isLogin ? 'Não tem conta? Criar conta' : 'Já tem conta? Entrar'}
             </Text>
           </TouchableOpacity>
+
+          {/* Forgot Password Link - Only show on login */}
+          {isLogin && (
+            <TouchableOpacity
+              style={styles.forgotPasswordButton}
+              onPress={() => router.push('/forgot-password' as any)}
+            >
+              <Ionicons name="key-outline" size={16} color="#6c5ce7" />
+              <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Quick Demo Buttons */}
