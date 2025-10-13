@@ -92,8 +92,6 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
-    backgroundColor: '#6366f1',
-    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
   },
   content: {
     flex: 1,
