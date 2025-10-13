@@ -113,6 +113,17 @@ class SugestaoLook(BaseModel):
     ocasiao: str
     clima: str
 
+class Plan(BaseModel):
+    id: str
+    name: str
+    price: int  # em centavos
+    interval: str  # month, year
+    interval_count: int = 1
+    features: List[str]
+    badge: Optional[str] = None
+    color: str
+    active: bool = True
+
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
