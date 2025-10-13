@@ -404,40 +404,43 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
         <View style={styles.authForm}>
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>E-mail</Text>
-            <TouchableOpacity 
-              style={styles.inputTouchable}
-              onPress={() => handleFieldEdit('email', email)}
-            >
-              <Text style={[styles.inputText, !email && styles.placeholderText]}>
-                {email || 'Digite seu e-mail'}
-              </Text>
-            </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite seu e-mail"
+              placeholderTextColor="#999"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={!loading}
+            />
           </View>
 
           {!isLogin && (
             <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Nome</Text>
-              <TouchableOpacity 
-                style={styles.inputTouchable}
-                onPress={() => handleFieldEdit('nome', nome)}
-              >
-                <Text style={[styles.inputText, !nome && styles.placeholderText]}>
-                  {nome || 'Digite seu nome'}
-                </Text>
-              </TouchableOpacity>
+              <TextInput
+                style={styles.input}
+                placeholder="Digite seu nome"
+                placeholderTextColor="#999"
+                value={nome}
+                onChangeText={setNome}
+                editable={!loading}
+              />
             </View>
           )}
 
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Senha</Text>
-            <TouchableOpacity 
-              style={styles.inputTouchable}
-              onPress={() => handleFieldEdit('password', password)}
-            >
-              <Text style={[styles.inputText, !password && styles.placeholderText]}>
-                {password ? '••••••••' : 'Digite sua senha'}
-              </Text>
-            </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              placeholder="Digite sua senha"
+              placeholderTextColor="#999"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              editable={!loading}
+            />
           </View>
 
           <TouchableOpacity 
