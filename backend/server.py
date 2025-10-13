@@ -778,50 +778,51 @@ async def criar_assinatura(
                 'save_default_payment_method': 'on_subscription',
                 'payment_method_types': ['card']
             },
-            expand=['latest_invoice.payment_intent'],
             metadata={
                 "user_id": user["id"],
                 "plano": request.plano,
             }
         )
         
+        logging.info(f"Subscription created: {subscription.id}, status: {subscription.status}")
+        
+        # Retrieve the subscription with expanded invoice and payment_intent
+        # This is more reliable than relying on the create response
+        subscription_expanded = stripe.Subscription.retrieve(
+            subscription.id,
+            expand=['latest_invoice.payment_intent']
+        )
+        
         # Get the PaymentIntent from the subscription's first invoice
-        # Handle both expanded and non-expanded responses
-        latest_invoice = subscription.latest_invoice
+        latest_invoice = subscription_expanded.latest_invoice
         
-        logging.info(f"Latest invoice type: {type(latest_invoice)}, value: {latest_invoice}")
+        logging.info(f"Latest invoice: {latest_invoice.id if hasattr(latest_invoice, 'id') else latest_invoice}")
         
-        payment_intent = None
-        
-        if isinstance(latest_invoice, dict):
+        # Extract payment_intent
+        if hasattr(latest_invoice, 'payment_intent'):
+            payment_intent = latest_invoice.payment_intent
+        elif isinstance(latest_invoice, dict):
             payment_intent = latest_invoice.get('payment_intent')
-            logging.info(f"Payment intent from dict: {payment_intent}")
-        elif isinstance(latest_invoice, str):
-            # If it's a string ID, fetch the invoice
-            logging.info(f"Fetching invoice: {latest_invoice}")
-            invoice = stripe.Invoice.retrieve(latest_invoice, expand=['payment_intent'])
+        else:
+            # Last resort - fetch invoice separately
+            invoice = stripe.Invoice.retrieve(
+                latest_invoice if isinstance(latest_invoice, str) else latest_invoice.id,
+                expand=['payment_intent']
+            )
             payment_intent = invoice.payment_intent
-            logging.info(f"Payment intent from fetched invoice: {payment_intent}")
-        elif latest_invoice:
-            # If it's an object, try to get payment_intent attribute
-            payment_intent = getattr(latest_invoice, 'payment_intent', None)
-            logging.info(f"Payment intent from object: {payment_intent}")
+        
+        logging.info(f"Payment intent: {payment_intent.id if hasattr(payment_intent, 'id') else payment_intent}")
         
         # Handle payment_intent as string or object
         if isinstance(payment_intent, str):
-            logging.info(f"Retrieving payment intent: {payment_intent}")
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent)
         
         if not payment_intent:
             raise ValueError("Could not retrieve payment_intent from subscription")
         
-        # Ensure we have the payment_intent as an object with id and client_secret
-        if isinstance(payment_intent, dict):
-            payment_intent_id = payment_intent.get('id')
-            client_secret = payment_intent.get('client_secret')
-        else:
-            payment_intent_id = payment_intent.id
-            client_secret = payment_intent.client_secret
+        # Extract id and client_secret safely
+        payment_intent_id = payment_intent.id if hasattr(payment_intent, 'id') else payment_intent.get('id')
+        client_secret = payment_intent.client_secret if hasattr(payment_intent, 'client_secret') else payment_intent.get('client_secret')
         
         # Save subscription info
         await db.users.update_one(
