@@ -831,19 +831,30 @@ async def confirmar_pagamento(
             payment_method = payment_intent.payment_method
             customer_id = user.get("stripe_customer_id")
             
-            # Attach payment method to customer first
-            stripe.PaymentMethod.attach(
-                payment_method,
-                customer=customer_id,
-            )
+            # Check if payment method is already attached
+            try:
+                pm = stripe.PaymentMethod.retrieve(payment_method)
+                if pm.customer != customer_id:
+                    # Attach payment method to customer
+                    stripe.PaymentMethod.attach(
+                        payment_method,
+                        customer=customer_id,
+                    )
+                    logging.info(f"Payment method {payment_method} attached to customer {customer_id}")
+            except Exception as pm_error:
+                logging.warning(f"Could not attach payment method: {str(pm_error)}")
+                # Continue anyway - payment already succeeded
             
             # Set as default payment method
-            stripe.Customer.modify(
-                customer_id,
-                invoice_settings={
-                    "default_payment_method": payment_method,
-                },
-            )
+            try:
+                stripe.Customer.modify(
+                    customer_id,
+                    invoice_settings={
+                        "default_payment_method": payment_method,
+                    },
+                )
+            except Exception as customer_error:
+                logging.warning(f"Could not set default payment method: {str(customer_error)}")
             
             # Now create the subscription with the payment method
             subscription = stripe.Subscription.create(
