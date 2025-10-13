@@ -50,7 +50,12 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
   return (
     <View style={styles.container}>
       {/* Gradient Background */}
-      <View style={styles.gradient}>
+      <LinearGradient
+        colors={['#6366f1', '#8b5cf6']}
+        style={styles.gradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
         <Animated.View
           style={[
             styles.content,
@@ -76,7 +81,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
             <View style={[styles.loadingDot, styles.loadingDotDelay2]} />
           </View>
         </Animated.View>
-      </View>
+      </LinearGradient>
     </View>
   );
 }
