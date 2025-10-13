@@ -379,7 +379,7 @@ function SubscriptionContent() {
           style={[
             styles.subscribeButton,
             loading && styles.disabledButton,
-            { backgroundColor: PLANS.find(p => p.id === selectedPlan)?.color },
+            { backgroundColor: plans.find(p => p.id === selectedPlan)?.color || '#6c5ce7' },
           ]}
           onPress={handleSubscribe}
           disabled={loading}
