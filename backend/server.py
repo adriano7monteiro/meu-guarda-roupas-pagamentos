@@ -813,15 +813,17 @@ async def criar_assinatura(
             logging.info(f"No payment_intent found, fetching invoice separately: {invoice_id}")
             
             invoice = stripe.Invoice.retrieve(invoice_id)
-            logging.info(f"Invoice status: {invoice.status}, payment_intent: {invoice.payment_intent}")
+            invoice_payment_intent = getattr(invoice, 'payment_intent', None)
+            logging.info(f"Invoice status: {invoice.status}, payment_intent: {invoice_payment_intent}")
             
             # If invoice has no payment_intent, it needs to be finalized
-            if not invoice.payment_intent and invoice.status == 'draft':
+            if not invoice_payment_intent and invoice.status == 'draft':
                 logging.info("Invoice is draft, finalizing to create payment_intent...")
                 invoice = stripe.Invoice.finalize_invoice(invoice_id)
-                logging.info(f"Invoice finalized, payment_intent: {invoice.payment_intent}")
+                invoice_payment_intent = getattr(invoice, 'payment_intent', None)
+                logging.info(f"Invoice finalized, payment_intent: {invoice_payment_intent}")
             
-            payment_intent = invoice.payment_intent
+            payment_intent = invoice_payment_intent
         
         # Handle payment_intent as string or object
         if isinstance(payment_intent, str):
