@@ -817,89 +817,80 @@ async def confirmar_pagamento(
         logging.info(f"Confirming payment for user {user['id']}, payment_intent: {payment_intent_id}")
         
         # Retrieve payment intent from Stripe
-        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+        try:
+            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+            logging.info(f"Payment intent status: {payment_intent.status}")
+        except Exception as stripe_error:
+            logging.error(f"Error retrieving payment intent from Stripe: {str(stripe_error)}")
+            raise HTTPException(status_code=400, detail="Não foi possível verificar o pagamento no Stripe")
         
         if payment_intent.status == "succeeded":
             # Get pending plan info
             plano_tipo = user.get("stripe_pending_plan")
             price_id = user.get("stripe_pending_price_id")
             
+            logging.info(f"Plan type: {plano_tipo}, Price ID: {price_id}")
+            
             if not plano_tipo or not price_id:
-                raise HTTPException(status_code=400, detail="Informações do plano não encontradas")
+                logging.error(f"Missing plan info for user {user['id']}: plano_tipo={plano_tipo}, price_id={price_id}")
+                raise HTTPException(status_code=400, detail="Informações do plano não encontradas. Entre em contato com o suporte.")
             
-            # Get payment method from payment intent
-            payment_method = payment_intent.payment_method
-            customer_id = user.get("stripe_customer_id")
+            # Get plan details from database
+            plan = await db.plans.find_one({"id": plano_tipo})
+            if not plan:
+                logging.error(f"Plan {plano_tipo} not found in database")
+                raise HTTPException(status_code=400, detail="Plano não encontrado no sistema")
             
-            # Check if payment method is already attached
-            try:
-                pm = stripe.PaymentMethod.retrieve(payment_method)
-                if pm.customer != customer_id:
-                    # Attach payment method to customer
-                    stripe.PaymentMethod.attach(
-                        payment_method,
-                        customer=customer_id,
-                    )
-                    logging.info(f"Payment method {payment_method} attached to customer {customer_id}")
-            except Exception as pm_error:
-                logging.warning(f"Could not attach payment method: {str(pm_error)}")
-                # Continue anyway - payment already succeeded
+            # Calculate expiration date based on plan interval
+            if plan["interval"] == "month":
+                days_to_add = 30 * plan.get("interval_count", 1)
+            elif plan["interval"] == "year":
+                days_to_add = 365 * plan.get("interval_count", 1)
+            else:
+                days_to_add = 30  # Default to monthly
             
-            # Set as default payment method
-            try:
-                stripe.Customer.modify(
-                    customer_id,
-                    invoice_settings={
-                        "default_payment_method": payment_method,
-                    },
-                )
-            except Exception as customer_error:
-                logging.warning(f"Could not set default payment method: {str(customer_error)}")
+            expiration_date = datetime.utcnow() + timedelta(days=days_to_add)
             
-            # Now create the subscription with the payment method
-            subscription = stripe.Subscription.create(
-                customer=customer_id,
-                items=[{"price": price_id}],
-                default_payment_method=payment_method,
-                metadata={
-                    "user_id": user["id"],
-                    "plano": plano_tipo
-                }
-            )
+            logging.info(f"Activating plan {plano_tipo} for user {user['id']}, expires: {expiration_date}")
             
-            # Calculate expiration date
-            current_period_end = datetime.fromtimestamp(subscription.current_period_end)
-            
-            # Update user subscription info
-            await db.users.update_one(
+            # Update user subscription info (simplified - no Stripe subscription creation)
+            update_result = await db.users.update_one(
                 {"id": user["id"]},
                 {"$set": {
                     "plano_ativo": plano_tipo,
-                    "stripe_subscription_id": subscription.id,
-                    "data_expiracao_plano": current_period_end
+                    "stripe_payment_intent_id": payment_intent_id,
+                    "data_expiracao_plano": expiration_date,
+                    "looks_usados": 0  # Reset counter for premium users
                 }, "$unset": {
                     "stripe_pending_plan": "",
                     "stripe_pending_price_id": ""
                 }}
             )
             
-            logging.info(f"Payment confirmed and subscription created for user {user['id']}: {plano_tipo}, subscription: {subscription.id}")
+            if update_result.modified_count == 0:
+                logging.warning(f"No document updated for user {user['id']}")
+            
+            logging.info(f"✅ Payment confirmed and plan activated for user {user['id']}: {plano_tipo}, expires: {expiration_date}")
             
             return {
                 "message": "Pagamento confirmado! Assinatura ativada com sucesso!",
                 "plano": plano_tipo,
-                "expira_em": current_period_end.isoformat(),
+                "plano_nome": plan["name"],
+                "expira_em": expiration_date.isoformat(),
                 "status": "active"
             }
         else:
+            logging.warning(f"Payment intent {payment_intent_id} status is {payment_intent.status}, not succeeded")
             return {
-                "message": "Pagamento ainda em processamento",
+                "message": f"Pagamento ainda em processamento (status: {payment_intent.status})",
                 "status": payment_intent.status
             }
             
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        logging.error(f"Error confirming payment: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erro ao confirmar pagamento: {str(e)}")
+        logging.error(f"❌ Error confirming payment: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Erro ao confirmar pagamento. Entre em contato com o suporte.")
 
 @api_router.get("/status-assinatura")
 async def status_assinatura(current_user=Depends(security)):
