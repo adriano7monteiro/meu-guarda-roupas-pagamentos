@@ -764,7 +764,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 8,
   },
-  inputText: {
+  input: {
     backgroundColor: '#2d3436',
     color: '#fff',
     fontSize: 16,
