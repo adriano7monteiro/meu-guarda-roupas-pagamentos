@@ -470,21 +470,6 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
           )}
         </View>
 
-        {/* Quick Demo Buttons */}
-        <View style={styles.demoSection}>
-          <Text style={styles.demoTitle}>Demo rápido:</Text>
-          <TouchableOpacity 
-            style={styles.demoButton}
-            onPress={() => {
-              setEmail('demo@teste.com');
-              setPassword('123456');
-              if (!isLogin) setNome('Usuário Demo');
-            }}
-          >
-            <Text style={styles.demoButtonText}>Preencher dados demo</Text>
-          </TouchableOpacity>
-        </View>
-
         {/* Auth Modal */}
         <CustomModal
           visible={authModal.isVisible}
