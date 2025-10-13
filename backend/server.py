@@ -894,6 +894,12 @@ async def status_assinatura(current_user=Depends(security)):
         "data_expiracao": user.get("data_expiracao_plano").isoformat() if user.get("data_expiracao_plano") else None
     }
 
+@api_router.get("/planos")
+async def get_planos():
+    """Retorna todos os planos ativos"""
+    plans = await db.plans.find({"active": True}, {"_id": 0}).to_list(100)
+    return plans
+
 # Basic routes
 @api_router.get("/")
 async def root():
