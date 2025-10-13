@@ -6,6 +6,7 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "node": "22.11.0",
       "env": {
         "YARN_IGNORE_ENGINES": "1"
       }
@@ -15,6 +16,7 @@
       "android": {
         "buildType": "apk"
       },
+      "node": "22.11.0",
       "env": {
         "YARN_IGNORE_ENGINES": "1"
       }
@@ -23,6 +25,7 @@
       "android": {
         "buildType": "app-bundle"
       },
+      "node": "22.11.0",
       "env": {
         "YARN_IGNORE_ENGINES": "1"
       }
