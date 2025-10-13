@@ -774,6 +774,12 @@ async def criar_assinatura(
             automatic_payment_methods={
                 "enabled": True,
             },
+            shipping={
+                "name": user["nome"],
+                "address": {
+                    "country": "BR",
+                },
+            },
         )
         
         # Save payment info (we'll create subscription after payment succeeds)
