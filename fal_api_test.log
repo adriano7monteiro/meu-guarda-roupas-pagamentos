@@ -1,0 +1,106 @@
+2025-10-10 22:59:37,863 - INFO - 🚀 Starting Fal.ai API Integration Test
+2025-10-10 22:59:37,863 - INFO - ================================================================================
+2025-10-10 22:59:37,863 - INFO - 📋 STEP 1: Registering test user with body photo
+2025-10-10 22:59:37,930 - INFO - 🔵 Registering test user: test_fal_user_1760137177@test.com
+2025-10-10 22:59:38,231 - INFO - ✅ User registered successfully
+2025-10-10 22:59:38,231 - INFO - 🔵 Uploading body photo (size: 3254 chars)
+2025-10-10 22:59:38,278 - INFO - ✅ Body photo uploaded successfully
+2025-10-10 22:59:38,279 - INFO - 📋 STEP 2: Creating test clothing items
+2025-10-10 22:59:38,285 - INFO - 🔵 Creating clothing: Camiseta Azul Casual (image size: 1714 chars)
+2025-10-10 22:59:38,325 - INFO - ✅ Clothing created: Camiseta Azul Casual (ID: eec9a214-b53a-4539-942a-d804d354db8b)
+2025-10-10 22:59:38,326 - INFO - 🔵 Creating clothing: Calça Preta Social (image size: 1994 chars)
+2025-10-10 22:59:38,363 - INFO - ✅ Clothing created: Calça Preta Social (ID: 9aad7335-b37c-4865-acda-ccb2a90d60ec)
+2025-10-10 22:59:38,364 - INFO - 📋 STEP 3: Testing Fal.ai virtual try-on integration
+2025-10-10 22:59:38,364 - INFO - 🔵 Testing Fal.ai integration with clothing ID: eec9a214-b53a-4539-942a-d804d354db8b
+2025-10-10 22:59:38,364 - INFO - 🔵 Making request to: https://fashionai-app-1.preview.emergentagent.com/api/gerar-look-visual
+2025-10-10 22:59:40,107 - INFO - 🔵 Response status code: 200
+2025-10-10 22:59:40,107 - INFO - 🔵 Response headers: {'Content-Length': '3564', 'content-type': 'application/json', 'date': 'Fri, 10 Oct 2025 22:59:38 GMT', 'server': 'uvicorn', 'via': '1.1 google', 'Alt-Svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}
+2025-10-10 22:59:40,107 - INFO - 🟢 FAL.AI API RESPONSE ANALYSIS:
+2025-10-10 22:59:40,107 - INFO - 🟢 Response keys: ['message', 'clothing_items', 'tryon_image', 'status', 'note', 'api_used']
+2025-10-10 22:59:40,107 - INFO - 🟢 Full response: {
+  "message": "Try-on gerado (modo fallback)",
+  "clothing_items": [
+    {
+      "id": "eec9a214-b53a-4539-942a-d804d354db8b",
+      "nome": "Camiseta Azul Casual",
+      "tipo": "camiseta",
+      "cor": "azul"
+    }
+  ],
+  "tryon_image": "data:image/png;base64,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",
+  "status": "success",
+  "note": "API temporariamente indisponível. Mostrando sua foto original. Erro: 422",
+  "api_used": "fallback"
+}
+2025-10-10 22:59:40,107 - INFO - 🟢 tryon_image: Base64 image (length: 3254 chars)
+2025-10-10 22:59:40,107 - INFO - 🟢 tryon_image preview: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAJYCAIAAADDjiffAAAJPUlEQVR4nO3dsZFTVxiGYclDHXRAES...
+2025-10-10 22:59:40,107 - INFO - 🟢 Status: success
+2025-10-10 22:59:40,107 - INFO - 🟢 API Used: fallback
+2025-10-10 22:59:40,107 - INFO - 🟢 Note: API temporariamente indisponível. Mostrando sua foto original. Erro: 422
+2025-10-10 22:59:40,108 - INFO - 🔵 Testing with multiple clothing items: ['eec9a214-b53a-4539-942a-d804d354db8b', '9aad7335-b37c-4865-acda-ccb2a90d60ec']
+2025-10-10 22:59:41,334 - INFO - 🟢 Multi-item test successful
+2025-10-10 22:59:41,334 - INFO - 🟢 Multi-item response keys: ['message', 'clothing_items', 'tryon_image', 'status', 'note', 'api_used']
+2025-10-10 22:59:41,334 - INFO - 🟢 Multi-item clothing_items count: 2
+2025-10-10 22:59:41,335 - INFO - 📋 STEP 4: Checking backend logs
+2025-10-10 22:59:41,335 - INFO - 🔵 Checking backend logs for Fal.ai API calls...
+2025-10-10 22:59:41,338 - INFO - 🟢 Recent backend logs:
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:49670 - "POST /api/gerar-look-visual HTTP/1.1" 400 Bad Request
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.153:33502 - "POST /api/gerar-look-visual HTTP/1.1" 422 Unprocessable Entity
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.172:53490 - "POST /api/auth/register HTTP/1.1" 400 Bad Request
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:49670 - "POST /api/auth/login HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.249:35542 - "POST /api/upload-foto-corpo HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:36308 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.249:35542 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:36308 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.153:33516 - "GET /api/roupas HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.249:35542 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.172:53490 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:36308 - "POST /api/gerar-look-visual HTTP/1.1" 400 Bad Request
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:49670 - "POST /api/gerar-look-visual HTTP/1.1" 422 Unprocessable Entity
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.224:53186 - "POST /api/auth/register HTTP/1.1" 400 Bad Request
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:39582 - "POST /api/auth/login HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:50646 - "POST /api/upload-foto-corpo HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.153:47458 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.217:43126 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.172:49478 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.153:47458 - "GET /api/roupas HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:39582 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:50646 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:50646 - "POST /api/gerar-look-visual HTTP/1.1" 400 Bad Request
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:50646 - "POST /api/gerar-look-visual HTTP/1.1" 422 Unprocessable Entity
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.249:45694 - "POST /api/auth/register HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.249:45694 - "POST /api/upload-foto-corpo HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:53134 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.172:43108 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.215:39780 - "POST /api/auth/register HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.224:39862 - "POST /api/upload-foto-corpo HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:35754 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:56438 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:55772 - "GET /api/auth/me HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:50584 - "GET /api/roupas HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:37126 - "GET /api/auth/me HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:37126 - "GET /api/roupas HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.130.199:37126 - "POST /api/sugerir-look HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.152:44814 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,338 - INFO - 🟢 LOG: INFO:     10.64.128.173:37304 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.152:59140 - "GET /api/auth/me HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.153:52966 - "GET /api/auth/me HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.172:36360 - "GET /api/roupas HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.172:36360 - "POST /api/sugerir-look HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.172:56662 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.173:57824 - "POST /api/auth/register HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.215:47594 - "POST /api/upload-foto-corpo HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.224:49346 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.130.199:37444 - "POST /api/upload-roupa HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.128.215:47594 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - 🟢 LOG: INFO:     10.64.130.89:56800 - "POST /api/gerar-look-visual HTTP/1.1" 200 OK
+2025-10-10 22:59:41,339 - INFO - ================================================================================
+2025-10-10 22:59:41,339 - INFO - 🎯 FINAL ANALYSIS:
+2025-10-10 22:59:41,339 - INFO - ✅ API call successful
+2025-10-10 22:59:41,339 - INFO - 🔍 Has tryon_image: True
+2025-10-10 22:59:41,339 - INFO - 🔍 Image type: base64
+2025-10-10 22:59:41,339 - INFO - 🔍 API used: fallback
+2025-10-10 22:59:41,339 - INFO - 🔍 Status: success
+2025-10-10 22:59:41,339 - INFO - 🔍 Is fallback mode: True
+2025-10-10 22:59:41,339 - WARNING - 🟡 IMPORTANT: API is running in fallback mode - Fal.ai not processing images
+2025-10-10 22:59:41,339 - INFO - ================================================================================
