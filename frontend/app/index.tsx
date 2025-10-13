@@ -63,6 +63,7 @@ export default function Index() {
       const token = await AsyncStorage.getItem('auth_token');
       if (token) {
         await fetchUserProfile(token);
+        await fetchSubscriptionStatus(token);
       }
     } catch (error) {
       console.error('Error checking auth status:', error);
