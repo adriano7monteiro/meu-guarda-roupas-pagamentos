@@ -729,13 +729,17 @@ async def criar_assinatura(
             prices = stripe.Price.list(
                 active=True,
                 currency='brl',
-                product_data={'name': plano_info["name"]},
-                limit=1
+                limit=100
             )
             
-            if prices.data:
-                price_id = prices.data[0].id
-            else:
+            price_id = None
+            for price in prices.data:
+                if (price.get('unit_amount') == plano_info["price"] and 
+                    price.get('recurring', {}).get('interval') == plano_info["interval"]):
+                    price_id = price.id
+                    break
+            
+            if not price_id:
                 # Create new price
                 price = stripe.Price.create(
                     unit_amount=plano_info["price"],
@@ -747,6 +751,7 @@ async def criar_assinatura(
                     product_data={"name": plano_info["name"]}
                 )
                 price_id = price.id
+                logging.info(f"Created new price: {price_id}")
         except Exception as e:
             logging.error(f"Error finding/creating price: {str(e)}")
             # Create new price as fallback
@@ -761,39 +766,40 @@ async def criar_assinatura(
             )
             price_id = price.id
         
-        # Create a PaymentIntent for the first payment
-        # This is simpler and more reliable for mobile Payment Sheet
-        payment_intent = stripe.PaymentIntent.create(
-            amount=plano_info["price"],
-            currency="brl",
+        # Create a Subscription with the first payment
+        # This enables automatic recurring billing
+        logging.info(f"Creating subscription for customer {stripe_customer_id} with price {price_id}")
+        
+        subscription = stripe.Subscription.create(
             customer=stripe_customer_id,
+            items=[{'price': price_id}],
+            payment_behavior='default_incomplete',
+            payment_settings={
+                'save_default_payment_method': 'on_subscription',
+                'payment_method_types': ['card']
+            },
+            expand=['latest_invoice.payment_intent'],
             metadata={
                 "user_id": user["id"],
                 "plano": request.plano,
-                "price_id": price_id
-            },
-            automatic_payment_methods={
-                "enabled": True,
-            },
-            shipping={
-                "name": user["nome"],
-                "address": {
-                    "country": "BR",
-                },
-            },
+            }
         )
         
-        # Save payment info (we'll create subscription after payment succeeds)
+        # Get the PaymentIntent from the subscription's first invoice
+        payment_intent = subscription.latest_invoice.payment_intent
+        
+        # Save subscription info
         await db.users.update_one(
             {"id": user["id"]},
             {"$set": {
+                "stripe_subscription_id": subscription.id,
                 "stripe_payment_intent_id": payment_intent.id,
                 "stripe_pending_plan": request.plano,
                 "stripe_pending_price_id": price_id
             }}
         )
         
-        logging.info(f"Payment intent created for user {user['id']}: {payment_intent.id}")
+        logging.info(f"Subscription created for user {user['id']}: {subscription.id}, PaymentIntent: {payment_intent.id}")
         
         return {
             "payment_intent_id": payment_intent.id,
