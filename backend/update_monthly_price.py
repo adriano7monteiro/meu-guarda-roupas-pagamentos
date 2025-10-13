@@ -16,7 +16,7 @@ client = MongoClient(mongo_url)
 db = client[db_name]
 
 # Buscar o plano mensal atual
-plano_mensal = db.plans.find_one({"name": "Mensal"})
+plano_mensal = db.plans.find_one({"name": "Plano Mensal"})
 
 if plano_mensal:
     print(f"Plano Mensal encontrado:")
@@ -27,7 +27,7 @@ if plano_mensal:
     
     # Atualizar o preço para R$1,00
     result = db.plans.update_one(
-        {"name": "Mensal"},
+        {"name": "Plano Mensal"},
         {"$set": {"price": 1.00}}
     )
     
