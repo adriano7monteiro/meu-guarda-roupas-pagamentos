@@ -571,6 +571,73 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 2,
   },
+  // Active Premium Card styles
+  activePremiumCard: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: '#FFD700',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FFD700',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  activePremiumHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  activePremiumBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  activePremiumBadgeText: {
+    color: '#FFD700',
+    fontSize: 12,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  activePremiumTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  premiumStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  premiumStat: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 8,
+  },
+  premiumStatLabel: {
+    color: '#fff',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  premiumStatDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#636e72',
+  },
   secondaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
