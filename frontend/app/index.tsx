@@ -160,22 +160,66 @@ export default function Index() {
             </View>
           </TouchableOpacity>
 
-          {/* Premium Banner */}
-          <TouchableOpacity 
-            style={styles.premiumBanner}
-            onPress={() => router.push('/subscription' as any)}
-          >
-            <View style={styles.premiumContent}>
-              <View style={styles.premiumIcon}>
-                <Ionicons name="diamond" size={24} color="#FFD700" />
+          {/* Premium Banner - Dynamic based on subscription status */}
+          {subscriptionStatus?.is_premium ? (
+            // Active Premium Card
+            <View style={styles.activePremiumCard}>
+              <View style={styles.activePremiumHeader}>
+                <View style={styles.activePremiumBadge}>
+                  <Ionicons name="diamond" size={20} color="#FFD700" />
+                  <Text style={styles.activePremiumBadgeText}>
+                    {subscriptionStatus.plan_details?.badge || 'PREMIUM'}
+                  </Text>
+                </View>
+                <TouchableOpacity onPress={() => router.push('/subscription' as any)}>
+                  <Ionicons name="settings-outline" size={24} color="#FFD700" />
+                </TouchableOpacity>
               </View>
-              <View style={styles.premiumText}>
-                <Text style={styles.premiumTitle}>Assine o Premium</Text>
-                <Text style={styles.premiumSubtitle}>Looks ilimitados por R$ 19,90/mês</Text>
+              
+              <Text style={styles.activePremiumTitle}>
+                {subscriptionStatus.plan_details?.name || 'Plano Premium'}
+              </Text>
+              
+              <View style={styles.premiumStatsRow}>
+                <View style={styles.premiumStat}>
+                  <Ionicons name="infinite" size={24} color="#FFD700" />
+                  <Text style={styles.premiumStatLabel}>Looks Ilimitados</Text>
+                </View>
+                <View style={styles.premiumStatDivider} />
+                <View style={styles.premiumStat}>
+                  <Ionicons name="calendar-outline" size={24} color="#FFD700" />
+                  <Text style={styles.premiumStatLabel}>
+                    {subscriptionStatus.data_expiracao 
+                      ? `Renova em ${new Date(subscriptionStatus.data_expiracao).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`
+                      : 'Ativo'
+                    }
+                  </Text>
+                </View>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#FFD700" />
             </View>
-          </TouchableOpacity>
+          ) : (
+            // Free User - Upgrade Banner
+            <TouchableOpacity 
+              style={styles.premiumBanner}
+              onPress={() => router.push('/subscription' as any)}
+            >
+              <View style={styles.premiumContent}>
+                <View style={styles.premiumIcon}>
+                  <Ionicons name="diamond" size={24} color="#FFD700" />
+                </View>
+                <View style={styles.premiumText}>
+                  <Text style={styles.premiumTitle}>Assine o Premium</Text>
+                  <Text style={styles.premiumSubtitle}>
+                    {subscriptionStatus 
+                      ? `${subscriptionStatus.looks_restantes}/5 looks gratuitos restantes`
+                      : 'Looks ilimitados por R$ 19,90/mês'
+                    }
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={24} color="#FFD700" />
+              </View>
+            </TouchableOpacity>
+          )}
 
           {/* Secondary Actions Grid */}
           <View style={styles.secondaryGrid}>
