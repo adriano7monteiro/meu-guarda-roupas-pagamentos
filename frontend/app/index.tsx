@@ -811,27 +811,4 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: '#999',
   },
-  
-  // Demo section
-  demoSection: {
-    marginTop: 32,
-    alignItems: 'center',
-  },
-  demoTitle: {
-    color: '#fdcb6e',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 12,
-  },
-  demoButton: {
-    backgroundColor: '#fdcb6e',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  demoButtonText: {
-    color: '#1a1a1a',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
 });
