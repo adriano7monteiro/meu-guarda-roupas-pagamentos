@@ -816,12 +816,34 @@ async def criar_assinatura(
             invoice_payment_intent = getattr(invoice, 'payment_intent', None)
             logging.info(f"Invoice status: {invoice.status}, payment_intent: {invoice_payment_intent}")
             
-            # If invoice has no payment_intent, it needs to be finalized
-            if not invoice_payment_intent and invoice.status == 'draft':
-                logging.info("Invoice is draft, finalizing to create payment_intent...")
-                invoice = stripe.Invoice.finalize_invoice(invoice_id)
-                invoice_payment_intent = getattr(invoice, 'payment_intent', None)
-                logging.info(f"Invoice finalized, payment_intent: {invoice_payment_intent}")
+            # If invoice has no payment_intent, handle based on status
+            if not invoice_payment_intent:
+                if invoice.status == 'draft':
+                    logging.info("Invoice is draft, finalizing to create payment_intent...")
+                    invoice = stripe.Invoice.finalize_invoice(invoice_id)
+                    invoice_payment_intent = getattr(invoice, 'payment_intent', None)
+                    logging.info(f"Invoice finalized, payment_intent: {invoice_payment_intent}")
+                
+                elif invoice.status == 'open':
+                    # Invoice is open but has no payment_intent
+                    # This can happen with collection_method='send_invoice'
+                    # We need to create a PaymentIntent manually
+                    logging.info("Invoice is open but has no payment_intent, creating manually...")
+                    
+                    # Create PaymentIntent for the invoice
+                    manual_payment_intent = stripe.PaymentIntent.create(
+                        amount=invoice.amount_due,
+                        currency=invoice.currency,
+                        customer=invoice.customer,
+                        metadata={
+                            'invoice_id': invoice.id,
+                            'subscription_id': subscription.id,
+                        },
+                        automatic_payment_methods={'enabled': True},
+                    )
+                    
+                    logging.info(f"Manual PaymentIntent created: {manual_payment_intent.id}")
+                    invoice_payment_intent = manual_payment_intent.id
             
             payment_intent = invoice_payment_intent
         
