@@ -828,17 +828,17 @@ async def criar_assinatura(
             {"id": user["id"]},
             {"$set": {
                 "stripe_subscription_id": subscription.id,
-                "stripe_payment_intent_id": payment_intent.id,
+                "stripe_payment_intent_id": payment_intent_id,
                 "stripe_pending_plan": request.plano,
                 "stripe_pending_price_id": price_id
             }}
         )
         
-        logging.info(f"Subscription created for user {user['id']}: {subscription.id}, PaymentIntent: {payment_intent.id}")
+        logging.info(f"Subscription created for user {user['id']}: {subscription.id}, PaymentIntent: {payment_intent_id}")
         
         return {
-            "payment_intent_id": payment_intent.id,
-            "client_secret": payment_intent.client_secret,
+            "payment_intent_id": payment_intent_id,
+            "client_secret": client_secret,
             "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
             "customer_id": stripe_customer_id,
             "subscription_id": subscription.id,
