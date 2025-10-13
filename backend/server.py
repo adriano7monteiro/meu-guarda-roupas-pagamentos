@@ -402,82 +402,117 @@ async def gerar_look_visual(
         if not clothing_items:
             raise HTTPException(status_code=400, detail="Nenhuma roupa válida selecionada.")
         
-        # For now, we'll use the first clothing item for the try-on
-        # In a full implementation, we'd need to composite multiple items
-        first_clothing = clothing_items[0]
+        # Limit to 3 garments maximum
+        if len(clothing_items) > 3:
+            raise HTTPException(
+                status_code=400, 
+                detail="Limite de 3 peças de roupa por look. Selecione no máximo 3 itens."
+            )
         
-        logging.info(f"Selected clothing: {first_clothing['nome']} ({first_clothing['tipo']}, {first_clothing['cor']})")
-        logging.info(f"User photo size: {len(user['foto_corpo']) if user.get('foto_corpo') else 0} chars")
-        logging.info(f"Clothing image size: {len(first_clothing['imagem_original']) if first_clothing.get('imagem_original') else 0} chars")
+        logging.info(f"Processing {len(clothing_items)} clothing items for sequential try-on")
         
-        # Verify both images are base64 format
-        user_photo_valid = user.get("foto_corpo", "").startswith("data:image/")
-        clothing_image_valid = first_clothing.get("imagem_original", "").startswith("data:image/")
+        # Sequential try-on: apply each garment one by one
+        current_image = user["foto_corpo"]  # Start with user's body photo
         
-        logging.info(f"User photo valid base64: {user_photo_valid}")
-        logging.info(f"Clothing image valid base64: {clothing_image_valid}")
-        
-        if not user_photo_valid:
-            logging.error(f"Invalid user photo format: {user['foto_corpo'][:50]}...")
-        if not clothing_image_valid:
-            logging.error(f"Invalid clothing image format: {first_clothing['imagem_original'][:50]}...")
-        
-        # Prepare the virtual try-on API call (using Fal.ai FASHN)
         import requests
-        
         fal_api_url = "https://fal.run/fal-ai/fashn/tryon/v1.5"
-        
-        # Prepare the request payload (corrected field names for Fal.ai API)
-        payload = {
-            "model_image": user["foto_corpo"],  # User's body photo (base64)
-            "garment_image": first_clothing["imagem_original"],  # Clothing image (base64)
-            "description": f"Virtual try-on: {first_clothing['nome']} ({first_clothing['cor']} {first_clothing['tipo']})"
-        }
-        
-        logging.info(f"Sending to Fal.ai: model_image={len(payload['model_image'])} chars, garment_image={len(payload['garment_image'])} chars")
-        
         headers = {
             "Authorization": f"Key {os.environ.get('FAL_API_KEY')}",
             "Content-Type": "application/json"
         }
         
-        try:
-            # Make the actual API call to Fal.ai
-            logging.info(f"Calling Fal.ai API with payload keys: {list(payload.keys())}")
-            api_response = requests.post(fal_api_url, json=payload, headers=headers, timeout=30)
+        processed_items = []
+        
+        for idx, clothing in enumerate(clothing_items, 1):
+            logging.info(f"[TRYON {idx}/{len(clothing_items)}] Processing: {clothing['nome']} ({clothing['tipo']}, {clothing['cor']})")
             
-            if api_response.status_code == 200:
-                fal_result = api_response.json()
-                logging.info(f"Fal.ai API success response keys: {list(fal_result.keys())}")
-                logging.info(f"Fal.ai API full response: {fal_result}")
+            # Verify images are base64 format
+            if not current_image.startswith("data:image/"):
+                logging.error(f"Invalid model image format at step {idx}")
+                raise HTTPException(status_code=400, detail=f"Erro no formato da imagem na etapa {idx}")
+            
+            if not clothing.get("imagem_original", "").startswith("data:image/"):
+                logging.error(f"Invalid clothing image format: {clothing['nome']}")
+                raise HTTPException(status_code=400, detail=f"Erro no formato da imagem da roupa: {clothing['nome']}")
+            
+            # Prepare API payload
+            payload = {
+                "model_image": current_image,  # Current image (user photo or previous result)
+                "garment_image": clothing["imagem_original"],
+                "description": f"Try-on {idx}: {clothing['nome']} ({clothing['cor']} {clothing['tipo']})"
+            }
+            
+            logging.info(f"[TRYON {idx}/{len(clothing_items)}] Calling Fal.ai API...")
+            
+            try:
+                # Make API call
+                api_response = requests.post(fal_api_url, json=payload, headers=headers, timeout=60)
                 
-                # Extract the generated image from Fal.ai response (correct structure)
-                generated_image = None
-                
-                # Extract from Fal.ai response structure: {'images': [{'url': '...'}]}
-                if "images" in fal_result and len(fal_result["images"]) > 0:
-                    generated_image = fal_result["images"][0]["url"]
-                elif "data" in fal_result and "url" in fal_result["data"]:
-                    generated_image = fal_result["data"]["url"]
-                elif "image" in fal_result:
-                    if isinstance(fal_result["image"], dict):
-                        generated_image = fal_result["image"].get("url")
-                    elif isinstance(fal_result["image"], str):
-                        generated_image = fal_result["image"]
-                elif "url" in fal_result:
-                    generated_image = fal_result["url"]
-                
-                if not generated_image:
-                    logging.warning(f"Could not extract image from Fal.ai response: {fal_result}")
-                    generated_image = user["foto_corpo"]  # Fallback to original
-                
-                logging.info(f"Extracted image URL: {generated_image[:100]}..." if generated_image else "No image extracted")
-                
-                result = {
-                    "message": "Virtual try-on gerado com sucesso com IA!",
-                    "clothing_items": [
-                        {
-                            "id": item["id"],
+                if api_response.status_code == 200:
+                    fal_result = api_response.json()
+                    logging.info(f"[TRYON {idx}/{len(clothing_items)}] Success! Response keys: {list(fal_result.keys())}")
+                    
+                    # Extract generated image URL
+                    generated_image = None
+                    
+                    if "images" in fal_result and len(fal_result["images"]) > 0:
+                        generated_image = fal_result["images"][0]["url"]
+                    elif "data" in fal_result and "url" in fal_result["data"]:
+                        generated_image = fal_result["data"]["url"]
+                    elif "image" in fal_result:
+                        if isinstance(fal_result["image"], dict):
+                            generated_image = fal_result["image"].get("url")
+                        elif isinstance(fal_result["image"], str):
+                            generated_image = fal_result["image"]
+                    elif "url" in fal_result:
+                        generated_image = fal_result["url"]
+                    
+                    if not generated_image:
+                        logging.error(f"[TRYON {idx}/{len(clothing_items)}] Could not extract image from response")
+                        raise HTTPException(status_code=500, detail=f"Erro ao processar peça {idx}: {clothing['nome']}")
+                    
+                    # Download the image and convert to base64 for next iteration
+                    import base64
+                    image_response = requests.get(generated_image, timeout=30)
+                    if image_response.status_code == 200:
+                        # Convert to base64 data URI
+                        image_base64 = base64.b64encode(image_response.content).decode('utf-8')
+                        current_image = f"data:image/png;base64,{image_base64}"
+                        logging.info(f"[TRYON {idx}/{len(clothing_items)}] Downloaded and converted image to base64 ({len(current_image)} chars)")
+                    else:
+                        logging.error(f"[TRYON {idx}/{len(clothing_items)}] Failed to download image")
+                        raise HTTPException(status_code=500, detail=f"Erro ao baixar imagem da peça {idx}")
+                    
+                    processed_items.append({
+                        "id": clothing["id"],
+                        "nome": clothing["nome"],
+                        "tipo": clothing["tipo"],
+                        "cor": clothing["cor"]
+                    })
+                    
+                    logging.info(f"[TRYON {idx}/{len(clothing_items)}] ✅ Complete!")
+                    
+                else:
+                    logging.error(f"[TRYON {idx}/{len(clothing_items)}] API error: {api_response.status_code} - {api_response.text}")
+                    raise HTTPException(
+                        status_code=500, 
+                        detail=f"Erro na API Fal.ai ao processar peça {idx}: {clothing['nome']}"
+                    )
+                    
+            except requests.exceptions.Timeout:
+                logging.error(f"[TRYON {idx}/{len(clothing_items)}] Timeout")
+                raise HTTPException(status_code=504, detail=f"Timeout ao processar peça {idx}: {clothing['nome']}")
+            except requests.exceptions.RequestException as e:
+                logging.error(f"[TRYON {idx}/{len(clothing_items)}] Request error: {str(e)}")
+                raise HTTPException(status_code=500, detail=f"Erro de conexão ao processar peça {idx}")
+        
+        # All items processed successfully!
+        logging.info(f"✅ All {len(clothing_items)} items processed successfully!")
+        
+        # final_image now contains the result with all garments applied
+        result = {
+            "message": f"Look gerado com sucesso com {len(clothing_items)} {'peça' if len(clothing_items) == 1 else 'peças'}!",
+            "clothing_items": processed_items,
                             "nome": item["nome"],
                             "tipo": item["tipo"],
                             "cor": item["cor"]
