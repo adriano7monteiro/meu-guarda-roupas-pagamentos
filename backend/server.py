@@ -533,57 +533,8 @@ async def gerar_look_visual(
     except HTTPException:
         raise
     except Exception as e:
-                    "clothing_items": [
-                        {
-                            "id": item["id"],
-                            "nome": item["nome"],
-                            "tipo": item["tipo"],
-                            "cor": item["cor"]
-                        } for item in clothing_items
-                    ],
-                    "tryon_image": user["foto_corpo"],
-                    "status": "success",
-                    "note": f"API temporariamente indisponível. Mostrando sua foto original. Erro: {api_response.status_code}",
-                    "api_used": "fallback"
-                }
-                
-        except Exception as e:
-            logging.error(f"Error calling Fal.ai API: {str(e)}")
-            # Fallback to mock if API call fails
-            result = {
-                "message": "Try-on gerado (modo fallback)",
-                "clothing_items": [
-                    {
-                        "id": item["id"],
-                        "nome": item["nome"],
-                        "tipo": item["tipo"],
-                        "cor": item["cor"]
-                    } for item in clothing_items
-                ],
-                "tryon_image": user["foto_corpo"],
-                "status": "success",
-                "note": f"Erro na conexão com IA. Mostrando sua foto original. Erro: {str(e)}",
-                "api_used": "fallback"
-            }
-        
-        mock_result = result
-        
-        # Increment looks counter for free users
-        if plano_ativo == "free":
-            await db.users.update_one(
-                {"id": user["id"]},
-                {"$inc": {"looks_usados": 1}}
-            )
-            logging.info(f"Incremented looks counter for user {user['id']}: {looks_usados + 1}/5")
-        
-        logging.info(f"Virtual try-on completed for {len(clothing_items)} items")
-        return mock_result
-        
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        logging.error(f"Error in gerar_look_visual: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
+        logging.error(f"Error in virtual try-on: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar look: {str(e)}")
 
 # Clothing routes
 @api_router.post("/upload-roupa")
