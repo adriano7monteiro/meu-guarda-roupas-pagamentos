@@ -6,8 +6,8 @@ Crie um arquivo `.env` na raiz do diretório `frontend/` com o seguinte conteúd
 
 ```env
 EXPO_TUNNEL_SUBDOMAIN=fashionai-12
-EXPO_PACKAGER_HOSTNAME=https://fashionai-12.preview.emergentagent.com
-EXPO_PUBLIC_BACKEND_URL=https://fashionai-12.preview.emergentagent.com
+EXPO_PACKAGER_HOSTNAME=https://virtuallook-1.preview.emergentagent.com
+EXPO_PUBLIC_BACKEND_URL=https://virtuallook-1.preview.emergentagent.com
 EXPO_USE_FAST_RESOLVER="1"
 METRO_CACHE_ROOT=/app/frontend/.metro-cache
 ```
@@ -17,7 +17,7 @@ METRO_CACHE_ROOT=/app/frontend/.metro-cache
 Mantenha apenas:
 
 ```env
-EXPO_PUBLIC_BACKEND_URL=https://fashionai-12.preview.emergentagent.com
+EXPO_PUBLIC_BACKEND_URL=https://virtuallook-1.preview.emergentagent.com
 ```
 
 ## Para Produção

@@ -1,105 +1,88 @@
 <analysis>
-The previous AI engineer successfully built the core Meu Look IA application from scratch, addressing numerous user requests and debugging critical issues. The development followed an iterative approach, starting with basic setup and progressively adding features and refining the UI/UX. Key milestones included setting up the Expo frontend and FastAPI backend, implementing user authentication, and creating core screens for clothing upload, wardrobe management, and look generation.
-
-Significant effort was dedicated to image handling, initially fixing issues where profile and clothing photos were not displayed correctly (due to incorrect usage of base64). A major feature, virtual try-on, was implemented using Fal.ai FASHN API, which required extensive debugging related to API key configuration, handling exhausted balance errors, addressing failed to detect body pose issues (due to synthetic images), and correcting the extraction of the generated image URL from the API response. UI/UX was enhanced by replacing all  calls with a custom, globally accessible modal component, improving text input fields, adding a loading indicator for the AI try-on process, and implementing full-screen image viewing with visual cues. The text-based AI suggestions were also refined to prevent raw JSON output, ensuring a natural, formatted user experience. The current task involves adding social sharing functionality.
+The trajectory details the AI engineer's work on the Meu Look IA application, beginning with fixing a reported regression where virtual try-on () stopped working. This led to extensive debugging of the Fal.ai API key, including correcting the  header format ( vs. ) and ensuring a valid key was used. After resolving the Fal.ai integration, the AI engineer implemented a comprehensive Stripe-based subscription system, including a free tier (5 looks), dynamic plan fetching from the backend, and integrating Stripe's Payment Sheet for transparent checkout. This involved significant backend API development (user model updates, subscription endpoints, look counter) and frontend UI/UX work (subscription screen, premium button, upgrade modal, platform-specific Stripe rendering). Concurrently, several bug fixes and enhancements were made: displaying images in saved looks, ensuring AI suggestions use valid clothing IDs, enabling the Salvar Look button only after virtual try-on, and adding a free-text context field for AI suggestions. The persistent topFocus error with Stripe React Native on the web preview necessitated a platform-specific component strategy. The trajectory concludes with ongoing efforts to resolve the  error and the creation of  documentation due to gitignore issues.
 </analysis>
 
 <product_requirements>
-The Meu Look IA application aims to help users organize clothes and receive AI-driven outfit suggestions. Users can upload photos of clothes, footwear, and accessories, along with a full-body photo. The app's AI capabilities include:
-1.  Background removal from clothing items (currently not implemented, uses original image).
-2.  Virtual try-on: showing the user wearing different combinations using their own body photo and uploaded clothes, powered by external AI (Fal.ai FASHN).
-3.  Automatic look suggestions based on weather, occasion, and personal preferences, using a text-based AI (OpenAI GPT via Emergent LLM key).
+The Meu Look IA application helps users organize clothes and receive AI-driven outfit suggestions. It supports uploading clothing and a full-body photo. The core AI features include background removal (postponed), virtual try-on via Fal.ai FASHN API, and text-based outfit suggestions powered by OpenAI GPT.
 
-Key functionalities implemented so far:
--   User authentication (login, registration).
--   Upload of clothes, footwear, accessories (saves base64 images).
--   Upload of user's full-body photo (saves base64 image).
--   Try-on virtual via Fal.ai FASHN API, displaying generated images of user wearing selected clothes.
--   Automated look suggestions using OpenAI GPT, formatted for better readability.
--   Display of user's wardrobe with clothing thumbnails.
--   Modal system to replace all native alerts for consistent UI.
--   Full-screen view for generated try-on images.
--   Loading indicator for AI-driven processes.
+Implemented functionalities encompass:
+- User authentication and profile management.
+- Upload/display of clothing items and user's full-body photo.
+- Virtual try-on () displaying AI-generated images.
+- Automated text-based look suggestions, formatted for readability.
+- A custom modal system replacing native alerts for consistent UI/UX.
+- Full-screen viewing for generated try-on images.
+- Loading indicators for AI processes.
+- Social sharing functionality for generated looks (WhatsApp, Instagram).
+- A subscription model allowing 5 free virtual try-ons, followed by paid plans (monthly R9.90, semiannual R9.00, annual R79.90) with Stripe Payment Sheet for transparent checkout.
+- Dynamic fetching of subscription plan details from the backend.
+- Display of saved looks with their corresponding images, viewable in full-screen.
+- A free-text input field on the look generation screen to provide additional context to the AI.
 </product_requirements>
 
 <key_technical_concepts>
--   **Frontend:** React Native with Expo Router for navigation,  for stack,  for state,  for HTTP,  for media.
--   **Backend:** FastAPI with MongoDB for data storage,  for JWT,  for LLM integration.
--   **AI Integration:** OpenAI GPT (text suggestions via ), Fal.ai FASHN API (virtual try-on), Emergent LLM Key.
--   **Image Handling:**  encoding for all images (profile, clothes, generated try-on).
--   **UI/UX:** Custom modals,  for loading,  for interactions.
+-   **Frontend:** React Native with Expo Router, , , , ,  (Payment Sheet), , .
+-   **Backend:** FastAPI, MongoDB,  (JWT),  (LLM integration),  (Python SDK).
+-   **AI Integration:** OpenAI GPT (text suggestions), Fal.ai FASHN API (virtual try-on).
+-   **Image Handling:** Base64 encoding.
+-   **Payment:** Stripe Payment Sheet, PaymentIntent, Subscriptions.
 </key_technical_concepts>
 
 <code_architecture>
-The application follows a full-stack architecture with an Expo React Native frontend, a FastAPI backend, and a MongoDB database.
+The application employs a full-stack architecture, featuring an Expo React Native frontend, a FastAPI backend, and a MongoDB database.
 
 
 
 -   ****:
-    -   **Importance**: This is the core of the backend logic, handling API endpoints, database interactions, and integrations with external AI services.
-    -   **Changes Made**:
-        -   Initial setup for user authentication, clothing upload, look generation (text-based), and weather integration.
-        -   Implemented  endpoint for Fal.ai FASHN virtual try-on.
-        -   Configured Fal.ai API key and activated real API calls, replacing initial mock logic.
-        -   Fixed incorrect URL extraction from Fal.ai's response.
-        -   Added detailed logging for debugging API calls and responses.
-        -   Improved text AI suggestion parsing to handle markdown-wrapped JSON and prevent raw JSON display.
-        -   Integrated  library for external API calls.
+    -   **Importance**: Centralizes all backend logic including API endpoints, database interactions, and integrations.
+    -   **Changes Made**: Extensive modifications for Fal.ai API key debugging (Authorization header correction), user model updates (, , ), new models for ,  (). Implemented Stripe subscription endpoints (, , ), plan validation in , look counter increment, LLM prompt adjustment for context and valid clothing IDs, dynamic plan fetching.
 -   ****:
-    -   **Importance**: The main entry point and initial screen (AuthScreen/Dashboard) for the Expo application, handling user authentication and global navigation.
-    -   **Changes Made**:
-        -   Initial setup of authentication UI and dashboard.
-        -   Replaced  calls with  hook and  component.
-        -   Implemented a  function.
+    -   **Importance**: Stores environment-specific variables like API keys and database URLs.
+    -   **Changes Made**: Updated , added .
 -   ****:
-    -   **Importance**: Manages user profile, including uploading and displaying the full-body photo.
-    -   **Changes Made**:
-        -   Corrected display logic to show the actual base64  image instead of a placeholder icon.
-        -   Added  component imports and styling for the body photo.
+    -   **Importance**: Documented backend environment variables as a workaround for  not committing to git.
+    -   **Changes Made**: New file created.
 -   ****:
-    -   **Importance**: Handles the process of adding new clothing items, including photo upload, categorization, and saving to the database.
-    -   **Changes Made**:
-        -   Implemented image preview for selected clothing photos.
-        -   Added retry logic, timeout handling, and token trimming for robust image uploads.
-        -   Modified post-save navigation to offer Ver no Guarda-roupa or Adicionar Outra options.
-        -   Replaced  calls with  for all success/error feedback.
-        -   Replaced  for Nome da roupa with a native .
+    -   **Importance**: Application entry point and dashboard.
+    -   **Changes Made**: Added a Assinar Premium button navigating to the subscription screen.
 -   ****:
-    -   **Importance**: Displays all clothes uploaded by the user in a gallery format.
-    -   **Changes Made**:
-        -   Updated to display actual base64 images of clothing items as thumbnails instead of generic icons.
+    -   **Importance**: Main screen for generating and viewing looks.
+    -   **Changes Made**: Added social sharing buttons (WhatsApp/Instagram). Implemented logic to display upgrade modal on 403 error for virtual try-on. Salvar Look button enabled only after successful virtual try-on. Updated  to include . Added a  for  to improve AI suggestions.
 -   ****:
-    -   **Importance**: The central screen for generating text-based and virtual try-on looks.
-    -   **Changes Made**:
-        -   Implemented UI for Gerar Meu Look (text suggestions) and Ver em Mim (virtual try-on).
-        -   Integrated Fal.ai FASHN API for virtual try-on, displaying generated images.
-        -   Added a loading indicator () for the Ver em Mim button.
-        -   Increased the display size of the generated try-on image.
-        -   Implemented full-screen image viewing on tap, with visual cues for interactivity.
-        -   Enhanced text suggestion display with structured sections (, ).
-        -   Replaced  calls with .
+    -   **Importance**: Displays user's saved looks.
+    -   **Changes Made**: Updated to display  from saved looks and implemented full-screen image viewing on tap.
 -   ****:
-    -   **Importance**: A reusable React Native modal component for displaying alerts, messages, and confirmations throughout the app.
-    -   **Changes Made**: New file created to provide a consistent and customizable UI/UX for user feedback. Supports different types (success, error, warning, info) and custom buttons.
+    -   **Importance**: Handles subscription plans and Stripe payment integration.
+    -   **Changes Made**: New file created. Implemented UI for subscription plans, integrated  for Payment Sheet, handled payment intent creation and confirmation, fetched dynamic plans from backend, configured billing address for Brazil. Underwent multiple iterations to fix Stripe integration and platform-specific issues.
 -   ****:
-    -   **Importance**: A custom React hook to simplify the management and display of the  component across different screens.
-    -   **Changes Made**: New file created to encapsulate modal state and helper functions (, , etc.).
+    -   **Importance**: Expo application configuration.
+    -   **Changes Made**: Added  for deep linking, crucial for Stripe Payment Sheet return URLs.
 -   ****:
-    -   **Importance**: Manages frontend dependencies.
-    -   **Changes Made**: Added , , , , , , , .
-
+    -   **Importance**: Stores frontend environment variables.
+    -   **Changes Made**: Added .
+-   ****:
+    -   **Importance**: Documented frontend environment variables as a workaround for  not committing to git.
+    -   **Changes Made**: New file created.
+-   ****:
+    -   **Importance**: Conditionally imports and provides Stripe context specifically for native platforms.
+    -   **Changes Made**: New file created as part of the  error resolution strategy.
+-   ****:
+    -   **Importance**: Provides a placeholder or fallback for Stripe context on web platforms to prevent crashes.
+    -   **Changes Made**: New file created as part of the  error resolution strategy.
 </code_architecture>
 
 <pending_tasks>
 -   Implement automatic background removal for uploaded clothing images (user decided to postpone).
--   Fully update , , and  to use the new global modal system (some alerts may still exist).
+-   Fully update  and  to use the new global modal system (some alerts may still exist).
 -   Integrate OpenWeatherMap API for weather-based look suggestions.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was working on adding social sharing functionality to the Gerar Look screen (). Specifically, the task is to include buttons for sharing the generated try-on images on WhatsApp and Instagram. The initial step for this task has been completed, which involved installing the necessary Expo dependencies:  and . The next steps would involve implementing the actual sharing functions using these libraries and then adding the UI buttons to the  file. The goal is to allow users to easily share their AI-generated outfits directly from the app.
+Immediately before this summary request, the AI engineer was addressing a persistent topFocus error that occurred when loading the application, specifically related to the  library on the web preview. Despite previous attempts to use conditional rendering and platform-specific  files (, ) which allowed the web preview to initially load, the user reported the topFocus error reappearing upon app load in the web environment.
+
+The AI engineer identified that even with conditional imports, the Metro bundler was still attempting to process native-only Stripe modules, causing the crash. The last recorded action (Chat Message 615) indicates a plan to try a different approach: remover completamente o Stripe do arquivo e apenas mostrar mensagem informativa. This suggests a temporary removal of the Stripe integration from the web-facing component to ensure the app loads, while preserving it for native platforms. This is a critical debugging step to isolate the issue and provide a functional web experience, even if the Stripe payment functionality is not available there.
 </current_work>
 
 <optional_next_step>
-Implement the sharing functions for WhatsApp and Instagram in  and add the corresponding UI buttons.
+The next step is to remove Stripe components from the  file for web platforms and display an informative message instead.
 </optional_next_step>
