@@ -257,7 +257,16 @@ async def forgot_password(request: PasswordResetRequest):
         
         if not email_sent:
             logging.error(f"Failed to send password reset email to {request.email}")
-            raise HTTPException(status_code=500, detail="Erro ao enviar email. Tente novamente.")
+            logging.warning(f"[DEV MODE] Password reset code for {request.email}: {code}")
+            
+            # Em desenvolvimento, retornar o código na resposta quando email falhar
+            # IMPORTANTE: Remover em produção!
+            return {
+                "success": True,
+                "message": "Não foi possível enviar o email. Use o código abaixo (modo desenvolvimento)",
+                "dev_code": code,  # REMOVER EM PRODUÇÃO
+                "note": "Configure o SendGrid corretamente antes de usar em produção"
+            }
         
         logging.info(f"Password reset code sent to {request.email}")
         
