@@ -267,6 +267,68 @@ function SubscriptionContent() {
     }
   };
 
+  const handleCancelSubscription = async () => {
+    modal.showConfirm(
+      '⚠️ Cancelar Assinatura',
+      'Tem certeza que deseja cancelar? Você continuará com acesso premium até o fim do período pago.',
+      [
+        {
+          text: 'Voltar',
+          onPress: () => modal.hideModal(),
+          style: 'cancel',
+        },
+        {
+          text: 'Sim, Cancelar',
+          onPress: async () => {
+            modal.hideModal();
+            setLoading(true);
+            
+            try {
+              const token = await AsyncStorage.getItem('auth_token');
+              const response = await fetch(
+                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/cancelar-assinatura`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              );
+
+              const data = await response.json();
+
+              if (response.ok) {
+                modal.showSuccess(
+                  '✅ Assinatura Cancelada',
+                  data.details || 'Você continuará com acesso até o fim do período pago.',
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => {
+                        modal.hideModal();
+                        fetchSubscriptionStatus();
+                      },
+                      style: 'primary',
+                    },
+                  ]
+                );
+              } else {
+                modal.showError('Erro', data.detail || 'Erro ao cancelar assinatura.');
+              }
+            } catch (error) {
+              console.error('Error cancelling subscription:', error);
+              modal.showError('Erro', 'Erro de conexão. Tente novamente.');
+            } finally {
+              setLoading(false);
+            }
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
