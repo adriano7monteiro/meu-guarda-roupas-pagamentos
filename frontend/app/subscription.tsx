@@ -17,43 +17,12 @@ import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
 import { StripeProvider, useStripe } from '../utils/stripeProvider';
 
-const PLANS = [
-  {
-    id: 'mensal',
-    name: 'Mensal',
-    price: 'R$ 1,00',
-    priceValue: 1.00,
-    interval: '/mês',
-    features: ['Looks ilimitados', 'Todas as funcionalidades', 'Suporte prioritário'],
-    badge: 'TESTE',
-    color: '#6c5ce7',
-  },
-  {
-    id: 'semestral',
-    name: 'Semestral',
-    price: 'R$ 99,00',
-    priceValue: 99.00,
-    interval: '/6 meses',
-    features: ['Looks ilimitados', 'Todas as funcionalidades', 'Suporte prioritário', 'Economize 17%'],
-    badge: 'POPULAR',
-    color: '#00b894',
-  },
-  {
-    id: 'anual',
-    name: 'Anual',
-    price: 'R$ 179,90',
-    priceValue: 179.90,
-    interval: '/ano',
-    features: ['Looks ilimitados', 'Todas as funcionalidades', 'Suporte prioritário', 'Economize 25%'],
-    badge: 'MELHOR VALOR',
-    color: '#e17055',
-  },
-];
-
 function SubscriptionContent() {
   const [selectedPlan, setSelectedPlan] = useState('semestral');
   const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
   const modal = useModal();
   
   // Use Stripe hooks only on native platforms
@@ -62,7 +31,30 @@ function SubscriptionContent() {
 
   useEffect(() => {
     fetchSubscriptionStatus();
+    fetchPlans();
   }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/planos`);
+      if (response.ok) {
+        const data = await response.json();
+        // Format plans for display
+        const formattedPlans = data.map((plan: any) => ({
+          ...plan,
+          priceValue: plan.price / 100,
+          price: `R$ ${(plan.price / 100).toFixed(2).replace('.', ',')}`,
+          interval: plan.interval === 'year' ? '/ano' : plan.interval_count === 6 ? '/6 meses' : '/mês',
+        }));
+        setPlans(formattedPlans);
+      }
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      modal.showError('Erro', 'Erro ao carregar planos. Tente novamente.');
+    } finally {
+      setLoadingPlans(false);
+    }
+  };
 
   const fetchSubscriptionStatus = async () => {
     try {
