@@ -212,6 +212,118 @@ async def get_me(current_user=Depends(security)):
         created_at=user["created_at"]
     )
 
+# Password Reset Routes
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetVerify(BaseModel):
+    email: str
+    code: str
+    new_password: str
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest):
+    """
+    Envia código de recuperação de senha por email
+    """
+    try:
+        # Verificar se usuário existe
+        user = await db.users.find_one({"email": request.email})
+        if not user:
+            # Por segurança, não revelar se o email existe ou não
+            return {
+                "success": True,
+                "message": "Se este email estiver cadastrado, você receberá um código de recuperação"
+            }
+        
+        # Gerar código de 6 dígitos
+        code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        
+        # Salvar código no banco com expiração de 30 minutos
+        expiration = datetime.utcnow() + timedelta(minutes=30)
+        
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {
+                    "reset_code": code,
+                    "reset_code_expires": expiration
+                }
+            }
+        )
+        
+        # Enviar email
+        email_sent = email_service.send_password_reset_code(request.email, code)
+        
+        if not email_sent:
+            logging.error(f"Failed to send password reset email to {request.email}")
+            raise HTTPException(status_code=500, detail="Erro ao enviar email. Tente novamente.")
+        
+        logging.info(f"Password reset code sent to {request.email}")
+        
+        return {
+            "success": True,
+            "message": "Código de recuperação enviado para seu email"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error in forgot_password: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao processar solicitação")
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: PasswordResetVerify):
+    """
+    Verifica código e redefine senha
+    """
+    try:
+        # Buscar usuário
+        user = await db.users.find_one({"email": request.email})
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado")
+        
+        # Verificar se tem código de reset
+        if not user.get("reset_code"):
+            raise HTTPException(status_code=400, detail="Nenhum código de recuperação solicitado")
+        
+        # Verificar expiração
+        if datetime.utcnow() > user.get("reset_code_expires", datetime.utcnow()):
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$unset": {"reset_code": "", "reset_code_expires": ""}}
+            )
+            raise HTTPException(status_code=400, detail="Código expirado. Solicite um novo código")
+        
+        # Verificar código
+        if user.get("reset_code") != request.code:
+            raise HTTPException(status_code=400, detail="Código inválido")
+        
+        # Atualizar senha
+        password_hash = bcrypt.hashpw(request.new_password.encode('utf-8'), bcrypt.gensalt())
+        
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {"password_hash": password_hash.decode('utf-8')},
+                "$unset": {"reset_code": "", "reset_code_expires": ""}
+            }
+        )
+        
+        logging.info(f"Password reset successful for {request.email}")
+        
+        return {
+            "success": True,
+            "message": "Senha redefinida com sucesso"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error in reset_password: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao redefinir senha")
+
 # Profile routes
 @api_router.post("/upload-foto-corpo")
 async def upload_foto_corpo(
