@@ -921,11 +921,11 @@ async def cancelar_assinatura(current_user=Depends(security)):
                 }
             )
             
-            logging.info(f"[CANCEL] User {user['email']} subscription will cancel at {subscription.cancel_at}")
-            
             # Extrair valores de forma segura
             cancel_at = getattr(subscription, 'cancel_at', None)
             current_period_end = getattr(subscription, 'current_period_end', None)
+            
+            logging.info(f"[CANCEL] User {user['email']} subscription will cancel at {cancel_at}")
             
             return {
                 "success": True,
