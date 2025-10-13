@@ -57,20 +57,39 @@ export default function ForgotPassword() {
       const data = await response.json();
 
       if (response.ok) {
-        modal.showSuccess(
-          '✅ Código Enviado!',
-          'Verifique seu email e digite o código de 6 dígitos',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                modal.hideModal();
-                setStep('code');
+        // Se tiver código de desenvolvimento (quando email falhar)
+        if (data.dev_code) {
+          modal.showSuccess(
+            '⚠️ Modo Desenvolvimento',
+            `Código de recuperação: ${data.dev_code}\n\n${data.note || 'Configure o SendGrid antes de produção'}`,
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  modal.hideModal();
+                  setStep('code');
+                },
+                style: 'primary',
               },
-              style: 'primary',
-            },
-          ]
-        );
+            ]
+          );
+        } else {
+          // Fluxo normal com email enviado
+          modal.showSuccess(
+            '✅ Código Enviado!',
+            'Verifique seu email e digite o código de 6 dígitos',
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  modal.hideModal();
+                  setStep('code');
+                },
+                style: 'primary',
+              },
+            ]
+          );
+        }
       } else {
         modal.showError('Erro', data.detail || 'Erro ao enviar código');
       }
