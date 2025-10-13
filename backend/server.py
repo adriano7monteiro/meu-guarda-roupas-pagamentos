@@ -764,26 +764,48 @@ async def criar_assinatura(
             }
         )
         
-        # Get the payment intent client secret
-        payment_intent = subscription.latest_invoice.payment_intent
+        # Get the payment intent client secret safely
+        payment_intent = None
+        client_secret = None
         
-        if not payment_intent:
-            raise HTTPException(status_code=500, detail="Erro ao criar intenção de pagamento")
+        # Check if latest_invoice exists and has payment_intent
+        if hasattr(subscription, 'latest_invoice') and subscription.latest_invoice:
+            invoice = subscription.latest_invoice
+            
+            # Payment intent could be an object or a string ID
+            if hasattr(invoice, 'payment_intent') and invoice.payment_intent:
+                if isinstance(invoice.payment_intent, str):
+                    # It's an ID, need to retrieve it
+                    payment_intent = stripe.PaymentIntent.retrieve(invoice.payment_intent)
+                else:
+                    # It's already an object
+                    payment_intent = invoice.payment_intent
+                
+                if payment_intent and hasattr(payment_intent, 'client_secret'):
+                    client_secret = payment_intent.client_secret
+        
+        if not client_secret:
+            logging.error(f"No client_secret found for subscription {subscription.id}")
+            raise HTTPException(
+                status_code=500, 
+                detail="Erro ao obter client_secret do pagamento. Verifique se há um método de pagamento padrão configurado."
+            )
         
         # Save pending subscription info
+        payment_intent_id = payment_intent.id if payment_intent else None
         await db.users.update_one(
             {"id": user["id"]},
             {"$set": {
                 "stripe_subscription_id": subscription.id,
-                "stripe_payment_intent_id": payment_intent.id
+                "stripe_payment_intent_id": payment_intent_id
             }}
         )
         
-        logging.info(f"Subscription created for user {user['id']}: {subscription.id}")
+        logging.info(f"Subscription created for user {user['id']}: {subscription.id}, payment_intent: {payment_intent_id}")
         
         return {
             "subscription_id": subscription.id,
-            "client_secret": payment_intent.client_secret,
+            "client_secret": client_secret,
             "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
             "customer_id": stripe_customer_id,
             "plano": request.plano,
