@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Get backend URL from frontend env
-BACKEND_URL = "https://meulookia-debug.preview.emergentagent.com/api"
+BACKEND_URL = "https://fashionai-app-1.preview.emergentagent.com/api"
 
 class VirtualTryOnTester:
     def __init__(self):
