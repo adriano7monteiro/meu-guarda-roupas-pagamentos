@@ -83,6 +83,7 @@ export default function Index() {
 
   const fetchSubscriptionStatus = async (token: string) => {
     try {
+      console.log('Fetching subscription status...');
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/status-assinatura`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -91,7 +92,10 @@ export default function Index() {
 
       if (response.ok) {
         const statusData = await response.json();
+        console.log('Subscription status received:', statusData);
         setSubscriptionStatus(statusData);
+      } else {
+        console.error('Failed to fetch subscription status:', response.status);
       }
     } catch (error) {
       console.error('Error fetching subscription status:', error);
