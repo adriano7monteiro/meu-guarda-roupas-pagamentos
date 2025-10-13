@@ -21,11 +21,11 @@ const PLANS = [
   {
     id: 'mensal',
     name: 'Mensal',
-    price: 'R$ 19,90',
-    priceValue: 19.90,
+    price: 'R$ 1,00',
+    priceValue: 1.00,
     interval: '/mês',
     features: ['Looks ilimitados', 'Todas as funcionalidades', 'Suporte prioritário'],
-    badge: null,
+    badge: 'TESTE',
     color: '#6c5ce7',
   },
   {
