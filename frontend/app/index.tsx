@@ -22,6 +22,20 @@ interface User {
   ocasiao_preferida: string;
 }
 
+interface SubscriptionStatus {
+  plano_ativo: string;
+  plan_details: {
+    name: string;
+    badge?: string;
+    color: string;
+  } | null;
+  is_premium: boolean;
+  looks_usados: number;
+  looks_restantes: number | string;
+  data_expiracao: string | null;
+  plan_expired: boolean;
+}
+
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
