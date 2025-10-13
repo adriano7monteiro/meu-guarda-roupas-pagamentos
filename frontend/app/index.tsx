@@ -322,17 +322,6 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [loading, setLoading] = useState(false);
   const authModal = useModal();
 
-  const handleFieldEdit = (field: 'email' | 'nome' | 'password', currentValue: string) => {
-    // For now, using a simple prompt replacement with modal
-    const fieldLabel = field === 'email' ? 'E-mail' : field === 'nome' ? 'Nome' : 'Senha';
-    
-    authModal.showInfo(
-      fieldLabel,
-      `Use o botão "Preencher dados demo" abaixo para inserir dados de teste rapidamente.`,
-      [{ text: 'OK', onPress: () => authModal.hideModal() }]
-    );
-  };
-
   const handleAuth = async () => {
     if (!email || !password || (!isLogin && !nome)) {
       authModal.showError('Campos Obrigatórios', 'Por favor, preencha todos os campos');
