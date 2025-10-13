@@ -802,30 +802,44 @@ async def confirmar_pagamento(
         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         
         if payment_intent.status == "succeeded":
-            # Get the subscription
-            subscription_id = user.get("stripe_subscription_id")
-            if not subscription_id:
-                raise HTTPException(status_code=400, detail="Assinatura não encontrada")
+            # Get pending plan info
+            plano_tipo = user.get("stripe_pending_plan")
+            price_id = user.get("stripe_pending_price_id")
             
-            subscription = stripe.Subscription.retrieve(subscription_id)
+            if not plano_tipo or not price_id:
+                raise HTTPException(status_code=400, detail="Informações do plano não encontradas")
             
-            # Calculate expiration date based on plan
+            # Get payment method from payment intent
+            payment_method = payment_intent.payment_method
+            
+            # Now create the subscription with the payment method
+            subscription = stripe.Subscription.create(
+                customer=user.get("stripe_customer_id"),
+                items=[{"price": price_id}],
+                default_payment_method=payment_method,
+                metadata={
+                    "user_id": user["id"],
+                    "plano": plano_tipo
+                }
+            )
+            
+            # Calculate expiration date
             current_period_end = datetime.fromtimestamp(subscription.current_period_end)
-            
-            # Get plan from subscription metadata
-            plano_tipo = subscription.metadata.get("plano", "mensal")
             
             # Update user subscription info
             await db.users.update_one(
                 {"id": user["id"]},
                 {"$set": {
                     "plano_ativo": plano_tipo,
-                    "stripe_subscription_id": subscription_id,
+                    "stripe_subscription_id": subscription.id,
                     "data_expiracao_plano": current_period_end
+                }, "$unset": {
+                    "stripe_pending_plan": "",
+                    "stripe_pending_price_id": ""
                 }}
             )
             
-            logging.info(f"Payment confirmed and plan activated for user {user['id']}: {plano_tipo}")
+            logging.info(f"Payment confirmed and subscription created for user {user['id']}: {plano_tipo}, subscription: {subscription.id}")
             
             return {
                 "message": "Pagamento confirmado! Assinatura ativada com sucesso!",
