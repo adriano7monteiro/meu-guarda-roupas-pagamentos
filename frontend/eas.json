@@ -1,0 +1,34 @@
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "YARN_IGNORE_ENGINES": "1"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "YARN_IGNORE_ENGINES": "1"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "YARN_IGNORE_ENGINES": "1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
