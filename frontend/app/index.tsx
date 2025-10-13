@@ -346,6 +346,8 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
         ? { email, password }
         : { email, password, nome, ocasiao_preferida: 'casual' };
 
+      console.log('Auth request:', endpoint, body);
+
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}${endpoint}`, {
         method: 'POST',
         headers: {
@@ -354,7 +356,20 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
         body: JSON.stringify(body),
       });
 
+      console.log('Auth response status:', response.status);
+      console.log('Auth response content-type:', response.headers.get('content-type'));
+
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        authModal.showError('Erro de Servidor', 'Resposta inválida do servidor. Tente novamente.');
+        return;
+      }
+
       const data = await response.json();
+      console.log('Auth response data:', data);
 
       if (response.ok) {
         await AsyncStorage.setItem('auth_token', data.token);
@@ -365,7 +380,11 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       }
     } catch (error) {
       console.error('Auth error:', error);
-      authModal.showError('Erro de Conexão', 'Erro de conexão. Tente novamente.');
+      if (error instanceof SyntaxError) {
+        authModal.showError('Erro de Formato', 'Resposta inválida do servidor (JSON Parse Error)');
+      } else {
+        authModal.showError('Erro de Conexão', 'Erro de conexão. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
