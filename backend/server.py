@@ -950,12 +950,13 @@ async def stripe_webhook(request: Request):
     
     try:
         # Verificar assinatura do webhook para segurança
-        if STRIPE_WEBHOOK_SECRET:
+        if STRIPE_WEBHOOK_SECRET and sig_header:
             event = stripe.Webhook.construct_event(
                 payload, sig_header, STRIPE_WEBHOOK_SECRET
             )
         else:
             # Modo de desenvolvimento - sem verificação de assinatura
+            logger.warning("[WEBHOOK] Running without signature verification (development mode)")
             event = stripe.Event.construct_from(
                 json.loads(payload), stripe.api_key
             )
