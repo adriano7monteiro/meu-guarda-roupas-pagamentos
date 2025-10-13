@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useModal } from '../hooks/useModal';
+import CustomModal from '../components/CustomModal';
 
 export default function ForgotPassword() {
   const router = useRouter();
