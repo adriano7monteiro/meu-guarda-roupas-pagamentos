@@ -806,6 +806,7 @@ async def criar_assinatura(
             "client_secret": payment_intent.client_secret,
             "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
             "customer_id": stripe_customer_id,
+            "subscription_id": subscription.id,
             "plano": request.plano,
             "valor": plano_info["price"] / 100  # Convert to reais
         }
