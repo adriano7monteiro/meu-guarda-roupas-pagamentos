@@ -814,32 +814,35 @@ async def confirmar_pagamento(
 ):
     try:
         user = await get_current_user(current_user)
-        logging.info(f"Confirming payment for user {user['id']}, payment_intent: {payment_intent_id}")
+        logging.info(f"[CONFIRM] Starting payment confirmation for user {user['id']}, payment_intent: {payment_intent_id}")
         
         # Retrieve payment intent from Stripe
         try:
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-            logging.info(f"Payment intent status: {payment_intent.status}")
+            logging.info(f"[CONFIRM] Payment intent retrieved - Status: {payment_intent.status}, Amount: {payment_intent.amount}")
+            logging.info(f"[CONFIRM] Payment method: {payment_intent.payment_method}")
         except Exception as stripe_error:
-            logging.error(f"Error retrieving payment intent from Stripe: {str(stripe_error)}")
-            raise HTTPException(status_code=400, detail="Não foi possível verificar o pagamento no Stripe")
+            logging.error(f"[CONFIRM] ❌ Error retrieving payment intent from Stripe: {str(stripe_error)}")
+            raise HTTPException(status_code=400, detail=f"Não foi possível verificar o pagamento no Stripe: {str(stripe_error)}")
         
         if payment_intent.status == "succeeded":
             # Get pending plan info
             plano_tipo = user.get("stripe_pending_plan")
             price_id = user.get("stripe_pending_price_id")
             
-            logging.info(f"Plan type: {plano_tipo}, Price ID: {price_id}")
+            logging.info(f"[CONFIRM] User plan info - Plan type: {plano_tipo}, Price ID: {price_id}")
             
-            if not plano_tipo or not price_id:
-                logging.error(f"Missing plan info for user {user['id']}: plano_tipo={plano_tipo}, price_id={price_id}")
-                raise HTTPException(status_code=400, detail="Informações do plano não encontradas. Entre em contato com o suporte.")
+            if not plano_tipo:
+                logging.error(f"[CONFIRM] ❌ Missing plan type for user {user['id']}")
+                raise HTTPException(status_code=400, detail="Informações do plano não encontradas. Por favor, tente assinar novamente.")
             
             # Get plan details from database
             plan = await db.plans.find_one({"id": plano_tipo})
             if not plan:
-                logging.error(f"Plan {plano_tipo} not found in database")
+                logging.error(f"[CONFIRM] ❌ Plan {plano_tipo} not found in database")
                 raise HTTPException(status_code=400, detail="Plano não encontrado no sistema")
+            
+            logging.info(f"[CONFIRM] Plan found: {plan['name']} - R$ {plan['price']/100:.2f}")
             
             # Calculate expiration date based on plan interval
             if plan["interval"] == "month":
@@ -851,7 +854,7 @@ async def confirmar_pagamento(
             
             expiration_date = datetime.utcnow() + timedelta(days=days_to_add)
             
-            logging.info(f"Activating plan {plano_tipo} for user {user['id']}, expires: {expiration_date}")
+            logging.info(f"[CONFIRM] Calculated expiration date: {expiration_date}")
             
             # Update user subscription info (simplified - no Stripe subscription creation)
             update_result = await db.users.update_one(
@@ -868,9 +871,11 @@ async def confirmar_pagamento(
             )
             
             if update_result.modified_count == 0:
-                logging.warning(f"No document updated for user {user['id']}")
+                logging.warning(f"[CONFIRM] ⚠️  No document updated for user {user['id']} - maybe already activated?")
+            else:
+                logging.info(f"[CONFIRM] ✅ User document updated successfully")
             
-            logging.info(f"✅ Payment confirmed and plan activated for user {user['id']}: {plano_tipo}, expires: {expiration_date}")
+            logging.info(f"[CONFIRM] ✅✅✅ Payment confirmed and plan activated for user {user['id']}: {plano_tipo}, expires: {expiration_date.strftime('%d/%m/%Y')}")
             
             return {
                 "message": "Pagamento confirmado! Assinatura ativada com sucesso!",
@@ -880,7 +885,7 @@ async def confirmar_pagamento(
                 "status": "active"
             }
         else:
-            logging.warning(f"Payment intent {payment_intent_id} status is {payment_intent.status}, not succeeded")
+            logging.warning(f"[CONFIRM] ⚠️  Payment intent {payment_intent_id} status is '{payment_intent.status}', expected 'succeeded'")
             return {
                 "message": f"Pagamento ainda em processamento (status: {payment_intent.status})",
                 "status": payment_intent.status
@@ -889,8 +894,8 @@ async def confirmar_pagamento(
     except HTTPException as he:
         raise he
     except Exception as e:
-        logging.error(f"❌ Error confirming payment: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Erro ao confirmar pagamento. Entre em contato com o suporte.")
+        logging.error(f"[CONFIRM] ❌❌❌ Unexpected error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Erro ao confirmar pagamento: {str(e)}")
 
 @api_router.get("/status-assinatura")
 async def status_assinatura(current_user=Depends(security)):
