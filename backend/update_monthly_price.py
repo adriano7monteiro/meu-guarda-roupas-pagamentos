@@ -25,10 +25,10 @@ if plano_mensal:
     print(f"  - Preço atual: R${plano_mensal['price']:.2f}")
     print(f"  - Intervalo: {plano_mensal['interval']}")
     
-    # Atualizar o preço para R$1,00
+    # Atualizar o preço para R$1,00 (100 centavos)
     result = db.plans.update_one(
         {"name": "Plano Mensal"},
-        {"$set": {"price": 1.00}}
+        {"$set": {"price": 100}}
     )
     
     if result.modified_count > 0:
