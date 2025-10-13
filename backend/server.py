@@ -983,12 +983,14 @@ async def stripe_webhook(request: Request):
             
         return {"status": "success"}
         
-    except stripe.error.SignatureVerificationError as e:
-        logger.error(f"[WEBHOOK] Invalid signature: {str(e)}")
-        raise HTTPException(status_code=400, detail="Invalid signature")
     except Exception as e:
-        logger.error(f"[WEBHOOK] Error processing webhook: {str(e)}")
-        raise HTTPException(status_code=400, detail=str(e))
+        # Capturar qualquer erro, incluindo erros do Stripe
+        if 'SignatureVerificationError' in str(type(e)):
+            logger.error(f"[WEBHOOK] Invalid signature: {str(e)}")
+            raise HTTPException(status_code=400, detail="Invalid signature")
+        else:
+            logger.error(f"[WEBHOOK] Error processing webhook: {str(e)}")
+            raise HTTPException(status_code=400, detail=str(e))
 
 async def handle_payment_succeeded(invoice):
     """Processa pagamento recorrente bem-sucedido"""
