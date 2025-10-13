@@ -70,12 +70,31 @@ export default function Index() {
       if (response.ok) {
         const userData = await response.json();
         setUser(userData);
+        // Fetch subscription status after getting user
+        await fetchSubscriptionStatus(token);
       } else {
         // Token inválido, limpar storage
         await AsyncStorage.removeItem('auth_token');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+    }
+  };
+
+  const fetchSubscriptionStatus = async (token: string) => {
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/status-assinatura`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const statusData = await response.json();
+        setSubscriptionStatus(statusData);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription status:', error);
     }
   };
 
