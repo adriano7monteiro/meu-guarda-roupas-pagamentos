@@ -931,9 +931,13 @@ async def cancelar_assinatura(current_user=Depends(security)):
                 "details": "Você continuará tendo acesso premium até o fim do período pago"
             }
             
-        except stripe.error.StripeError as e:
-            logging.error(f"[CANCEL] Stripe error: {str(e)}")
-            raise HTTPException(status_code=400, detail=f"Erro ao cancelar no Stripe: {str(e)}")
+        except Exception as stripe_error:
+            # Capturar qualquer erro do Stripe
+            if 'Stripe' in str(type(stripe_error)):
+                logging.error(f"[CANCEL] Stripe error: {str(stripe_error)}")
+                raise HTTPException(status_code=400, detail=f"Erro ao cancelar no Stripe: {str(stripe_error)}")
+            else:
+                raise
             
     except HTTPException:
         raise
