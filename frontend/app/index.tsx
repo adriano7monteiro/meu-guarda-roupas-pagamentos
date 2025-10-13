@@ -46,6 +46,18 @@ export default function Index() {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    // Fetch subscription status when user is logged in
+    if (user) {
+      const token = AsyncStorage.getItem('auth_token');
+      token.then((t) => {
+        if (t) {
+          fetchSubscriptionStatus(t);
+        }
+      });
+    }
+  }, [user]);
+
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
