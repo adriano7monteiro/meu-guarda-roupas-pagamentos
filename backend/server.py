@@ -627,11 +627,29 @@ async def upload_roupa(
         raise HTTPException(status_code=500, detail=f"Erro interno: {str(e)}")
 
 @api_router.get("/roupas")
-async def get_roupas(current_user=Depends(security)):
+async def get_roupas(
+    skip: int = 0, 
+    limit: int = 20,
+    current_user=Depends(security)
+):
     user = await get_current_user(current_user)
     
-    roupas = await db.clothing_items.find({"user_id": user["id"]}, {"_id": 0}).to_list(1000)
-    return roupas
+    # Get total count for pagination info
+    total = await db.clothing_items.count_documents({"user_id": user["id"]})
+    
+    # Get paginated results
+    roupas = await db.clothing_items.find(
+        {"user_id": user["id"]}, 
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    return {
+        "items": roupas,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "has_more": (skip + limit) < total
+    }
 
 @api_router.delete("/roupas/{roupa_id}")
 async def delete_roupa(roupa_id: str, current_user=Depends(security)):
