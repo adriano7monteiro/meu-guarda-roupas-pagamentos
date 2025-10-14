@@ -1253,6 +1253,16 @@ async def status_assinatura(current_user=Depends(security)):
         "plan_expired": plan_expired
     }
 
+@api_router.get("/stripe-config")
+async def get_stripe_config():
+    """
+    Retorna a chave publicável do Stripe
+    Endpoint público - não requer autenticação
+    """
+    return {
+        "publishableKey": os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
+    }
+
 @api_router.post("/stripe-webhook")
 async def stripe_webhook(request: Request):
     """
