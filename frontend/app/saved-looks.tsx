@@ -322,30 +322,14 @@ export default function SavedLooks() {
           </View>
 
           {/* Looks List */}
-          <ScrollView 
-            style={styles.scrollContainer}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.looksContainer}>
-              {filteredLooks.length === 0 ? (
-                <View style={styles.noResultsContainer}>
-                  <Ionicons name="search" size={60} color="#636e72" />
-                  <Text style={styles.noResultsTitle}>
-                    Nenhum look encontrado
-                  </Text>
-                  <Text style={styles.noResultsSubtitle}>
-                    Tente alterar o filtro ou criar mais looks.
-                  </Text>
-                </View>
-              ) : (
-                filteredLooks.map((look) => {
-                  const clothingDetails = getClothingDetails(look.roupas_ids);
-                  
-                  return (
-                    <View key={look.id} style={styles.lookCard}>
+          <FlatList
+            data={filteredLooks}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item: look }) => {
+              const clothingDetails = getClothingDetails(look.roupas_ids);
+              
+              return (
+                <View style={styles.lookCard}>
                       {/* Look Image (if available) */}
                       {look.imagem_look && (
                         <TouchableOpacity
