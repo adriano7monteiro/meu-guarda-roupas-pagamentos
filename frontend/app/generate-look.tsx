@@ -72,14 +72,16 @@ export default function GenerateLook() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        const clothes = await response.json();
+        const data = await response.json();
+        // Handle paginated response
+        const clothes = data.items || data;
         setUserClothes(clothes);
       }
     } catch (error) {
