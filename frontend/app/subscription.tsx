@@ -795,7 +795,7 @@ const styles = StyleSheet.create({
 
 // Wrapper component with Stripe Provider
 export default function Subscription() {
-  const [publishableKey] = useState('pk_live_51SHSpFDGCWpP7oWO6LM77jTz9HYKiqqJsIgfyhMyhBrpIobpXW84HqfdI4d8PqsCDgZX572D4J7zHuMel2MxiRCI00ORm43AvR');
+  const [publishableKey] = useState('pk_live_51SIEHk6nJMuXEwW5cet6jWTF4rjgd36jZ21ruTDLkOUKQoIetCPooK0p2GzT5pAerUPsUEjjZY8wJp1B8qw8SCDR00hgOhUJgM');
   const [stripeReady, setStripeReady] = useState(false);
 
   useEffect(() => {
