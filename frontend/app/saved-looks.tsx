@@ -199,9 +199,18 @@ export default function SavedLooks() {
     );
   };
 
+  const loadMoreLooks = () => {
+    if (!loadingMore && hasMore && !loading) {
+      setLoadingMore(true);
+      fetchData(false);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
-    fetchData();
+    setPage(0);
+    setHasMore(true);
+    fetchData(true);
   };
 
   const getClothingDetails = (clothingIds: string[]) => {
