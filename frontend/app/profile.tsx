@@ -108,6 +108,8 @@ export default function Profile() {
         aspect: [3, 4],
         quality: 0.8,
         base64: true,
+        exif: false,
+        presentationStyle: 'fullScreen',
       });
 
       if (!result.canceled && result.assets[0]) {
