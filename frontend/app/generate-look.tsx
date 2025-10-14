@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   actionButtonsContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: 12,
   },
   saveButton: {
