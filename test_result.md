@@ -205,6 +205,18 @@ backend:
           comment: "✅ TESTE COMPLETO COM NOVA API KEY CONFIRMADO: Nova API Key b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b funcionando perfeitamente! Teste completo executado: ✅ Usuário criado e autenticado, ✅ Foto do corpo enviada (6459 chars), ✅ Roupa cadastrada (3751 chars), ✅ Virtual try-on endpoint respondendo 200 OK. Fal.ai API sendo chamada com sucesso - autenticação OK, payload correto (model_image/garment_image). Erro 422 'Failed to detect body pose in model image' é esperado com imagens sintéticas de teste. API está funcionando corretamente, apenas requer fotos reais de pessoas com poses detectáveis. Estrutura de resposta perfeita: {message, clothing_items, tryon_image, status, note, api_used}. Fallback funcionando quando necessário. Endpoint 100% funcional e pronto para uso com imagens reais."
 
 frontend:
+  - task: "Exibir imagens das roupas sugeridas com ampliação"
+    implemented: true
+    working: "NA"
+    file: "generate-look.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Modificada a tela generate-look para exibir imagens das roupas sugeridas em vez de apenas texto. Corrigido campo de imagem_url para imagem_original. Adicionados estilos para cards horizontais de roupas. Integrada funcionalidade de ampliação em tela cheia ao tocar nas imagens (tanto roupas sugeridas quanto resultado do try-on virtual). Interface TypeScript atualizada para incluir campo imagem_original."
+
   - task: "Tela de autenticação (login/registro)"
     implemented: true
     working: "NA"
