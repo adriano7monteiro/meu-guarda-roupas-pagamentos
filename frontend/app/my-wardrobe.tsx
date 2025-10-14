@@ -278,66 +278,78 @@ export default function MyWardrobe() {
           </View>
 
           {/* Clothing Items List */}
-          <ScrollView 
-            style={styles.scrollContainer}
+          <FlatList
+            data={filteredItems}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.clothingCard}>
+                {item.imagem_original ? (
+                  <Image 
+                    source={{ uri: item.imagem_original }} 
+                    style={styles.clothingImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.clothingImagePlaceholder}>
+                    <Ionicons 
+                      name={CLOTHING_TYPE_ICONS[item.tipo] || 'shirt'} 
+                      size={32} 
+                      color="#6c5ce7" 
+                    />
+                  </View>
+                )}
+                
+                <View style={styles.clothingInfo}>
+                  <Text style={styles.clothingName}>{item.nome}</Text>
+                  <Text style={styles.clothingDetails}>
+                    {item.tipo} • {item.cor} • {item.estilo}
+                  </Text>
+                  <Text style={styles.clothingDate}>
+                    Adicionado em {new Date(item.created_at).toLocaleDateString('pt-BR')}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => deleteClothingItem(item.id, item.nome)}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#e17055" />
+                </TouchableOpacity>
+              </View>
+            )}
+            contentContainerStyle={styles.itemsContainer}
             refreshControl={
               <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.itemsContainer}>
-              {filteredItems.length === 0 ? (
-                <View style={styles.noResultsContainer}>
-                  <Ionicons name="search" size={60} color="#636e72" />
-                  <Text style={styles.noResultsTitle}>
-                    Nenhuma roupa encontrada
-                  </Text>
-                  <Text style={styles.noResultsSubtitle}>
-                    Tente alterar o filtro ou adicionar mais roupas.
+            onEndReached={loadMoreItems}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={
+              <View style={styles.noResultsContainer}>
+                <Ionicons name="search" size={60} color="#636e72" />
+                <Text style={styles.noResultsTitle}>
+                  Nenhuma roupa encontrada
+                </Text>
+                <Text style={styles.noResultsSubtitle}>
+                  Tente alterar o filtro ou adicionar mais roupas.
+                </Text>
+              </View>
+            }
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={styles.loadingMoreContainer}>
+                  <ActivityIndicator size="small" color="#6c5ce7" />
+                  <Text style={styles.loadingMoreText}>Carregando mais...</Text>
+                </View>
+              ) : !hasMore && filteredItems.length > 0 ? (
+                <View style={styles.endMessageContainer}>
+                  <Text style={styles.endMessageText}>
+                    {totalItems} {totalItems === 1 ? 'roupa carregada' : 'roupas carregadas'}
                   </Text>
                 </View>
-              ) : (
-                filteredItems.map((item) => (
-                  <View key={item.id} style={styles.clothingCard}>
-                    {item.imagem_original ? (
-                      <Image 
-                        source={{ uri: item.imagem_original }} 
-                        style={styles.clothingImage}
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View style={styles.clothingImagePlaceholder}>
-                        <Ionicons 
-                          name={CLOTHING_TYPE_ICONS[item.tipo] || 'shirt'} 
-                          size={32} 
-                          color="#6c5ce7" 
-                        />
-                      </View>
-                    )}
-                    
-                    <View style={styles.clothingInfo}>
-                      <Text style={styles.clothingName}>{item.nome}</Text>
-                      <Text style={styles.clothingDetails}>
-                        {item.tipo} • {item.cor} • {item.estilo}
-                      </Text>
-                      <Text style={styles.clothingDate}>
-                        Adicionado em {new Date(item.created_at).toLocaleDateString('pt-BR')}
-                      </Text>
-                    </View>
-
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => deleteClothingItem(item.id, item.nome)}
-                    >
-                      <Ionicons name="trash-outline" size={20} color="#e17055" />
-                    </TouchableOpacity>
-                  </View>
-                ))
-              )}
-            </View>
-            
-            <View style={{ height: 100 }} />
-          </ScrollView>
+              ) : null
+            }
+            showsVerticalScrollIndicator={false}
+          />
         </>
       )}
 
