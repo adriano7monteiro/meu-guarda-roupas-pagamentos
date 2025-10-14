@@ -6,7 +6,7 @@ def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 
 project.ext.react = [
-    enableHermes: false,     // desabilita Hermes
+    enableHermes: true,      // habilita Hermes (necessário para React Native 0.79+)
     newArchEnabled: false,   // desabilita a nova arquitetura
 ]
 
