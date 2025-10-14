@@ -426,14 +426,42 @@ export default function SavedLooks() {
                           ))}
                         </ScrollView>
                       </View>
-                    </View>
-                  );
-                })
-              )}
-            </View>
-            
-            <View style={{ height: 100 }} />
-          </ScrollView>
+                </View>
+              );
+            }}
+            contentContainerStyle={styles.looksContainer}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            onEndReached={loadMoreLooks}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={
+              <View style={styles.noResultsContainer}>
+                <Ionicons name="search" size={60} color="#636e72" />
+                <Text style={styles.noResultsTitle}>
+                  Nenhum look encontrado
+                </Text>
+                <Text style={styles.noResultsSubtitle}>
+                  Tente alterar o filtro ou criar mais looks.
+                </Text>
+              </View>
+            }
+            ListFooterComponent={
+              loadingMore ? (
+                <View style={styles.loadingMoreContainer}>
+                  <ActivityIndicator size="small" color="#6c5ce7" />
+                  <Text style={styles.loadingMoreText}>Carregando mais...</Text>
+                </View>
+              ) : !hasMore && filteredLooks.length > 0 ? (
+                <View style={styles.endMessageContainer}>
+                  <Text style={styles.endMessageText}>
+                    {totalLooks} {totalLooks === 1 ? 'look carregado' : 'looks carregados'}
+                  </Text>
+                </View>
+              ) : null
+            }
+            showsVerticalScrollIndicator={false}
+          />
         </>
       )}
 
