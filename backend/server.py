@@ -131,6 +131,16 @@ class Plan(BaseModel):
     color: str
     active: bool = True
 
+class Suggestion(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_email: str
+    mensagem: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SuggestionCreate(BaseModel):
+    mensagem: str
+
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
