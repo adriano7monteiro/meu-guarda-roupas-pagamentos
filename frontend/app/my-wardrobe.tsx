@@ -40,6 +40,7 @@ export default function MyWardrobe() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('todos');
+  const modal = useModal();
 
   const filters = [
     { id: 'todos', label: 'Todos' },
