@@ -7,11 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "meulookia",
     "userInterfaceStyle": "automatic",
-    "jsEngine": "hermes",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "jsEngine": "hermes",
       "bundleIdentifier": "com.zenebathos.meulookia"
     },
     "android": {
@@ -20,7 +18,6 @@
         "backgroundColor": "#000"
       },
       "edgeToEdgeEnabled": true,
-      "jsEngine": "hermes",
       "package": "com.zenebathos.meulookia"
     },
     "web": {
