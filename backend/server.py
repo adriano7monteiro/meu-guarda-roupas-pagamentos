@@ -435,11 +435,46 @@ async def gerar_look_visual(
                 logging.error(f"Invalid clothing image format: {clothing['nome']}")
                 raise HTTPException(status_code=400, detail=f"Erro no formato da imagem da roupa: {clothing['nome']}")
             
+            # Mapear tipos em português para descrições mais específicas em inglês
+            garment_type_map = {
+                "camiseta": "t-shirt",
+                "camisa": "shirt",
+                "blusa": "blouse",
+                "calca": "pants",
+                "jeans": "jeans",
+                "short": "shorts",
+                "saia": "skirt",
+                "vestido": "dress",
+                "jaqueta": "jacket",
+                "casaco": "coat",
+                "moletom": "hoodie",
+                "tenis": "sneakers",
+                "sapato": "shoes",
+                "sandalia": "sandals",
+                "bota": "boots",
+                "bone": "cap",
+                "chapeu": "hat",
+                "oculos": "sunglasses",
+                "relogio": "watch",
+                "bolsa": "bag",
+                "colar": "necklace",
+                "pulseira": "bracelet"
+            }
+            
+            # Obter tipo em inglês
+            garment_type_en = garment_type_map.get(clothing['tipo'].lower(), clothing['tipo'])
+            
+            # Criar descrição detalhada para melhor reconhecimento
+            description = f"{clothing['cor']} {garment_type_en}"
+            if clothing.get('nome'):
+                description = f"{description} - {clothing['nome']}"
+            
             # Prepare API payload
             payload = {
                 "model_image": current_image,  # Current image (user photo or previous result)
                 "garment_image": clothing["imagem_original"],
-                "description": f"Try-on {idx}: {clothing['nome']} ({clothing['cor']} {clothing['tipo']})"
+                "description": description,
+                "category": garment_type_en  # Adicionar categoria explícita
             }
             
             logging.info(f"[TRYON {idx}/{len(clothing_items)}] Calling Fal.ai API...")
