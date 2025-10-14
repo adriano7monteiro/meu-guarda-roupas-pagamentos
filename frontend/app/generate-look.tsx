@@ -552,139 +552,27 @@ export default function GenerateLook() {
               </ScrollView>
             </View>
 
-            {/* Visual Result */}
-            {visualLookResult && (
-              <View style={styles.visualResultSection}>
-                <Text style={styles.visualResultTitle}>
-                  🎉 Try-On Virtual Gerado! 
-                </Text>
-                <Text style={styles.visualResultSubtitle}>
-                  {visualLookResult.api_used === 'fal.ai-fashn' ? '✨ Criado com IA' : '📷 Sua foto original'}
-                </Text>
-                
-                <View style={styles.visualResultCard}>
-                  <View style={styles.tryonImageContainer}>
-                    <TouchableOpacity 
-                      style={styles.imageClickableContainer}
-                      onPress={() => setFullScreenImage(visualLookResult.tryon_image)}
-                      activeOpacity={0.8}
-                    >
-                      <Image 
-                        source={{ uri: visualLookResult.tryon_image }} 
-                        style={styles.tryonImage}
-                        resizeMode="cover"
-                        onLoad={() => console.log('Try-on image loaded successfully')}
-                       
-                      />
-                      <View style={styles.imageOverlay}>
-                        <Text style={styles.imageOverlayText}>
-                          {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA' : 'Original'}
-                        </Text>
-                      </View>
-                      <View style={styles.clickIndicator}>
-                        <Ionicons name="expand" size={20} color="#fff" />
-                      </View>
-                    </TouchableOpacity>
-                    <Text style={styles.clickHint}>👆 Toque na imagem para visualizar em tela cheia</Text>
-                  </View>
-                  
-                  <Text style={styles.visualResultNote}>
-                    {visualLookResult.note}
-                  </Text>
-                  
-                  <View style={styles.visualClothingList}>
-                    <Text style={styles.visualClothingTitle}>Roupas aplicadas:</Text>
-                    {visualLookResult.clothing_items.map((item: any, index: number) => (
-                      <Text key={index} style={styles.visualClothingItem}>
-                        • {item.nome} ({item.cor} {item.tipo})
-                      </Text>
-                    ))}
-                  </View>
-
-                  {/* Status indicator */}
-                  <View style={styles.statusIndicator}>
-                    <View style={[
-                      styles.statusDot, 
-                      visualLookResult.api_used === 'fal.ai-fashn' ? styles.successDot : styles.warningDot
-                    ]} />
-                    <Text style={styles.statusText}>
-                      Status: {visualLookResult.api_used === 'fal.ai-fashn' ? 'IA Ativa' : 'Modo Fallback'}
-                    </Text>
-                  </View>
-
-                  {/* Share Buttons */}
-                  <View style={styles.shareSection}>
-                    <Text style={styles.shareTitle}>Compartilhar meu look:</Text>
-                    <View style={styles.shareButtonsContainer}>
-                      <TouchableOpacity 
-                        style={styles.whatsappButton}
-                        onPress={shareToWhatsApp}
-                      >
-                        <Ionicons name="logo-whatsapp" size={24} color="#fff" />
-                        <Text style={styles.shareButtonText}>WhatsApp</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity 
-                        style={styles.instagramButton}
-                        onPress={shareToInstagram}
-                      >
-                        <Ionicons name="logo-instagram" size={24} color="#fff" />
-                        <Text style={styles.shareButtonText}>Instagram</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            )}
-
             {/* Action Buttons */}
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity 
-                style={[
-                  styles.saveButton,
-                  !visualLookResult && styles.disabledButton
-                ]} 
+                style={styles.saveButton} 
                 onPress={saveLook}
-                disabled={!visualLookResult}
               >
                 <Ionicons name="heart" size={20} color="#fff" />
-                <Text style={styles.saveButtonText}>
-                  {visualLookResult ? 'Salvar Look' : 'Gere a visualização primeiro'}
-                </Text>
+                <Text style={styles.saveButtonText}>Salvar Look</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[
-                  styles.visualTryonButton, 
-                  tryonLoading && styles.loadingButton
-                ]} 
-                onPress={generateVisualLook}
-                disabled={tryonLoading}
+                style={styles.newLookButton} 
+                onPress={() => {
+                  setSuggestion(null);
+                  setSuggestedClothes([]);
+                }}
               >
-                {tryonLoading ? (
-                  <>
-                    <ActivityIndicator size="small" color="#fff" />
-                    <Text style={styles.loadingButtonText}>Gerando IA...</Text>
-                  </>
-                ) : (
-                  <>
-                    <Ionicons name="person" size={20} color="#fff" />
-                    <Text style={styles.visualTryonButtonText}>Ver em Mim</Text>
-                  </>
-                )}
+                <Ionicons name="refresh" size={20} color="#6c5ce7" />
+                <Text style={styles.newLookButtonText}>Novo Look</Text>
               </TouchableOpacity>
             </View>
-
-            <TouchableOpacity 
-              style={styles.newLookButton} 
-              onPress={() => {
-                setSuggestion(null);
-                setSuggestedClothes([]);
-              }}
-            >
-              <Ionicons name="refresh" size={20} color="#6c5ce7" />
-              <Text style={styles.newLookButtonText}>Novo Look</Text>
-            </TouchableOpacity>
           </View>
         )}
 
