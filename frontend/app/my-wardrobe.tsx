@@ -60,7 +60,7 @@ export default function MyWardrobe() {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
+        modal.showError('Erro', 'Token de autenticação não encontrado.');
         return;
       }
 
@@ -72,13 +72,16 @@ export default function MyWardrobe() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Roupas carregadas:', data.length);
         setClothingItems(data);
       } else {
-        Alert.alert('Erro', 'Erro ao carregar roupas.');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro ao carregar roupas:', response.status, errorData);
+        modal.showError('Erro', errorData.detail || 'Erro ao carregar roupas. Verifique sua conexão.');
       }
     } catch (error) {
       console.error('Error fetching clothing items:', error);
-      Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
     } finally {
       setLoading(false);
       setRefreshing(false);
