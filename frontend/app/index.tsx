@@ -319,15 +319,15 @@ export default function Index() {
             <Text style={styles.statsTitle}>Suas estatísticas</Text>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0</Text>
+                <Text style={styles.statNumber}>{stats.roupas}</Text>
                 <Text style={styles.statLabel}>Roupas</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0</Text>
+                <Text style={styles.statNumber}>{stats.looks}</Text>
                 <Text style={styles.statLabel}>Looks Criados</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>0</Text>
+                <Text style={styles.statNumber}>{stats.favoritos}</Text>
                 <Text style={styles.statLabel}>Favoritos</Text>
               </View>
             </View>
