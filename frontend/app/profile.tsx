@@ -105,7 +105,7 @@ export default function Profile() {
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [3, 4],
+        aspect: [9, 16],  // Aspecto mais alto para corpo inteiro (quase tela cheia)
         quality: 0.8,
         base64: true,
         exif: false,
