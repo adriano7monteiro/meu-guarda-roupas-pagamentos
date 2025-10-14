@@ -69,6 +69,7 @@ export default function Index() {
       if (token) {
         await fetchUserProfile(token);
         await fetchSubscriptionStatus(token);
+        await fetchStats(token);
       }
     } catch (error) {
       
