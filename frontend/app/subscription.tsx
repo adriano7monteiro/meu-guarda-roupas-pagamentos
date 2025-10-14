@@ -823,8 +823,18 @@ export default function Subscription() {
     fetchStripeConfig();
   }, []);
 
-  // Only wrap with StripeProvider on native platforms
-  if (Platform.OS === 'web' || !StripeProvider || !stripeReady) {
+  // Show loading while fetching Stripe config
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#6C5CE7" />
+        <Text style={{ marginTop: 16, color: '#fff' }}>Carregando...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Only wrap with StripeProvider on native platforms and when key is available
+  if (Platform.OS === 'web' || !StripeProvider || !publishableKey) {
     return <SubscriptionContent />;
   }
 
