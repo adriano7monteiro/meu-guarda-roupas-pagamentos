@@ -512,16 +512,43 @@ export default function GenerateLook() {
             {/* Suggested Clothes */}
             <View style={styles.clothesSection}>
               <Text style={styles.clothesSectionTitle}>Peças Sugeridas:</Text>
-              {suggestedClothes.map((item) => (
-                <View key={item.id} style={styles.clothingItem}>
-                  <View style={styles.clothingInfo}>
-                    <Text style={styles.clothingName}>{item.nome}</Text>
-                    <Text style={styles.clothingDetails}>
-                      {item.tipo} • {item.cor} • {item.estilo}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={styles.clothesScrollView}
+              >
+                {suggestedClothes.map((item) => (
+                  <TouchableOpacity 
+                    key={item.id} 
+                    style={styles.suggestedClothingCard}
+                    onPress={() => setFullScreenImage(item.imagem_url)}
+                    activeOpacity={0.7}
+                  >
+                    {item.imagem_url ? (
+                      <Image 
+                        source={{ uri: item.imagem_url }} 
+                        style={styles.suggestedClothingImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={styles.suggestedClothingPlaceholder}>
+                        <Ionicons name="shirt-outline" size={40} color="#666" />
+                      </View>
+                    )}
+                    <View style={styles.suggestedClothingInfo}>
+                      <Text style={styles.suggestedClothingName} numberOfLines={1}>
+                        {item.nome}
+                      </Text>
+                      <Text style={styles.suggestedClothingDetails} numberOfLines={1}>
+                        {item.tipo} • {item.cor}
+                      </Text>
+                    </View>
+                    <View style={styles.expandIconContainer}>
+                      <Ionicons name="expand-outline" size={16} color="#fff" />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
             </View>
 
             {/* Visual Result */}
