@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import SplashScreen from '@/components/SplashScreen';
+import SplashScreen from '../components/SplashScreen';
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
