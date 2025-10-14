@@ -66,7 +66,7 @@ export default function SavedLooks() {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (resetPage: boolean = false) => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
@@ -74,15 +74,21 @@ export default function SavedLooks() {
         return;
       }
 
-      // Fetch looks
-      const looksResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const currentPage = resetPage ? 0 : page;
+      const skip = currentPage * ITEMS_PER_PAGE;
 
-      // Fetch clothing items
-      const clothesResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas`, {
+      // Fetch looks with pagination
+      const looksResponse = await fetch(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks?skip=${skip}&limit=${ITEMS_PER_PAGE}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Fetch ALL clothing items (não paginado pois é usado como referência)
+      const clothesResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -92,8 +98,22 @@ export default function SavedLooks() {
         const looksData = await looksResponse.json();
         const clothesData = await clothesResponse.json();
         
-        setLooks(looksData);
-        setClothingItems(clothesData);
+        console.log('Looks carregados:', looksData.items.length, 'Total:', looksData.total);
+        
+        if (resetPage) {
+          setLooks(looksData.items);
+          setPage(0);
+        } else {
+          setLooks(prev => [...prev, ...looksData.items]);
+        }
+        
+        setClothingItems(clothesData.items || clothesData);
+        setHasMore(looksData.has_more);
+        setTotalLooks(looksData.total);
+        
+        if (!resetPage) {
+          setPage(currentPage + 1);
+        }
       } else {
         Alert.alert('Erro', 'Erro ao carregar dados.');
       }
@@ -103,6 +123,7 @@ export default function SavedLooks() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   };
 
