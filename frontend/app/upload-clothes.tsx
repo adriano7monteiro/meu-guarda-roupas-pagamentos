@@ -287,7 +287,13 @@ export default function UploadClothes() {
         <View style={{ width: 24 }} />
       </View>
 
-      <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 70}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         
         {/* Image Selection */}
         <View style={styles.section}>
