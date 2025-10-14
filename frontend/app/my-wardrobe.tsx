@@ -7,13 +7,14 @@ import {
   StatusBar,
   TouchableOpacity,
   ScrollView,
-  Alert,
   RefreshControl,
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import CustomModal from '../components/CustomModal';
+import { useModal } from '../hooks/useModal';
 
 interface ClothingItem {
   id: string;
