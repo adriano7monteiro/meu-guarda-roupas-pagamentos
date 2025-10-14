@@ -1255,4 +1255,54 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  
+  // Suggested clothes styles
+  clothesScrollView: {
+    marginTop: 8,
+  },
+  suggestedClothingCard: {
+    width: 140,
+    backgroundColor: '#2d3436',
+    borderRadius: 12,
+    marginRight: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#636e72',
+  },
+  suggestedClothingImage: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#636e72',
+  },
+  suggestedClothingPlaceholder: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#636e72',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  suggestedClothingInfo: {
+    padding: 12,
+  },
+  suggestedClothingName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  suggestedClothingDetails: {
+    color: '#999',
+    fontSize: 12,
+  },
+  expandIconContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(108, 92, 231, 0.9)',
+    borderRadius: 20,
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
