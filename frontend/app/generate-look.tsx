@@ -317,17 +317,12 @@ export default function GenerateLook() {
       if (!token) return;
 
       // Prepare look data
-      const lookData: any = {
+      const lookData = {
         nome: `Look ${suggestion.ocasiao}`,
         roupas_ids: suggestion.roupas_ids,
         ocasiao: suggestion.ocasiao,
         clima: suggestion.temperatura,
       };
-
-      // Include try-on image if available
-      if (visualLookResult && visualLookResult.tryon_image) {
-        lookData.imagem_look = visualLookResult.tryon_image;
-      }
 
       const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks`, {
         method: 'POST',
