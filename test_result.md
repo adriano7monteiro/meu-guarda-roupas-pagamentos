@@ -285,7 +285,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Carrossel de imagens na tela de looks salvos"
+    - "Lazy loading implementado em Meu Guarda-Roupas e Looks Salvos"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
