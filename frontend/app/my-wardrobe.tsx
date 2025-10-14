@@ -89,15 +89,15 @@ export default function MyWardrobe() {
   };
 
   const deleteClothingItem = async (itemId: string, itemName: string) => {
-    Alert.alert(
+    modal.showWarning(
       'Excluir roupa',
       `Tem certeza que deseja excluir "${itemName}"?`,
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancelar', onPress: () => modal.hideModal() },
         {
           text: 'Excluir',
-          style: 'destructive',
           onPress: async () => {
+            modal.hideModal();
             try {
               const token = await AsyncStorage.getItem('auth_token');
               if (!token) return;
@@ -114,15 +114,16 @@ export default function MyWardrobe() {
 
               if (response.ok) {
                 setClothingItems(prev => prev.filter(item => item.id !== itemId));
-                Alert.alert('Sucesso', 'Roupa excluída com sucesso!');
+                modal.showSuccess('Sucesso', 'Roupa excluída com sucesso!');
               } else {
-                Alert.alert('Erro', 'Erro ao excluir roupa.');
+                modal.showError('Erro', 'Erro ao excluir roupa.');
               }
             } catch (error) {
               console.error('Error deleting clothing item:', error);
-              Alert.alert('Erro', 'Erro de conexão. Tente novamente.');
+              modal.showError('Erro', 'Erro de conexão. Tente novamente.');
             }
-          }
+          },
+          style: 'primary'
         }
       ]
     );
