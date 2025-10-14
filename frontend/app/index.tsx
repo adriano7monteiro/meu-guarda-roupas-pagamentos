@@ -120,6 +120,37 @@ export default function Index() {
     }
   };
 
+  const fetchStats = async (token: string) => {
+    try {
+      // Fetch roupas count
+      const roupasResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      // Fetch looks count
+      const looksResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks?skip=0&limit=1`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (roupasResponse.ok && looksResponse.ok) {
+        const roupasData = await roupasResponse.json();
+        const looksData = await looksResponse.json();
+        
+        setStats({
+          roupas: roupasData.total || 0,
+          looks: looksData.total || 0,
+          favoritos: looksData.total || 0, // Por enquanto, favoritos = looks criados
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('auth_token');
