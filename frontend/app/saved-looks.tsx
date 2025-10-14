@@ -361,19 +361,48 @@ export default function SavedLooks() {
                         </View>
                       </View>
 
-                      {/* Clothing Items in Look */}
+                      {/* Clothing Items Carousel */}
                       <View style={styles.clothingItemsContainer}>
                         <Text style={styles.clothingItemsTitle}>
                           Peças do look ({clothingDetails.length}):
                         </Text>
-                        {clothingDetails.map((item) => (
-                          <View key={item.id} style={styles.clothingItemRow}>
-                            <View style={styles.clothingItemDot} />
-                            <Text style={styles.clothingItemText}>
-                              {item.nome} ({item.tipo}, {item.cor})
-                            </Text>
-                          </View>
-                        ))}
+                        <ScrollView 
+                          horizontal 
+                          showsHorizontalScrollIndicator={false}
+                          style={styles.clothingCarousel}
+                        >
+                          {clothingDetails.map((item) => (
+                            <TouchableOpacity
+                              key={item.id}
+                              style={styles.clothingCard}
+                              onPress={() => setFullScreenImage(item.imagem_original)}
+                              activeOpacity={0.8}
+                            >
+                              {item.imagem_original ? (
+                                <Image
+                                  source={{ uri: item.imagem_original }}
+                                  style={styles.clothingImage}
+                                  resizeMode="cover"
+                                />
+                              ) : (
+                                <View style={styles.clothingPlaceholder}>
+                                  <Ionicons name="shirt-outline" size={40} color="#666" />
+                                </View>
+                              )}
+                              <View style={styles.clothingCardInfo}>
+                                <Text style={styles.clothingCardName} numberOfLines={1}>
+                                  {item.nome}
+                                </Text>
+                                <Text style={styles.clothingCardDetails} numberOfLines={1}>
+                                  {item.tipo} • {item.cor}
+                                </Text>
+                              </View>
+                              <View style={styles.expandIconSmall}>
+                                <Ionicons name="expand-outline" size={14} color="#fff" />
+                              </View>
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
                       </View>
                     </View>
                   );
