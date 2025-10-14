@@ -304,6 +304,8 @@ test_plan:
 
 agent_communication:
     - agent: "main"
+      message: "Implementado carrossel de imagens na tela de looks salvos. Agora cada look exibe um carrossel horizontal com as imagens reais das roupas que compõem o look. Cards visuais (120x120px) com imagem, nome, tipo e cor. Ao tocar em qualquer card, abre visualização em tela cheia da roupa. Ícone de expandir em cada card indica possibilidade de ampliar. Interface muito mais visual e intuitiva. Pronto para teste."
+    - agent: "main"
       message: "Removida funcionalidade de try-on virtual com Fal.ai. Agora a tela de gerar look é mais simples: usuário escolhe ocasião/clima, gera sugestão com IA (GPT), visualiza as imagens das roupas sugeridas em cards horizontais, e pode salvar diretamente sem precisar gerar visualização. Botões reorganizados: 'Salvar Look' (sempre habilitado após sugestão) e 'Novo Look'. Removidas todas as funções e UI relacionadas a try-on virtual, compartilhamento social, e estados desnecessários. Código mais limpo e focado. Pronto para teste."
     - agent: "main"
       message: "Implementada visualização de imagens das roupas sugeridas na tela generate-look. Agora as roupas sugeridas são exibidas como cards com imagens (em vez de apenas texto), organizadas em scroll horizontal. Ao tocar em qualquer imagem (roupas sugeridas ou resultado try-on), abre modal de visualização em tela cheia. Corrigido campo de imagem_url para imagem_original conforme modelo de dados do backend. Adicionados todos os estilos necessários para os cards de roupas. Pronto para teste."
