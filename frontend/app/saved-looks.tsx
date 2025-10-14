@@ -12,6 +12,8 @@ import {
   Image,
   Modal,
   Dimensions,
+  FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
