@@ -1587,6 +1587,56 @@ async def get_planos():
 async def root():
     return {"message": "Meu Look IA API"}
 
+@api_router.post("/sugestoes")
+async def criar_sugestao(
+    suggestion: SuggestionCreate,
+    current_user=Depends(security)
+):
+    """Endpoint para usuário enviar sugestões de melhorias"""
+    try:
+        user = await get_current_user(current_user)
+        
+        # Criar objeto de sugestão
+        suggestion_data = Suggestion(
+            user_id=user["id"],
+            user_email=user["email"],
+            mensagem=suggestion.mensagem
+        )
+        
+        # Salvar no banco
+        await db.suggestions.insert_one(suggestion_data.dict())
+        
+        # Enviar email para contato@meulookia.com.br
+        try:
+            email_body = f"""
+            <h2>Nova Sugestão Recebida - Meu Look IA</h2>
+            <p><strong>De:</strong> {user['email']}</p>
+            <p><strong>Nome:</strong> {user['nome']}</p>
+            <p><strong>Data:</strong> {suggestion_data.created_at.strftime('%d/%m/%Y %H:%M')}</p>
+            <hr>
+            <h3>Mensagem:</h3>
+            <p>{suggestion.mensagem}</p>
+            """
+            
+            await email_service.send_email(
+                to_email="contato@meulookia.com.br",
+                subject=f"Nova Sugestão de Melhoria - {user['nome']}",
+                html_content=email_body
+            )
+        except Exception as email_error:
+            logger.error(f"Erro ao enviar email de sugestão: {email_error}")
+            # Não falhar se o email não for enviado
+        
+        return {
+            "success": True,
+            "message": "Sugestão enviada com sucesso! Obrigado pelo feedback.",
+            "suggestion_id": suggestion_data.id
+        }
+    
+    except Exception as e:
+        logger.error(f"Erro ao criar sugestão: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao enviar sugestão")
+
 # Include the router in the main app
 app.include_router(api_router)
 
