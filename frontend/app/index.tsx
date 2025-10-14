@@ -479,7 +479,9 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
           buttons={authModal.config.buttons}
           onClose={authModal.hideModal}
         />
-      </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
