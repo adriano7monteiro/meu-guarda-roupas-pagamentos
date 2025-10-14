@@ -64,7 +64,7 @@ export default function MyWardrobe() {
     fetchClothingItems();
   }, []);
 
-  const fetchClothingItems = async () => {
+  const fetchClothingItems = async (resetPage: boolean = false) => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) {
@@ -72,16 +72,35 @@ export default function MyWardrobe() {
         return;
       }
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const currentPage = resetPage ? 0 : page;
+      const skip = currentPage * ITEMS_PER_PAGE;
+
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=${skip}&limit=${ITEMS_PER_PAGE}`, 
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Roupas carregadas:', data.length);
-        setClothingItems(data);
+        console.log('Roupas carregadas:', data.items.length, 'Total:', data.total);
+        
+        if (resetPage) {
+          setClothingItems(data.items);
+          setPage(0);
+        } else {
+          setClothingItems(prev => [...prev, ...data.items]);
+        }
+        
+        setHasMore(data.has_more);
+        setTotalItems(data.total);
+        
+        if (!resetPage) {
+          setPage(currentPage + 1);
+        }
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Erro ao carregar roupas:', response.status, errorData);
@@ -93,6 +112,7 @@ export default function MyWardrobe() {
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoadingMore(false);
     }
   };
 
