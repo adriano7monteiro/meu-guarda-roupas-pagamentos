@@ -205,13 +205,25 @@ backend:
           comment: "✅ TESTE COMPLETO COM NOVA API KEY CONFIRMADO: Nova API Key b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b funcionando perfeitamente! Teste completo executado: ✅ Usuário criado e autenticado, ✅ Foto do corpo enviada (6459 chars), ✅ Roupa cadastrada (3751 chars), ✅ Virtual try-on endpoint respondendo 200 OK. Fal.ai API sendo chamada com sucesso - autenticação OK, payload correto (model_image/garment_image). Erro 422 'Failed to detect body pose in model image' é esperado com imagens sintéticas de teste. API está funcionando corretamente, apenas requer fotos reais de pessoas com poses detectáveis. Estrutura de resposta perfeita: {message, clothing_items, tryon_image, status, note, api_used}. Fallback funcionando quando necessário. Endpoint 100% funcional e pronto para uso com imagens reais."
 
 frontend:
-  - task: "Exibir imagens das roupas sugeridas com ampliação"
+  - task: "Remover funcionalidade 'Ver em Mim' e simplificar para salvar look"
     implemented: true
     working: "NA"
     file: "generate-look.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Removida completamente a funcionalidade de try-on virtual com Fal.ai (botão 'Ver em Mim'). Removida toda a seção de resultado visual, botões de compartilhamento (WhatsApp/Instagram), funções generateVisualLook, shareToWhatsApp, shareToInstagram. Simplificado o botão 'Salvar Look' para funcionar diretamente após gerar a sugestão, sem necessidade de gerar visualização. Estados removidos: visualLookResult, tryonLoading. Imports limpos (Linking, Sharing, ActivityIndicator, Platform, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback). Layout de botões reorganizado em coluna vertical. Função saveLook simplificada para não depender de imagem do try-on."
+
+  - task: "Exibir imagens das roupas sugeridas com ampliação"
+    implemented: true
+    working: "NA"
+    file: "generate-look.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
