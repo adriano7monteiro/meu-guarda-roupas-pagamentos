@@ -699,7 +699,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   saveButton: {
-    flex: 1,
     backgroundColor: '#e17055',
     borderRadius: 12,
     padding: 16,
