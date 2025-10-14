@@ -104,7 +104,12 @@ export default function SavedLooks() {
           setLooks(looksData.items);
           setPage(0);
         } else {
-          setLooks(prev => [...prev, ...looksData.items]);
+          // Avoid duplicates by filtering out items that already exist
+          setLooks(prev => {
+            const existingIds = new Set(prev.map(item => item.id));
+            const newItems = looksData.items.filter((item: any) => !existingIds.has(item.id));
+            return [...prev, ...newItems];
+          });
         }
         
         setClothingItems(clothesData.items || clothesData);
