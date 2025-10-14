@@ -389,6 +389,40 @@ export default function MyWardrobe() {
         buttons={modal.config.buttons}
         onClose={modal.hideModal}
       />
+
+      {/* Full Screen Image Modal */}
+      <Modal
+        visible={!!fullScreenImage}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setFullScreenImage(null)}
+      >
+        <View style={styles.fullScreenContainer}>
+          <StatusBar barStyle="light-content" />
+          
+          <View style={styles.fullScreenHeader}>
+            <Text style={styles.fullScreenTitle}>Visualização</Text>
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setFullScreenImage(null)}
+            >
+              <Ionicons name="close" size={28} color="#fff" />
+            </TouchableOpacity>
+          </View>
+          
+          {fullScreenImage && (
+            <Image
+              source={{ uri: fullScreenImage }}
+              style={styles.fullScreenImage}
+              resizeMode="contain"
+            />
+          )}
+          
+          <Text style={styles.fullScreenHint}>
+            👆 Toque no X para fechar
+          </Text>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
