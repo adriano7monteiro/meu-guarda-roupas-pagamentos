@@ -830,4 +830,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
   },
+  loadingMoreContainer: {
+    paddingVertical: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 12,
+  },
+  loadingMoreText: {
+    color: '#6c5ce7',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  endMessageContainer: {
+    paddingVertical: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  endMessageText: {
+    color: '#999',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
 });
