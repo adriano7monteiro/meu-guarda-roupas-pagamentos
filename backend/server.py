@@ -730,16 +730,24 @@ async def sugerir_look(
     """
     
     try:
-        # Initialize AI chat
-        chat = LlmChat(
-            api_key=os.environ['EMERGENT_LLM_KEY'],
-            session_id=f"look-suggestion-{user['id']}-{datetime.utcnow().isoformat()}",
-            system_message="Você é um personal stylist virtual especializado em combinações de roupas."
-        ).with_model("openai", "gpt-4o-mini")
+        # Call OpenAI API directly
+        completion = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você é um personal stylist virtual especializado em combinações de roupas."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=1000
+        )
         
-        # Send message
-        user_message = UserMessage(text=prompt)
-        response = await chat.send_message(user_message)
+        response = completion.choices[0].message.content
         
         # Parse response
         try:
