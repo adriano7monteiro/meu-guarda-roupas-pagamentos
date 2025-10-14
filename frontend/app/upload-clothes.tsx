@@ -120,6 +120,8 @@ export default function UploadClothes() {
         aspect: [4, 3],
         quality: 0.8,
         base64: true,
+        exif: false,
+        presentationStyle: 'fullScreen',
       });
 
       if (!result.canceled && result.assets[0]) {
