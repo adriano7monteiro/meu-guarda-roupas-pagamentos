@@ -53,9 +53,11 @@ export default function MyWardrobe() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const modal = useModal();
   
   const ITEMS_PER_PAGE = 20;
+  const { width, height } = Dimensions.get('window');
 
   const filters = [
     { id: 'todos', label: 'Todos' },
