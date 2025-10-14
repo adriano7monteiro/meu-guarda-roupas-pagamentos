@@ -31,7 +31,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 }
 expoAutolinking.useExpoModules()
 
-rootProject.name = 'MeuLookIA'
+rootProject.name = 'Meu Look IA'
 
 expoAutolinking.useExpoVersionCatalog()
 

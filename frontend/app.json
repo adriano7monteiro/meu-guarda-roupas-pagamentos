@@ -11,7 +11,8 @@
     "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "bundleIdentifier": "com.zenebathos.meulookia"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +20,8 @@
         "backgroundColor": "#000"
       },
       "edgeToEdgeEnabled": true,
-      "jsEngine": "hermes"
+      "jsEngine": "hermes",
+      "package": "com.zenebathos.meulookia"
     },
     "web": {
       "bundler": "metro",
