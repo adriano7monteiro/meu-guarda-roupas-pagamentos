@@ -285,7 +285,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Remover funcionalidade 'Ver em Mim' e simplificar para salvar look"
+    - "Carrossel de imagens na tela de looks salvos"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
