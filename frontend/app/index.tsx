@@ -385,8 +385,13 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   return (
     <SafeAreaView style={styles.authContainer}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
-      
-      <View style={styles.authContent}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.authContent}>
         <Text style={styles.authTitle}>Meu Look IA</Text>
         <Text style={styles.authSubtitle}>
           {isLogin ? 'Entre na sua conta' : 'Crie sua conta'}
