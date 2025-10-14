@@ -273,7 +273,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Exibir imagens das roupas sugeridas com ampliação"
+    - "Remover funcionalidade 'Ver em Mim' e simplificar para salvar look"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
