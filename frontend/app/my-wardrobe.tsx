@@ -58,7 +58,12 @@ export default function MyWardrobe() {
   const filters = [
     { id: 'todos', label: 'Todos' },
     { id: 'camiseta', label: 'Camisetas' },
+    { id: 'camisa', label: 'Camisas' },
+    { id: 'blusinha', label: 'Blusinhas' },
+    { id: 'cropped', label: 'Cropped' },
     { id: 'calca', label: 'Calças' },
+    { id: 'shorts', label: 'Shorts' },
+    { id: 'saia', label: 'Saias' },
     { id: 'vestido', label: 'Vestidos' },
     { id: 'sapato', label: 'Sapatos' },
     { id: 'acessorio', label: 'Acessórios' },
