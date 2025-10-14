@@ -14,7 +14,9 @@ import {
   View,
   KeyboardAvoidingView,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import CustomModal from '../components/CustomModal';
 import { useModal } from '../hooks/useModal';
