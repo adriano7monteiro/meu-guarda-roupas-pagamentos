@@ -51,6 +51,11 @@ app.add_middleware(
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Health check endpoint
+@api_router.get("/status")
+async def status():
+    return {"status": "ok", "message": "Backend funcionando!"}
+
 # Models
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
