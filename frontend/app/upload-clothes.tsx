@@ -440,7 +440,9 @@ export default function UploadClothes() {
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />
-      </ScrollView>
+          </ScrollView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
 
       {/* Custom Modal */}
       <Modal
