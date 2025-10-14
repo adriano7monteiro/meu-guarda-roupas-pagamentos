@@ -34,6 +34,7 @@ interface ClothingItem {
   tipo: string;
   cor: string;
   estilo: string;
+  imagem_original: string;
 }
 
 export default function SavedLooks() {
