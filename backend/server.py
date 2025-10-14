@@ -435,8 +435,8 @@ async def gerar_look_visual(
                 logging.error(f"Invalid clothing image format: {clothing['nome']}")
                 raise HTTPException(status_code=400, detail=f"Erro no formato da imagem da roupa: {clothing['nome']}")
             
-            # Mapear tipos em português para descrições mais específicas em inglês
-            garment_type_map = {
+            # Mapear tipos em português para descrições em inglês (para description)
+            garment_type_description = {
                 "camiseta": "t-shirt",
                 "camisa": "shirt",
                 "blusa": "blouse",
@@ -461,8 +461,36 @@ async def gerar_look_visual(
                 "pulseira": "bracelet"
             }
             
-            # Obter tipo em inglês
-            garment_type_en = garment_type_map.get(clothing['tipo'].lower(), clothing['tipo'])
+            # Mapear para categorias da API Fal.ai (tops, bottoms, one-pieces, auto)
+            garment_category_map = {
+                "camiseta": "tops",
+                "camisa": "tops",
+                "blusa": "tops",
+                "jaqueta": "tops",
+                "casaco": "tops",
+                "moletom": "tops",
+                "calca": "bottoms",
+                "jeans": "bottoms",
+                "short": "bottoms",
+                "saia": "bottoms",
+                "vestido": "one-pieces",
+                "tenis": "bottoms",
+                "sapato": "bottoms",
+                "sandalia": "bottoms",
+                "bota": "bottoms",
+                "bone": "auto",
+                "chapeu": "auto",
+                "oculos": "auto",
+                "relogio": "auto",
+                "bolsa": "auto",
+                "colar": "auto",
+                "pulseira": "auto"
+            }
+            
+            # Obter tipo em inglês para descrição
+            garment_type_en = garment_type_description.get(clothing['tipo'].lower(), clothing['tipo'])
+            # Obter categoria da API
+            garment_category = garment_category_map.get(clothing['tipo'].lower(), "auto")
             
             # Criar descrição detalhada para melhor reconhecimento
             description = f"{clothing['cor']} {garment_type_en}"
@@ -474,7 +502,7 @@ async def gerar_look_visual(
                 "model_image": current_image,  # Current image (user photo or previous result)
                 "garment_image": clothing["imagem_original"],
                 "description": description,
-                "category": garment_type_en  # Adicionar categoria explícita
+                "category": garment_category  # Usar categoria da API (tops/bottoms/one-pieces/auto)
             }
             
             logging.info(f"[TRYON {idx}/{len(clothing_items)}] Calling Fal.ai API...")
