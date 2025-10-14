@@ -48,6 +48,7 @@ interface Clothing {
   tipo: string;
   cor: string;
   estilo: string;
+  imagem_original: string;
 }
 
 interface LookSuggestion {
