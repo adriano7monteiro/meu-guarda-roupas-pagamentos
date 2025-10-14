@@ -716,7 +716,7 @@ export default function GenerateLook() {
           >
             <SafeAreaView style={styles.fullScreenContent}>
               <View style={styles.fullScreenHeader}>
-                <Text style={styles.fullScreenTitle}>Try-On Virtual - Tela Cheia</Text>
+                <Text style={styles.fullScreenTitle}>Visualização - Tela Cheia</Text>
                 <TouchableOpacity 
                   style={styles.closeButton}
                   onPress={() => setFullScreenImage(null)}
