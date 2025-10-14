@@ -44,8 +44,14 @@ export default function SavedLooks() {
   const [clothingItems, setClothingItems] = useState<ClothingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('todos');
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalLooks, setTotalLooks] = useState(0);
+  
+  const ITEMS_PER_PAGE = 20;
 
   const filters = [
     { id: 'todos', label: 'Todos' },
