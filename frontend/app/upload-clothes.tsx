@@ -25,8 +25,13 @@ const { width } = Dimensions.get('window');
 
 const CLOTHING_TYPES = [
   { id: 'camiseta', label: 'Camiseta', icon: 'shirt' as const },
+  { id: 'camisa', label: 'Camisa', icon: 'shirt-outline' as const },
+  { id: 'blusinha', label: 'Blusinha', icon: 'shirt' as const },
+  { id: 'cropped', label: 'Cropped', icon: 'cut' as const },
   { id: 'calca', label: 'Calça', icon: 'help' as const },
-  { id: 'vestido', label: 'Vestido', icon: 'woman' as const },
+  { id: 'shorts', label: 'Shorts', icon: 'resize' as const },
+  { id: 'saia', label: 'Saia', icon: 'woman' as const },
+  { id: 'vestido', label: 'Vestido', icon: 'woman-outline' as const },
   { id: 'sapato', label: 'Sapato', icon: 'footsteps' as const },
   { id: 'acessorio', label: 'Acessório', icon: 'watch' as const },
   { id: 'jaqueta', label: 'Jaqueta', icon: 'layers' as const },
