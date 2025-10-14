@@ -303,11 +303,19 @@ export default function MyWardrobe() {
             renderItem={({ item }) => (
               <View style={styles.clothingCard}>
                 {item.imagem_original ? (
-                  <Image 
-                    source={{ uri: item.imagem_original }} 
-                    style={styles.clothingImage}
-                    resizeMode="cover"
-                  />
+                  <TouchableOpacity 
+                    onPress={() => setFullScreenImage(item.imagem_original)}
+                    activeOpacity={0.8}
+                  >
+                    <Image 
+                      source={{ uri: item.imagem_original }} 
+                      style={styles.clothingImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.expandIcon}>
+                      <Ionicons name="expand-outline" size={16} color="#fff" />
+                    </View>
+                  </TouchableOpacity>
                 ) : (
                   <View style={styles.clothingImagePlaceholder}>
                     <Ionicons 
