@@ -157,9 +157,18 @@ export default function MyWardrobe() {
     );
   };
 
+  const loadMoreItems = () => {
+    if (!loadingMore && hasMore && !loading) {
+      setLoadingMore(true);
+      fetchClothingItems(false);
+    }
+  };
+
   const onRefresh = () => {
     setRefreshing(true);
-    fetchClothingItems();
+    setPage(0);
+    setHasMore(true);
+    fetchClothingItems(true);
   };
 
   const filteredItems = selectedFilter === 'todos' 
