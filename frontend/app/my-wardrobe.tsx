@@ -30,8 +30,13 @@ interface ClothingItem {
 
 const CLOTHING_TYPE_ICONS: { [key: string]: any } = {
   'camiseta': 'shirt',
+  'camisa': 'shirt-outline',
+  'blusinha': 'shirt',
+  'cropped': 'cut',
   'calca': 'help',
-  'vestido': 'woman',
+  'shorts': 'resize',
+  'saia': 'woman',
+  'vestido': 'woman-outline',
   'sapato': 'footsteps',
   'acessorio': 'watch',
   'jaqueta': 'layers',
