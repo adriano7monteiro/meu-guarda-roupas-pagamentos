@@ -303,6 +303,16 @@ export default function MyWardrobe() {
           </ScrollView>
         </>
       )}
+
+      {/* Custom Modal */}
+      <CustomModal
+        visible={modal.isVisible}
+        type={modal.config.type}
+        title={modal.config.title}
+        message={modal.config.message}
+        buttons={modal.config.buttons}
+        onClose={modal.hideModal}
+      />
     </SafeAreaView>
   );
 }
