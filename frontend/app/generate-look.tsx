@@ -517,16 +517,16 @@ export default function GenerateLook() {
                 showsHorizontalScrollIndicator={false}
                 style={styles.clothesScrollView}
               >
-                {suggestedClothes.map((item) => (
+                {suggestedClothes.map((item: any) => (
                   <TouchableOpacity 
                     key={item.id} 
                     style={styles.suggestedClothingCard}
-                    onPress={() => setFullScreenImage(item.imagem_url)}
+                    onPress={() => setFullScreenImage(item.imagem_original)}
                     activeOpacity={0.7}
                   >
-                    {item.imagem_url ? (
+                    {item.imagem_original ? (
                       <Image 
-                        source={{ uri: item.imagem_url }} 
+                        source={{ uri: item.imagem_original }} 
                         style={styles.suggestedClothingImage}
                         resizeMode="cover"
                       />
