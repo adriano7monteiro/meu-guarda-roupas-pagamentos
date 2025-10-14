@@ -29,6 +29,9 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# OpenAI client initialization
+openai_client = AsyncOpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
+
 # JWT Secret (in production, use a secure secret)
 JWT_SECRET = "meu-look-ia-secret-key-2025"
 security = HTTPBearer()
