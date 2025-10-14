@@ -92,7 +92,12 @@ export default function MyWardrobe() {
           setClothingItems(data.items);
           setPage(0);
         } else {
-          setClothingItems(prev => [...prev, ...data.items]);
+          // Avoid duplicates by filtering out items that already exist
+          setClothingItems(prev => {
+            const existingIds = new Set(prev.map(item => item.id));
+            const newItems = data.items.filter((item: any) => !existingIds.has(item.id));
+            return [...prev, ...newItems];
+          });
         }
         
         setHasMore(data.has_more);
