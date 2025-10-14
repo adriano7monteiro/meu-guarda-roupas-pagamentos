@@ -795,14 +795,32 @@ const styles = StyleSheet.create({
 
 // Wrapper component with Stripe Provider
 export default function Subscription() {
-  const [publishableKey] = useState('pk_live_51SIEHk6nJMuXEwW5cet6jWTF4rjgd36jZ21ruTDLkOUKQoIetCPooK0p2GzT5pAerUPsUEjjZY8wJp1B8qw8SCDR00hgOhUJgM');
+  const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [stripeReady, setStripeReady] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load Stripe only on native platforms after mount
-    if (Platform.OS !== 'web' && StripeProvider) {
-      setStripeReady(true);
-    }
+    // Fetch Stripe publishable key from backend
+    const fetchStripeConfig = async () => {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/stripe-config`);
+        if (response.ok) {
+          const data = await response.json();
+          setPublishableKey(data.publishableKey);
+          
+          // Load Stripe only on native platforms after getting the key
+          if (Platform.OS !== 'web' && StripeProvider && data.publishableKey) {
+            setStripeReady(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching Stripe config:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStripeConfig();
   }, []);
 
   // Only wrap with StripeProvider on native platforms
