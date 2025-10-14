@@ -718,7 +718,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   newLookButton: {
-    flex: 1,
     backgroundColor: 'transparent',
     borderRadius: 12,
     padding: 16,
@@ -728,6 +727,7 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 2,
     borderColor: '#6c5ce7',
+    marginTop: 12,
   },
   newLookButtonText: {
     color: '#6c5ce7',
