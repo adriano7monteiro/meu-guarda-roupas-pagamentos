@@ -17,7 +17,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import CustomModal from '../components/CustomModal';
 import { useModal } from '../hooks/useModal';
