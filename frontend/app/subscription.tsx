@@ -658,54 +658,7 @@ const styles = StyleSheet.create({
   },
 });
 
-// Wrapper component with Stripe Provider
+// Main component export (no need for Stripe Provider wrapper)
 export default function Subscription() {
-  const [publishableKey, setPublishableKey] = useState<string | null>(null);
-  const [stripeReady, setStripeReady] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch Stripe publishable key from backend
-    const fetchStripeConfig = async () => {
-      try {
-        const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/stripe-config`);
-        if (response.ok) {
-          const data = await response.json();
-          setPublishableKey(data.publishableKey);
-          
-          // Load Stripe only on native platforms after getting the key
-          if (Platform.OS !== 'web' && StripeProvider && data.publishableKey) {
-            setStripeReady(true);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching Stripe config:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStripeConfig();
-  }, []);
-
-  // Show loading while fetching Stripe config
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#6C5CE7" />
-        <Text style={{ marginTop: 16, color: '#fff' }}>Carregando...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  // Only wrap with StripeProvider on native platforms and when key is available
-  if (Platform.OS === 'web' || !StripeProvider || !publishableKey) {
-    return <SubscriptionContent />;
-  }
-
-  return (
-    <StripeProvider publishableKey={publishableKey}>
-      <SubscriptionContent />
-    </StripeProvider>
-  );
+  return <SubscriptionContent />;
 }
