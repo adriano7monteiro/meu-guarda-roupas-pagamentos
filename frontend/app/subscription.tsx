@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
-import { StripeProvider, useStripe } from '../utils/stripeProvider';
+import { useInAppPurchase } from '../hooks/useInAppPurchase';
 
 function SubscriptionContent() {
   const [selectedPlan, setSelectedPlan] = useState('semestral');
