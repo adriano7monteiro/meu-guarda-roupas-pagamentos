@@ -283,24 +283,38 @@ export default function SavedLooks() {
           {/* Stats Section */}
           <View style={styles.statsSection}>
             <Text style={styles.statsTitle}>Seus looks</Text>
-            <View style={styles.statsContainer}>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{looks.length}</Text>
-                <Text style={styles.statLabel}>Total</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={styles.statsScrollView}
+            >
+              <View style={styles.statsContainer}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.length}</Text>
+                  <Text style={styles.statLabel}>Total</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.filter(l => l.favorito).length}</Text>
+                  <Text style={styles.statLabel}>Favoritos</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'trabalho').length}</Text>
+                  <Text style={styles.statLabel}>Trabalho</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'casual').length}</Text>
+                  <Text style={styles.statLabel}>Casual</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'festa').length}</Text>
+                  <Text style={styles.statLabel}>Festa</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'esporte').length}</Text>
+                  <Text style={styles.statLabel}>Esporte</Text>
+                </View>
               </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{looks.filter(l => l.favorito).length}</Text>
-                <Text style={styles.statLabel}>Favoritos</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'trabalho').length}</Text>
-                <Text style={styles.statLabel}>Trabalho</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statNumber}>{looks.filter(l => l.ocasiao === 'casual').length}</Text>
-                <Text style={styles.statLabel}>Casual</Text>
-              </View>
-            </View>
+            </ScrollView>
           </View>
 
           {/* Filter Section */}
