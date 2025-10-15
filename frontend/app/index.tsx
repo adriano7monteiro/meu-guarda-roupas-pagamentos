@@ -142,14 +142,22 @@ export default function Index() {
         },
       });
 
-      if (roupasResponse.ok && looksResponse.ok) {
+      // Fetch favoritos count
+      const favoritosResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks/stats/favoritos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (roupasResponse.ok && looksResponse.ok && favoritosResponse.ok) {
         const roupasData = await roupasResponse.json();
         const looksData = await looksResponse.json();
+        const favoritosData = await favoritosResponse.json();
         
         setStats({
           roupas: roupasData.total || 0,
           looks: looksData.total || 0,
-          favoritos: looksData.total || 0, // Por enquanto, favoritos = looks criados
+          favoritos: favoritosData.count || 0,
         });
       }
     } catch (error) {
