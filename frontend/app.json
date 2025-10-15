@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "meuApp",
-    "slug": "meuApp",
+    "name": "Meu Look IA",
+    "slug": "meu-look-ia",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "meuapp",
+    "scheme": "meulookia",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "platforms": [
@@ -16,19 +16,22 @@
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#6c5ce7"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.meulookia.app",
+      "icon": "./assets/images/icon.png"
     },
     "android": {
+      "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#6c5ce7"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.zenebathos.meuApp"
+      "package": "com.meulookia.app"
     },
     "web": {
       "bundler": "metro",
