@@ -19,15 +19,13 @@ import { useInAppPurchase } from '../hooks/useInAppPurchase';
 
 function SubscriptionContent() {
   const [selectedPlan, setSelectedPlan] = useState('semestral');
-  const [loading, setLoading] = useState(false);
   const [subscriptionStatus, setSubscriptionStatus] = useState<any>(null);
   const [plans, setPlans] = useState<any[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
   const modal = useModal();
   
-  // Use Stripe hooks only on native platforms
-  const stripeHooks = Platform.OS !== 'web' && useStripe ? useStripe() : { initPaymentSheet: null, presentPaymentSheet: null };
-  const { initPaymentSheet, presentPaymentSheet } = stripeHooks;
+  // Use In-App Purchase hooks (only works on native builds, not Expo Go or Web)
+  const { subscriptions, loading, purchasing, error, purchaseSubscription } = useInAppPurchase();
 
   useEffect(() => {
     fetchSubscriptionStatus();
