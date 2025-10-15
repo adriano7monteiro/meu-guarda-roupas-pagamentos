@@ -624,7 +624,6 @@ async def upload_roupa(
         # Create clothing item
         clothing_dict = roupa_data.dict()
         clothing_dict["user_id"] = user["id"]
-        clothing_dict["imagem_sem_fundo"] = roupa_data.imagem_original  # Por enquanto, sem remoção de fundo
         
         logging.info(f"Upload roupa - Image size: {len(roupa_data.imagem_original) if roupa_data.imagem_original else 0}")
         
