@@ -597,6 +597,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
   },
+  statsScrollView: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+  },
   statsContainer: {
     flexDirection: 'row',
     gap: 16,
