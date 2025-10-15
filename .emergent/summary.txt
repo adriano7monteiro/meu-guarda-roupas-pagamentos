@@ -1,90 +1,225 @@
 <analysis>
-The AI engineer's work during this trajectory involved extensive application debugging and feature enhancements. Initially, the focus shifted from a prior analysis (Node.js/Gradle/Kotlin/Expo SDK build fixes, landing page, splash screen, CORS) to a user request to re-clone and compile a new repository, signifying a new baseline. Key technical challenges included resolving a frontend Stripe integration issue on the web due to incorrect platform-specific imports and  exports, which was fixed by adjusting  and  and clearing Metro cache. Backend issues primarily involved Fal.ai API key authentication (401 error), followed by  errors due to incorrect clothing categories, both resolved by user-provided keys and mapping logic in . Security was addressed by moving the Stripe publishable key from hardcoded frontend usage to a dynamic fetch from a new backend endpoint. UI/UX improvements included fixing native camera behavior (adding confirmation for crop) in  and , implementing  for input screens (, , partially ), and generating custom app icons. The current work involves modifying the  screen to display suggested outfit images rather than just text, with a magnification feature.
+The AI engineer's trajectory involved substantial feature development and bug fixes for the Meu Look IA application. Initial work centered on enhancing the generate look screen to display outfit images with magnification, rectifying a backend data field (), and applying necessary frontend styles. User requests further guided the removal of the virtual try-on feature on the generate look screen, replacing it with a save look option, and streamlining associated UI and logic. Lazy loading was implemented for both Meu Guarda-Roupas and Looks Salvos screens, entailing backend pagination and frontend  integration, while also resolving a duplicate key issue. New clothing types were integrated, and an image amplification feature was added to Meu Guarda-Roupas.
+
+Crucially, the home screen was updated to fetch and display dynamic user statistics (clothes, looks, favorites), correcting previous hardcoded values. A Send Suggestion feature was developed, encompassing a backend endpoint, MongoDB storage, and email notification via SendGrid. The category carousel on Looks Salvos became horizontally scrollable, Stripe payment forms were localized to Portuguese, and native app icon build issues were resolved through  updates and a comprehensive guide. Production deployment concerns were a major focus: AI costs and payment for GPT-4o-mini were detailed, and migration from the proprietary  to a direct OpenAI API key was facilitated. Backend health/status endpoints were implemented, and a critical  hardcoding flaw was addressed. Heroku deployment issues (H14) were fixed via  and , and a strong  was generated. The trajectory concluded with detailed debugging of the statistics feature on external hosting, confirming backend functionality and pinpointing frontend APK's  or authentication as the likely remaining issue, immediately followed by logging in with a user possessing data to re-test the statistics.
 </analysis>
 
 <product_requirements>
-The Meu Look IA application aims to help users organize clothes and generate AI-driven outfit suggestions using uploaded photos, Fal.ai for virtual try-on, and OpenAI GPT for text. Core features include custom modals, full-screen image viewing, loading indicators, and social sharing. Users receive 5 free try-ons, then subscribe via Stripe.
+The Meu Look IA application aims to empower users in organizing their wardrobe and receiving AI-driven outfit suggestions. It leverages Fal.ai for virtual try-ons (though this was partially removed in this trajectory) and OpenAI GPT for textual recommendations. Key functionalities include custom modals, full-screen image viewing, and a subscription model via Stripe for premium features.
 
-Previous development iterations focused on implementing premium subscription features (Stripe payment flows, recurring subscriptions, plan management), password reset (SendGrid), improved authentication, and Fal.ai try-ons for multiple items.
-
-During this specific trajectory, the user explicitly requested:
-1.  **Clone and Compile:** Re-clone the project from a new GitHub repository and compile it as-is without updating libraries, assuming prior build issues (Node.js engine, Kotlin, Gradle, , React/Expo SDK compatibility) were resolved externally.
-2.  **Fal.ai API Fix:** Resolve errors with the Fal.ai API during look generation, specifically related to authentication and clothing categorization.
-3.  **Stripe Key Security:** Transfer the Stripe publishable key from hardcoded frontend code to a secure backend endpoint.
-4.  **Native Camera UX:** Fix the native camera interface for photo uploads (clothes and body) to include a confirmation button after cropping.
-5.  **Keyboard Handling:** Ensure native inputs are not covered by the keyboard, implementing .
-6.  **Custom App Icons:** Create and configure custom app icons for the native application.
-7.  **Fal.ai Clothing Type Specification:** Enhance Fal.ai API calls to accurately specify clothing types (e.g., shoe, blouse).
-8.  **Native Body Photo Area:** Adjust the native camera capture area for full-body photos to be larger.
-9.  **Generate Look Visuals:** Modify the generate look screen to display suggested *images* of clothes instead of just text, with a magnification option.
+During this trajectory, the explicit requests and implementations were:
+1.  **Generate Look Visuals:** Display suggested outfit images on the generate look screen with a magnification option, instead of just text.
+2.  **Remove Virtual Try-on:** Replace the Ver em Mim (virtual try-on) functionality on the generate look screen with a Salvar Look (save look) button.
+3.  **Saved Looks Carousel:** Implement an image carousel for clothes in saved looks, with an amplification feature.
+4.  **Lazy Loading:** Implement lazy loading for clothing items on Meu Guarda-Roupas and Looks Salvos screens.
+5.  **Clothing Type Expansion:** Add new clothing types (Saia, Camisa, Blusinha, Cropped, Shorts) for uploads and filtering.
+6.  **Home Screen Statistics:** Display actual user statistics (total clothes, total looks, total favorites) on the home screen, fetching data dynamically.
+7.  **Image Amplification in My Wardrobe:** Add a feature to magnify images of clothes on the Meu Guarda-Roupas screen.
+8.  **Suggestions Card:** Implement a card on the home screen for users to submit improvement suggestions, saving them to MongoDB and sending an email.
+9.  **Stripe Form Localization:** Translate the Stripe payment form to Portuguese on the subscription screen.
+10. **Native App Icon Fix:** Resolve issues with custom app icons not appearing correctly in native APK builds.
+11. **OpenAI Direct Integration:** Migrate from  to direct OpenAI API key usage in the backend.
+12. **Backend Health Endpoints:** Create  and  endpoints for monitoring backend service health.
+13. **JWT_SECRET Security:** Move  from hardcoded value to an environment variable.
+14. **Heroku Deployment Fixes:** Address Heroku H14 errors by providing  and .
 </product_requirements>
 
 <key_technical_concepts>
--   **Frontend:** React Native (Expo Router, React Navigation), Zustand, Axios, , , , .
--   **Backend:** FastAPI, MongoDB, ,  (Python SDK), CORS middleware, Python Imaging Library (PIL).
--   **AI:** OpenAI GPT, Fal.ai FASHN API.
--   **Build/Environment:** Node.js, Yarn, Gradle, Kotlin, EAS Build, Metro.
+-   **Frontend:** React Native (Expo Router, React Navigation), Zustand, Axios, , , , ,  (for lazy loading).
+-   **Backend:** FastAPI, MongoDB, usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+              [-o ORGANIZATION] [-t {openai,azure}]
+              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
+              [--azure-ad-token AZURE_AD_TOKEN] [-V]
+              {api,tools,migrate,grit} ...
+
+positional arguments:
+  {api,tools,migrate,grit}
+    api                 Direct API calls
+    tools               Client side tools for convenience
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Set verbosity.
+  -b API_BASE, --api-base API_BASE
+                        What API base url to use.
+  -k API_KEY, --api-key API_KEY
+                        What API key to use.
+  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
+                        What proxy to use.
+  -o ORGANIZATION, --organization ORGANIZATION
+                        Which organization to run as (will use your default
+                        organization if not specified)
+  -t {openai,azure}, --api-type {openai,azure}
+                        The backend API to call, must be `openai` or `azure`
+  --api-version API_VERSION
+                        The Azure API version, e.g.
+                        'https://learn.microsoft.com/en-us/azure/ai-
+                        services/openai/reference#rest-api-versioning'
+  --azure-endpoint AZURE_ENDPOINT
+                        The Azure endpoint, e.g.
+                        'https://endpoint.openai.azure.com'
+  --azure-ad-token AZURE_AD_TOKEN
+                        A token from Azure Active Directory,
+                        https://www.microsoft.com/en-
+                        us/security/business/identity-access/microsoft-entra-
+                        id
+  -V, --version         show program's version number and exit (Python SDK), , CORS middleware, Pydantic models, JWT for authentication.
+-   **AI:** OpenAI GPT-4o-mini (previously Fal.ai FASHN API,  via ).
+-   **Deployment/Environment:** Heroku, , , Expo EAS Build,  for native configurations.
 </key_technical_concepts>
 
 <code_architecture>
-The application utilizes a full-stack architecture with an Expo React Native frontend, a FastAPI backend, and a MongoDB database.
+The application employs a full-stack architecture, featuring an Expo React Native frontend, a FastAPI backend, and a MongoDB database for persistence.
 
 
 
 -   ****:
     -   **Importance**: Stores environment variables for backend (e.g., MongoDB URL, API keys).
-    -   **Changes Made**: Updated , , and  with user-provided values.
+    -   **Changes Made**: Updated , , , , . Added  and a placeholder .  remains as a backup, but  is actively used.
 -   ****:
     -   **Importance**: Contains all backend API endpoints and logic.
     -   **Changes Made**:
-        -   Added  endpoint to securely provide the Stripe publishable key to the frontend.
-        -   Improved logic for Fal.ai API calls, specifically by refining the mapping of Portuguese clothing types to Fal.ai's accepted categories (, , , ) in the  field to resolve  errors.
+        -   Refined Fal.ai API calls for clothing categories.
+        -   Added  endpoint.
+        -   Updated  and  to support pagination (, , ).
+        -   Migrated LLM calls from  (Emergent) to direct .
+        -   Added  endpoint to store user feedback and send emails via .
+        -   Corrected  call from  to .
+        -   Added  endpoint to count favorite looks.
+        -   Added  and  endpoints for service monitoring.
+        -   Replaced hardcoded  with .
+        -   Added  Pydantic model for user suggestions.
+        -   Removed  import.
 -   ****:
-    -   **Importance**: Stores environment variables for frontend (e.g., backend URL).
-    -   **Changes Made**:  was removed as it's now fetched dynamically from the backend.
+    -   **Importance**: Handles sending emails.
+    -   **Changes Made**: Confirmed the internal method  is correctly implemented for email sending.
+-   ****:
+    -   **Importance**: Lists Python dependencies for the backend.
+    -   **Changes Made**: Added usage: openai [-h] [-v] [-b API_BASE] [-k API_KEY] [-p PROXY [PROXY ...]]
+              [-o ORGANIZATION] [-t {openai,azure}]
+              [--api-version API_VERSION] [--azure-endpoint AZURE_ENDPOINT]
+              [--azure-ad-token AZURE_AD_TOKEN] [-V]
+              {api,tools,migrate,grit} ...
+
+positional arguments:
+  {api,tools,migrate,grit}
+    api                 Direct API calls
+    tools               Client side tools for convenience
+
+options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Set verbosity.
+  -b API_BASE, --api-base API_BASE
+                        What API base url to use.
+  -k API_KEY, --api-key API_KEY
+                        What API key to use.
+  -p PROXY [PROXY ...], --proxy PROXY [PROXY ...]
+                        What proxy to use.
+  -o ORGANIZATION, --organization ORGANIZATION
+                        Which organization to run as (will use your default
+                        organization if not specified)
+  -t {openai,azure}, --api-type {openai,azure}
+                        The backend API to call, must be `openai` or `azure`
+  --api-version API_VERSION
+                        The Azure API version, e.g.
+                        'https://learn.microsoft.com/en-us/azure/ai-
+                        services/openai/reference#rest-api-versioning'
+  --azure-endpoint AZURE_ENDPOINT
+                        The Azure endpoint, e.g.
+                        'https://endpoint.openai.azure.com'
+  --azure-ad-token AZURE_AD_TOKEN
+                        A token from Azure Active Directory,
+                        https://www.microsoft.com/en-
+                        us/security/business/identity-access/microsoft-entra-
+                        id
+  -V, --version         show program's version number and exit, , and . Removed .
+-   ****:
+    -   **Importance**: **NEW** file. Instructs Heroku on how to run the web process.
+    -   **Content**: .
+-   ****:
+    -   **Importance**: **NEW** file. Specifies the Python version for Heroku.
+    -   **Content**: .
+-   ****:
+    -   **Importance**: Stores environment variables for frontend.
+    -   **Changes Made**:  was removed as it's now fetched dynamically from the backend.  is configured by the environment. Other variables (, , , ) are for development only and not used by the application code.
+-   ****:
+    -   **Importance**: Main screen for login/registration and home dashboard.
+    -   **Changes Made**:
+        -   Wrapped content in .
+        -   Implemented  function to dynamically fetch and display user statistics (clothes, looks, favorites) from backend endpoints.
+        -   Added a Enviar Sugestão card with a modal for user feedback, integrating with the new  backend endpoint.
+        -   Added necessary styles for the suggestions card and modal.
+        -   Added debug logs to  for detailed troubleshooting.
+-   ****:
+    -   **Importance**: Generates outfit suggestions.
+    -   **Changes Made**:
+        -   Corrected image display to use  instead of .
+        -   Added styles for suggested clothing cards and images.
+        -   Updated  interface to include .
+        -   Modified full-screen modal title.
+        -   Removed virtual try-on (Ver em Mim) functionality, related UI, states, and functions.
+        -   Simplified  to not depend on .
+        -   Adjusted Novo Look and Salvar Look button styles.
+        -   Fixed  error by correctly accessing  from paginated  response.
+-   ****:
+    -   **Importance**: Handles clothing image uploads and displays user's wardrobe.
+    -   **Changes Made**:
+        -   Integrated  for alerts instead of native .
+        -   Refactored to use  with lazy loading (, , , ) for clothes display.
+        -   Fixed lazy loading duplicate key issue by merging new items carefully.
+        -   Added image amplification via a full-screen  when tapping on clothing images.
+        -   Updated  and  to include new clothing types.
+        -   Added styles for lazy loading indicators and full-screen image modal.
+-   ****:
+    -   **Importance**: Manages user profile and body photo uploads.
+    -   **Changes Made**: Adjusted  options for native camera crop UI and  ratio for body photos.
+-   ****:
+    -   **Importance**: Displays user's saved outfits.
+    -   **Changes Made**:
+        -   Updated  interface to include .
+        -   Implemented an image carousel for displaying clothing items within a look, with amplification.
+        -   Refactored to use  with lazy loading for saved looks display.
+        -   Fixed lazy loading duplicate key issue by merging new items carefully.
+        -   Made the category stats carousel horizontally scrollable ( + styles).
+        -   Added necessary styles for the carousel, lazy loading indicators, and image amplification.
 -   ****:
     -   **Importance**: Manages subscription UI and Stripe integration.
     -   **Changes Made**:
-        -   Modified Stripe import to resolve platform-specific  files dynamically (fixed web preview issue).
-        -   Removed hardcoded .
-        -   Implemented  to fetch  from the new backend  endpoint.
-        -   Added  state to manage UI while fetching the key.
--   ****:
-    -   **Importance**: Provides web-specific Stripe component mocks.
-    -   **Changes Made**: Replaced  exports with functional mock components (, ) to prevent errors when native Stripe modules are used on the web.
--   ****:
-    -   **Importance**: Main screen for login/registration.
-    -   **Changes Made**: Wrapped primary content in  with  to prevent the keyboard from obscuring input fields on native platforms.
+        -   Added  to  for Portuguese localization of Stripe forms.
 -   ****:
     -   **Importance**: Handles clothing image uploads.
     -   **Changes Made**:
-        -   Adjusted  options (, ) to fix the native camera crop UI, allowing a confirmation button.
-        -   Wrapped primary content in  with  to handle keyboard interactions.
+        -   Adjusted  options for native camera crop UI.
+        -   Wrapped content in .
+        -   Added new clothing types (, , , , ).
 -   ****:
-    -   **Importance**: Manages user profile and body photo uploads.
-    -   **Changes Made**:
-        -   Adjusted  options (, ) to fix native camera crop UI.
-        -   Changed  ratio for body photo capture from  to  and removed  for a larger, less restrictive capture area.
+    -   **Importance**: Expo app configuration file.
+    -   **Changes Made**: Updated  and  for correct native icon display.
 -   ****:
-    -   **Importance**: Generates outfit suggestions.
-    -   **Changes Made**: Imports for , ,  were added, but  was not fully implemented. Currently being modified to display suggested images instead of text.
+    -   **Importance**: **NEW** file. Provides a guide for ensuring custom app icons appear correctly in native APK builds.
 -   ****:
-    -   **Importance**: Stores application visual assets.
-    -   **Changes Made**: Created , , , and  with custom Meu Look IA branding (purple/gradient colors).
+    -   **Importance**: **NEW** file. Provides instructions for deploying the backend application to external hosting, specifically regarding  removal.
+-   ****:
+    -   **Importance**: **NEW** file. A diagnostic guide for troubleshooting statistics display issues on external hosting.
+-   ****:
+    -   **Importance**: **NEW** file. Provides a complete guide for deploying the backend application to Heroku.
 </code_architecture>
 
 <pending_tasks>
 -   Implement automatic background removal for uploaded clothing images.
--   Fully update  and  to use the new global modal system (some alerts may still exist).
 -   Integrate OpenWeatherMap API for weather-based look suggestions.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was addressing a user request to enhance the generate look screen. Currently, the screen displays only text descriptions of suggested outfits. The user explicitly requested that the screen should instead show the *images* of the suggested clothes, along with an option to magnify or enlarge these images for better viewing.
+Immediately prior to this summary, the AI engineer was engaged in debugging the Suas Estatísticas (Your Statistics) functionality on the home screen () for a user's externally hosted backend. The user had reported that statistics were not loading, despite all other functionalities working. The AI engineer had performed extensive debugging steps:
+1.  **Backend Verification:** Confirmed the backend on the user's Heroku hosting was healthy and connected to MongoDB, and that backend endpoints for fetching clothes, looks, and favorite counts (, , ) were returning correct data structures (though possibly empty counts if no data).
+2.  **Frontend Logic Debugging:** Added detailed  statements within the  function in  to trace responses from the backend and identify any failing  checks or data parsing issues.
+3.  **Frontend Simulation:** Explicitly simulated the  frontend logic, confirming that it correctly processes valid backend responses to update the  state.
+4.  **User Authentication & Data:** The AI had just successfully logged in with a specific user () who was known to have registered clothes.
 
-The AI engineer has begun this task by investigating the  file. It has confirmed the presence of a  state, indicating existing functionality for image amplification. The next step in the process is to modify the Suggested Clothes section within  to display actual images of the recommended outfits, utilizing and integrating with the existing image amplification mechanism. This involves altering the JSX structure to render  components instead of  for clothing items and connecting them to the full-screen image viewing logic.
+The current state is that the backend API endpoints for statistics are confirmed to be working correctly on the user's hosting. The frontend logic to process these responses is also believed to be correct. The prime suspicion for the statistics not displaying remains an incorrect  configured in the user's deployed frontend APK, or an invalid/expired authentication token being used by the frontend app itself. The AI is poised to re-test the statistics display in the frontend using the newly logged-in user's context.
 </current_work>
 
 <optional_next_step>
-Modify  to display suggested clothing images and integrate image amplification.
+Test the statistics feature on the home screen using the provided user credentials to verify if the statistics now load correctly with actual user data.
 </optional_next_step>

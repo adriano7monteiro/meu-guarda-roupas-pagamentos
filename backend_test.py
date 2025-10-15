@@ -21,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Get backend URL from frontend env
-BACKEND_URL = "https://aiwardrobe-5.preview.emergentagent.com/api"
+BACKEND_URL = "https://lookgenerator.preview.emergentagent.com/api"
 
 class VirtualTryOnTester:
     def __init__(self):
