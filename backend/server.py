@@ -1629,7 +1629,7 @@ async def criar_sugestao(
         }
     
     except Exception as e:
-        logger.error(f"Erro ao criar sugestão: {e}")
+        logging.error(f"Erro ao criar sugestão: {e}")
         raise HTTPException(status_code=500, detail="Erro ao enviar sugestão")
 
 # Include the router in the main app
