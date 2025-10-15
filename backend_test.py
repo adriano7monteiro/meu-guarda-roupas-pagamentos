@@ -198,8 +198,8 @@ def test_get_roupas_endpoint(token, expected_clothing_id):
         results.add_result("Get Roupas - Success Response", False, f"Exception: {str(e)}")
         return results
 
-def test_mongodb_direct_verification():
-    """Test direct MongoDB verification (if possible)"""
+def test_mongodb_direct_verification(expected_clothing_id):
+    """Test direct MongoDB verification for the specific item we just created"""
     results = TestResults()
     
     print(f"\n🗄️  Testing MongoDB Direct Verification")
@@ -214,19 +214,27 @@ def test_mongodb_direct_verification():
                 client = AsyncIOMotorClient("mongodb://localhost:27017")
                 db = client["test_database"]
                 
-                # Get a sample clothing item
-                sample_item = await db.clothing_items.find_one({}, {"_id": 0})
+                # Get the specific item we just created
+                specific_item = await db.clothing_items.find_one({"id": expected_clothing_id}, {"_id": 0})
                 
-                if sample_item:
-                    if "imagem_sem_fundo" not in sample_item:
-                        results.add_result("MongoDB - No imagem_sem_fundo in Documents", True)
-                        print(f"   ✅ Confirmed: MongoDB documents do NOT contain 'imagem_sem_fundo' field")
-                        print(f"   Document fields: {list(sample_item.keys())}")
+                if specific_item:
+                    if "imagem_sem_fundo" not in specific_item:
+                        results.add_result("MongoDB - No imagem_sem_fundo in New Documents", True)
+                        print(f"   ✅ Confirmed: New MongoDB document does NOT contain 'imagem_sem_fundo' field")
+                        print(f"   Document fields: {list(specific_item.keys())}")
                     else:
-                        results.add_result("MongoDB - No imagem_sem_fundo in Documents", False, "imagem_sem_fundo field found in MongoDB document")
-                        print(f"   ❌ ERROR: 'imagem_sem_fundo' field found in MongoDB document")
+                        results.add_result("MongoDB - No imagem_sem_fundo in New Documents", False, "imagem_sem_fundo field found in new MongoDB document")
+                        print(f"   ❌ ERROR: 'imagem_sem_fundo' field found in new MongoDB document")
                 else:
-                    results.add_result("MongoDB - Document Check", False, "No clothing items found in database")
+                    results.add_result("MongoDB - Document Check", False, f"Specific clothing item {expected_clothing_id} not found in database")
+                
+                # Also check if there are any old documents with the field (for information)
+                old_items_count = await db.clothing_items.count_documents({"imagem_sem_fundo": {"$exists": True}})
+                new_items_count = await db.clothing_items.count_documents({"imagem_sem_fundo": {"$exists": False}})
+                
+                print(f"   📊 Database statistics:")
+                print(f"      - Items with imagem_sem_fundo field (old): {old_items_count}")
+                print(f"      - Items without imagem_sem_fundo field (new): {new_items_count}")
                 
                 client.close()
                 
