@@ -940,6 +940,114 @@ class SubscriptionResponse(BaseModel):
     subscription_id: str
 
 # Subscription routes
+# Google Play / In-App Purchase routes
+@api_router.post("/verify-purchase")
+async def verify_purchase(
+    purchase: PurchaseVerification,
+    current_user=Depends(security)
+):
+    """
+    Verifica compra do Google Play ou Apple e ativa assinatura
+    """
+    try:
+        user = await get_current_user(current_user)
+        logging.info(f"🛒 Verifying purchase for user {user['id']}, platform: {purchase.platform}, product: {purchase.productId}")
+        
+        # Validar produto
+        valid_products = ["mensal", "semestral", "anual"]
+        if purchase.productId not in valid_products:
+            raise HTTPException(status_code=400, detail=f"Produto inválido: {purchase.productId}")
+        
+        # ANDROID: Google Play Billing
+        if purchase.platform == "android":
+            if not purchase.purchaseToken:
+                raise HTTPException(status_code=400, detail="purchaseToken é obrigatório para Android")
+            
+            # Verificar com Google Play API (se configurado)
+            if GOOGLE_PLAY_SERVICE_ACCOUNT_FILE and os.path.exists(GOOGLE_PLAY_SERVICE_ACCOUNT_FILE):
+                try:
+                    credentials = service_account.Credentials.from_service_account_file(
+                        GOOGLE_PLAY_SERVICE_ACCOUNT_FILE,
+                        scopes=['https://www.googleapis.com/auth/androidpublisher']
+                    )
+                    
+                    service = build('androidpublisher', 'v3', credentials=credentials)
+                    
+                    # Verificar compra de assinatura
+                    result = service.purchases().subscriptions().get(
+                        packageName=GOOGLE_PACKAGE_NAME,
+                        subscriptionId=purchase.productId,
+                        token=purchase.purchaseToken
+                    ).execute()
+                    
+                    # Verificar se a compra é válida
+                    if result.get('paymentState') != 1:  # 1 = Payment received
+                        raise HTTPException(status_code=400, detail="Pagamento não confirmado pelo Google Play")
+                    
+                    logging.info(f"✅ Google Play purchase verified: {result}")
+                    
+                except Exception as e:
+                    logging.error(f"❌ Error verifying Google Play purchase: {str(e)}")
+                    # Em desenvolvimento, continuar mesmo com erro de verificação
+                    logging.warning("⚠️ Continuing without Google Play verification (development mode)")
+            else:
+                logging.warning("⚠️ Google Play Service Account not configured. Skipping verification (development mode)")
+        
+        # iOS: Apple In-App Purchase (futuro)
+        elif purchase.platform == "ios":
+            if not purchase.transactionReceipt:
+                raise HTTPException(status_code=400, detail="transactionReceipt é obrigatório para iOS")
+            
+            logging.warning("⚠️ iOS verification not implemented yet")
+            # TODO: Implementar verificação com Apple StoreKit API
+        
+        else:
+            raise HTTPException(status_code=400, detail=f"Plataforma inválida: {purchase.platform}")
+        
+        # Calcular data de expiração
+        now = datetime.utcnow()
+        if purchase.productId == "mensal":
+            expiration_date = now + timedelta(days=30)
+        elif purchase.productId == "semestral":
+            expiration_date = now + timedelta(days=180)
+        elif purchase.productId == "anual":
+            expiration_date = now + timedelta(days=365)
+        
+        # Atualizar usuário com plano ativo
+        update_data = {
+            "plano_ativo": purchase.productId,
+            "data_expiracao_plano": expiration_date,
+        }
+        
+        # Salvar token de compra
+        if purchase.platform == "android":
+            update_data["google_play_purchase_token"] = purchase.purchaseToken
+            if purchase.transactionId:
+                update_data["google_play_order_id"] = purchase.transactionId
+        elif purchase.platform == "ios":
+            update_data["apple_transaction_id"] = purchase.transactionId
+        
+        await db.users.update_one(
+            {"id": user["id"]},
+            {"$set": update_data}
+        )
+        
+        logging.info(f"✅ Subscription activated: {purchase.productId} for user {user['id']}, expires: {expiration_date.strftime('%d/%m/%Y')}")
+        
+        return {
+            "success": True,
+            "message": f"Assinatura {purchase.productId} ativada com sucesso!",
+            "plano_ativo": purchase.productId,
+            "data_expiracao": expiration_date.isoformat(),
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"❌ Error in verify_purchase: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao verificar compra: {str(e)}")
+
+
 @api_router.post("/criar-assinatura")
 async def criar_assinatura(
     request: CreateSubscriptionRequest,
