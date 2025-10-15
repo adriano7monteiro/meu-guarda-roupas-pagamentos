@@ -378,8 +378,81 @@ export default function Index() {
             </View>
           </View>
 
+          {/* Suggestion Card */}
+          <TouchableOpacity 
+            style={styles.suggestionCard}
+            onPress={() => setShowSuggestionModal(true)}
+          >
+            <View style={styles.suggestionIconContainer}>
+              <Ionicons name="bulb" size={32} color="#f39c12" />
+            </View>
+            <View style={styles.suggestionContent}>
+              <Text style={styles.suggestionTitle}>💬 Envie sua sugestão</Text>
+              <Text style={styles.suggestionText}>
+                Ajude-nos a melhorar! Compartilhe suas ideias e sugestões.
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#6c5ce7" />
+          </TouchableOpacity>
+
         </View>
       </ScrollView>
+
+      {/* Suggestion Modal */}
+      <Modal
+        visible={showSuggestionModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSuggestionModal(false)}
+      >
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.modalContainer}>
+              <View style={styles.suggestionModalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>💡 Sua Sugestão</Text>
+                  <TouchableOpacity onPress={() => setShowSuggestionModal(false)}>
+                    <Ionicons name="close" size={28} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+
+                <Text style={styles.modalDescription}>
+                  Conte-nos como podemos melhorar o app! Sua opinião é muito importante para nós.
+                </Text>
+
+                <TextInput
+                  style={styles.suggestionInput}
+                  placeholder="Digite sua sugestão aqui..."
+                  placeholderTextColor="#999"
+                  multiline
+                  numberOfLines={6}
+                  value={suggestionText}
+                  onChangeText={setSuggestionText}
+                  textAlignVertical="top"
+                />
+
+                <TouchableOpacity 
+                  style={[styles.sendButton, sendingSuggestion && styles.sendButtonDisabled]}
+                  onPress={handleSendSuggestion}
+                  disabled={sendingSuggestion}
+                >
+                  {sendingSuggestion ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <>
+                      <Ionicons name="send" size={20} color="#fff" />
+                      <Text style={styles.sendButtonText}>Enviar Sugestão</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Main Dashboard Modal */}
       <CustomModal
