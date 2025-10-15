@@ -292,7 +292,7 @@ def main():
     all_results.failures.extend(get_results.failures)
     
     # Step 4: Test MongoDB direct verification
-    mongo_results = test_mongodb_direct_verification()
+    mongo_results = test_mongodb_direct_verification(clothing_id)
     all_results.tests_run += mongo_results.tests_run
     all_results.tests_passed += mongo_results.tests_passed
     all_results.tests_failed += mongo_results.tests_failed
