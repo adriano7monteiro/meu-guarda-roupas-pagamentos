@@ -55,8 +55,9 @@ class User(BaseModel):
     ocasiao_preferida: str = "casual"
     looks_usados: int = 0  # Contador de looks gratuitos usados
     plano_ativo: str = "free"  # free, mensal, semestral, anual
-    stripe_customer_id: Optional[str] = None
-    stripe_subscription_id: Optional[str] = None
+    google_play_purchase_token: Optional[str] = None  # Token de compra do Google Play
+    google_play_order_id: Optional[str] = None  # ID do pedido do Google Play
+    apple_transaction_id: Optional[str] = None  # ID da transação da Apple (futuro)
     data_expiracao_plano: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
