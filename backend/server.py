@@ -36,9 +36,9 @@ openai_client = AsyncOpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 JWT_SECRET = os.environ.get('JWT_SECRET', 'meu-look-ia-secret-key-2025-default-CHANGE-IN-PRODUCTION')
 security = HTTPBearer()
 
-# Stripe configuration
-stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', '')
-STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+# Google Play configuration (optional, for production)
+GOOGLE_PLAY_SERVICE_ACCOUNT_FILE = os.environ.get('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON', None)
+GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 
 # Create the main app without a prefix
 app = FastAPI()
