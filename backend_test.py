@@ -1,26 +1,17 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Meu Look IA - Virtual Try-On Focus
-URGENT TEST: Verificar funcionalidade de virtual try-on
-Testing the virtual try-on functionality as requested by user
+Backend Test Suite for Meu Look IA
+Testing POST /api/upload-roupa after removal of imagem_sem_fundo field
 """
 
 import requests
 import json
 import base64
-import logging
 import os
-import time
 from datetime import datetime
+import sys
 
-# Configure logging to see detailed output
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Get backend URL from frontend env
+# Configuration
 BACKEND_URL = "https://lookgenerator.preview.emergentagent.com/api"
 
 class VirtualTryOnTester:
