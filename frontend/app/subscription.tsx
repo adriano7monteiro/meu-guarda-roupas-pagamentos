@@ -363,13 +363,13 @@ function SubscriptionContent() {
         <TouchableOpacity 
           style={[
             styles.subscribeButton,
-            loading && styles.disabledButton,
+            purchasing && styles.disabledButton,
             { backgroundColor: plans.find(p => p.id === selectedPlan)?.color || '#6c5ce7' },
           ]}
           onPress={handleSubscribe}
-          disabled={loading}
+          disabled={purchasing}
         >
-          {loading ? (
+          {purchasing ? (
             <>
               <ActivityIndicator size="small" color="#fff" />
               <Text style={styles.subscribeButtonText}>Processando...</Text>
