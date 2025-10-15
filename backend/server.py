@@ -139,6 +139,13 @@ class Suggestion(BaseModel):
 class SuggestionCreate(BaseModel):
     mensagem: str
 
+class PurchaseVerification(BaseModel):
+    platform: str  # "android" or "ios"
+    productId: str  # "mensal", "semestral", "anual"
+    purchaseToken: Optional[str] = None  # Android
+    transactionReceipt: Optional[str] = None  # iOS
+    transactionId: Optional[str] = None
+
 # Helper functions
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
