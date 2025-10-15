@@ -1618,7 +1618,7 @@ async def criar_sugestao(
             <p>{suggestion.mensagem}</p>
             """
             
-            await email_service.send_email(
+            email_service._send_email(
                 to_email="contato@meulookia.com.br",
                 subject=f"Nova Sugestão de Melhoria - {user['nome']}",
                 html_content=email_body
