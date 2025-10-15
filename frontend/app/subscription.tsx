@@ -143,6 +143,15 @@ function SubscriptionContent() {
             primary: '#6c5ce7',
           },
         },
+        // Configuração de idioma para Português
+        primaryButtonLabel: 'Assinar',
+        applePay: {
+          merchantCountryCode: 'BR',
+        },
+        googlePay: {
+          merchantCountryCode: 'BR',
+          testEnv: false,
+        },
       });
 
       if (initError) {
