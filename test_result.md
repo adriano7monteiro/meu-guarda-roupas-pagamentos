@@ -204,6 +204,18 @@ backend:
           agent: "testing"
           comment: "✅ TESTE COMPLETO COM NOVA API KEY CONFIRMADO: Nova API Key b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b funcionando perfeitamente! Teste completo executado: ✅ Usuário criado e autenticado, ✅ Foto do corpo enviada (6459 chars), ✅ Roupa cadastrada (3751 chars), ✅ Virtual try-on endpoint respondendo 200 OK. Fal.ai API sendo chamada com sucesso - autenticação OK, payload correto (model_image/garment_image). Erro 422 'Failed to detect body pose in model image' é esperado com imagens sintéticas de teste. API está funcionando corretamente, apenas requer fotos reais de pessoas com poses detectáveis. Estrutura de resposta perfeita: {message, clothing_items, tryon_image, status, note, api_used}. Fallback funcionando quando necessário. Endpoint 100% funcional e pronto para uso com imagens reais."
 
+  - task: "Remoção do campo imagem_sem_fundo do modelo ClothingItem"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTE COMPLETO CONFIRMADO: Campo 'imagem_sem_fundo' removido com sucesso do modelo ClothingItem. Testes executados: ✅ Usuário criado e autenticado, ✅ POST /api/upload-roupa funcionando sem o campo (200 OK), ✅ GET /api/roupas não retorna o campo, ✅ MongoDB - novos documentos não contêm o campo. Verificação direta no MongoDB confirmou: 56 documentos antigos ainda têm o campo, 2 documentos novos não têm o campo. Endpoint funcionando perfeitamente após a remoção. Estrutura atual dos documentos: ['id', 'user_id', 'tipo', 'cor', 'estilo', 'imagem_original', 'nome', 'created_at']. Sistema continua funcionando normalmente sem o campo removido."
+
 frontend:
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
