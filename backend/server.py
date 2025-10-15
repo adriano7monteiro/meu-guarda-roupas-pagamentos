@@ -877,6 +877,19 @@ async def get_looks(
         "has_more": (skip + limit) < total
     }
 
+@api_router.get("/looks/stats/favoritos")
+async def get_favoritos_count(current_user=Depends(security)):
+    """Retorna a contagem de looks favoritados"""
+    user = await get_current_user(current_user)
+    
+    # Count looks where favorito = true
+    favoritos_count = await db.looks.count_documents({
+        "user_id": user["id"],
+        "favorito": True
+    })
+    
+    return {"count": favoritos_count}
+
 @api_router.post("/looks/{look_id}/favoritar")
 async def toggle_favorite_look(look_id: str, current_user=Depends(security)):
     user = await get_current_user(current_user)
