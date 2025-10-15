@@ -15,7 +15,6 @@ import bcrypt
 import jwt
 import base64
 import json
-from emergentintegrations.llm.chat import LlmChat, UserMessage
 import stripe
 import random
 from email_service import email_service
