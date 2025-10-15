@@ -1619,7 +1619,7 @@ async def criar_sugestao(
                 html_content=email_body
             )
         except Exception as email_error:
-            logger.error(f"Erro ao enviar email de sugestão: {email_error}")
+            logging.error(f"Erro ao enviar email de sugestão: {email_error}")
             # Não falhar se o email não for enviado
         
         return {
