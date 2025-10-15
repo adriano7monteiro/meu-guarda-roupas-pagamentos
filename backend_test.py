@@ -246,15 +246,63 @@ def test_mongodb_direct_verification():
 
 def main():
     """Main test function"""
-    tester = VirtualTryOnTester()
-    success = tester.run_virtual_tryon_tests()
+    print(f"🧪 BACKEND TEST SUITE - POST /api/upload-roupa")
+    print(f"Testing removal of 'imagem_sem_fundo' field")
+    print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    all_results = TestResults()
+    
+    # Step 1: Register user and login
+    token, reg_results = test_user_registration_and_login()
+    all_results.tests_run += reg_results.tests_run
+    all_results.tests_passed += reg_results.tests_passed
+    all_results.tests_failed += reg_results.tests_failed
+    all_results.failures.extend(reg_results.failures)
+    
+    if not token:
+        print(f"\n❌ Cannot proceed without authentication token")
+        all_results.print_summary()
+        return False
+    
+    # Step 2: Test upload roupa endpoint
+    clothing_id, upload_results = test_upload_roupa_endpoint(token)
+    all_results.tests_run += upload_results.tests_run
+    all_results.tests_passed += upload_results.tests_passed
+    all_results.tests_failed += upload_results.tests_failed
+    all_results.failures.extend(upload_results.failures)
+    
+    if not clothing_id:
+        print(f"\n❌ Cannot proceed without successful clothing upload")
+        all_results.print_summary()
+        return False
+    
+    # Step 3: Test get roupas endpoint
+    get_results = test_get_roupas_endpoint(token, clothing_id)
+    all_results.tests_run += get_results.tests_run
+    all_results.tests_passed += get_results.tests_passed
+    all_results.tests_failed += get_results.tests_failed
+    all_results.failures.extend(get_results.failures)
+    
+    # Step 4: Test MongoDB direct verification
+    mongo_results = test_mongodb_direct_verification()
+    all_results.tests_run += mongo_results.tests_run
+    all_results.tests_passed += mongo_results.tests_passed
+    all_results.tests_failed += mongo_results.tests_failed
+    all_results.failures.extend(mongo_results.failures)
+    
+    # Print final summary
+    success = all_results.print_summary()
     
     if success:
-        logger.info("🎉 All tests passed!")
+        print(f"\n🎉 ALL TESTS PASSED! The 'imagem_sem_fundo' field has been successfully removed.")
+        print(f"✅ POST /api/upload-roupa works correctly without the field")
+        print(f"✅ GET /api/roupas does not return the field")
+        print(f"✅ MongoDB documents do not contain the field")
     else:
-        logger.error("⚠️ Some tests failed - check details above")
+        print(f"\n⚠️  SOME TESTS FAILED! Please review the failures above.")
     
     return success
 
 if __name__ == "__main__":
-    main()
+    success = main()
+    sys.exit(0 if success else 1)
