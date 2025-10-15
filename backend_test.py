@@ -14,329 +14,235 @@ import sys
 # Configuration
 BACKEND_URL = "https://lookgenerator.preview.emergentagent.com/api"
 
-class VirtualTryOnTester:
+# Test data
+TEST_USER = {
+    "email": f"test_user_{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com",
+    "password": "TestPassword123!",
+    "nome": "Test User Upload Roupa",
+    "ocasiao_preferida": "casual"
+}
+
+# Sample base64 image (small PNG)
+SAMPLE_IMAGE_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+
+TEST_CLOTHING = {
+    "tipo": "camiseta",
+    "cor": "azul",
+    "estilo": "casual",
+    "nome": "Camiseta Azul Teste",
+    "imagem_original": SAMPLE_IMAGE_BASE64
+}
+
+class TestResults:
     def __init__(self):
-        self.base_url = BACKEND_URL
-        self.token = None
-        self.user_id = None
-        self.clothing_ids = []
-        self.test_results = []
-        
-    def log_test(self, test_name: str, success: bool, details: str = ""):
-        """Log test results"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        logger.info(f"{status} {test_name}")
-        if details:
-            logger.info(f"   Details: {details}")
-        
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details
-        })
+        self.tests_run = 0
+        self.tests_passed = 0
+        self.tests_failed = 0
+        self.failures = []
     
-    def create_test_image_base64(self, width=400, height=600, image_type="body"):
-        """Create a realistic test image in base64 format"""
-        try:
-            from PIL import Image, ImageDraw, ImageFont
-            import io
+    def add_result(self, test_name, passed, message=""):
+        self.tests_run += 1
+        if passed:
+            self.tests_passed += 1
+            print(f"✅ {test_name}: PASSED")
+        else:
+            self.tests_failed += 1
+            self.failures.append(f"{test_name}: {message}")
+            print(f"❌ {test_name}: FAILED - {message}")
+    
+    def print_summary(self):
+        print(f"\n{'='*60}")
+        print(f"TEST SUMMARY")
+        print(f"{'='*60}")
+        print(f"Total Tests: {self.tests_run}")
+        print(f"Passed: {self.tests_passed}")
+        print(f"Failed: {self.tests_failed}")
+        
+        if self.failures:
+            print(f"\nFAILURES:")
+            for failure in self.failures:
+                print(f"  - {failure}")
+        
+        return self.tests_failed == 0
+
+def test_user_registration_and_login():
+    """Test user registration and login to get auth token"""
+    results = TestResults()
+    
+    print(f"\n🔐 Testing User Registration and Login")
+    print(f"Backend URL: {BACKEND_URL}")
+    
+    # Test registration
+    try:
+        response = requests.post(f"{BACKEND_URL}/auth/register", json=TEST_USER, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            token = data.get("token")
+            user_info = data.get("user")
             
-            # Create a new image with RGB mode
-            if image_type == "body":
-                # Create a body-like image (taller rectangle)
-                color = (173, 216, 230)  # lightblue
-                img = Image.new('RGB', (width, height), color)
+            if token and user_info:
+                results.add_result("User Registration", True)
+                print(f"   User created: {user_info.get('email')}")
+                return token, results
             else:
-                # Create a clothing item (square-ish)
-                color = (255, 0, 0)  # red
-                img = Image.new('RGB', (width, width), color)
-                height = width
+                results.add_result("User Registration", False, "Missing token or user info in response")
+                return None, results
+        else:
+            results.add_result("User Registration", False, f"HTTP {response.status_code}: {response.text}")
+            return None, results
             
-            # Add some text to the image
-            draw = ImageDraw.Draw(img)
+    except Exception as e:
+        results.add_result("User Registration", False, f"Exception: {str(e)}")
+        return None, results
+
+def test_upload_roupa_endpoint(token):
+    """Test POST /api/upload-roupa endpoint"""
+    results = TestResults()
+    
+    print(f"\n👕 Testing POST /api/upload-roupa Endpoint")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        response = requests.post(f"{BACKEND_URL}/upload-roupa", json=TEST_CLOTHING, headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            clothing_id = data.get("id")
+            message = data.get("message")
+            
+            if clothing_id and message:
+                results.add_result("Upload Roupa - Success Response", True)
+                print(f"   Clothing ID: {clothing_id}")
+                print(f"   Message: {message}")
+                return clothing_id, results
+            else:
+                results.add_result("Upload Roupa - Success Response", False, "Missing id or message in response")
+                return None, results
+        else:
+            results.add_result("Upload Roupa - Success Response", False, f"HTTP {response.status_code}: {response.text}")
+            return None, results
+            
+    except Exception as e:
+        results.add_result("Upload Roupa - Success Response", False, f"Exception: {str(e)}")
+        return None, results
+
+def test_get_roupas_endpoint(token, expected_clothing_id):
+    """Test GET /api/roupas endpoint and verify no imagem_sem_fundo field"""
+    results = TestResults()
+    
+    print(f"\n👔 Testing GET /api/roupas Endpoint")
+    
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    
+    try:
+        response = requests.get(f"{BACKEND_URL}/roupas", headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            items = data.get("items", [])
+            
+            results.add_result("Get Roupas - Success Response", True)
+            print(f"   Found {len(items)} clothing items")
+            
+            # Find our uploaded item
+            uploaded_item = None
+            for item in items:
+                if item.get("id") == expected_clothing_id:
+                    uploaded_item = item
+                    break
+            
+            if uploaded_item:
+                results.add_result("Get Roupas - Find Uploaded Item", True)
+                print(f"   Found uploaded item: {uploaded_item.get('nome')}")
+                
+                # Check that imagem_sem_fundo field is NOT present
+                if "imagem_sem_fundo" not in uploaded_item:
+                    results.add_result("Get Roupas - No imagem_sem_fundo Field", True)
+                    print(f"   ✅ Confirmed: 'imagem_sem_fundo' field is NOT present")
+                else:
+                    results.add_result("Get Roupas - No imagem_sem_fundo Field", False, "imagem_sem_fundo field found in response")
+                    print(f"   ❌ ERROR: 'imagem_sem_fundo' field found: {uploaded_item.get('imagem_sem_fundo')}")
+                
+                # Verify expected fields are present
+                expected_fields = ["id", "user_id", "tipo", "cor", "estilo", "imagem_original", "nome", "created_at"]
+                missing_fields = []
+                for field in expected_fields:
+                    if field not in uploaded_item:
+                        missing_fields.append(field)
+                
+                if not missing_fields:
+                    results.add_result("Get Roupas - Expected Fields Present", True)
+                    print(f"   ✅ All expected fields present: {expected_fields}")
+                else:
+                    results.add_result("Get Roupas - Expected Fields Present", False, f"Missing fields: {missing_fields}")
+                
+                # Print item structure for verification
+                print(f"   Item structure: {list(uploaded_item.keys())}")
+                
+            else:
+                results.add_result("Get Roupas - Find Uploaded Item", False, f"Uploaded item with ID {expected_clothing_id} not found")
+            
+            return results
+        else:
+            results.add_result("Get Roupas - Success Response", False, f"HTTP {response.status_code}: {response.text}")
+            return results
+            
+    except Exception as e:
+        results.add_result("Get Roupas - Success Response", False, f"Exception: {str(e)}")
+        return results
+
+def test_mongodb_direct_verification():
+    """Test direct MongoDB verification (if possible)"""
+    results = TestResults()
+    
+    print(f"\n🗄️  Testing MongoDB Direct Verification")
+    
+    try:
+        # Try to connect to MongoDB directly to verify document structure
+        from motor.motor_asyncio import AsyncIOMotorClient
+        import asyncio
+        
+        async def check_mongodb():
             try:
-                # Try to use a default font
-                font = ImageFont.load_default()
-            except:
-                font = None
-            
-            text = "Test Body Photo" if image_type == "body" else "Test Clothing"
-            
-            # Calculate text position (center)
-            if font:
-                bbox = draw.textbbox((0, 0), text, font=font)
-                text_width = bbox[2] - bbox[0]
-                text_height = bbox[3] - bbox[1]
-            else:
-                text_width = len(text) * 6  # Approximate
-                text_height = 11
-            
-            x = (img.width - text_width) // 2
-            y = (img.height - text_height) // 2
-            
-            draw.text((x, y), text, fill=(255, 255, 255), font=font)
-            
-            # Convert to base64
-            buffer = io.BytesIO()
-            img.save(buffer, format='JPEG', quality=85)
-            img_b64 = base64.b64encode(buffer.getvalue()).decode()
-            
-            return f"data:image/jpeg;base64,{img_b64}"
-            
-        except ImportError:
-            # Fallback to a simple 1x1 pixel image if PIL is not available
-            # This is a minimal valid JPEG base64 image
-            minimal_jpeg = "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A8A"
-            return f"data:image/jpeg;base64,{minimal_jpeg}"
-    
-    def create_test_user(self):
-        """Create a test user for testing"""
-        user_data = {
-            "email": f"tryontest_{datetime.now().strftime('%Y%m%d_%H%M%S')}@test.com",
-            "password": "testpass123",
-            "nome": "Virtual Try-On Tester",
-            "ocasiao_preferida": "casual"
-        }
-        
-        logger.info("Creating test user for virtual try-on...")
-        response = requests.post(f"{self.base_url}/auth/register", json=user_data)
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.token = data["token"]
-            self.user_id = data["user"]["email"]
-            self.log_test("User Registration", True, f"User created: {self.user_id}")
-            return True
-        elif response.status_code == 400 and "already registered" in response.text:
-            # Try login instead
-            return self.login_existing_user(user_data["email"], user_data["password"])
-        else:
-            self.log_test("User Registration", False, f"Status: {response.status_code}, Response: {response.text}")
-            return False
-    
-    def login_existing_user(self, email: str, password: str):
-        """Login with existing user"""
-        login_data = {"email": email, "password": password}
-        response = requests.post(f"{self.base_url}/auth/login", json=login_data)
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.token = data["token"]
-            self.user_id = data["user"]["email"]
-            self.log_test("User Login", True, f"Logged in: {self.user_id}")
-            return True
-        else:
-            self.log_test("User Login", False, f"Status: {response.status_code}, Response: {response.text}")
-            return False
-    
-    def upload_body_photo(self):
-        """Upload body photo for virtual try-on"""
-        try:
-            body_image = self.create_test_image_base64(400, 600, "body")
-            
-            form_data = {"imagem": body_image}
-            headers = {"Authorization": f"Bearer {self.token}"}
-            
-            response = requests.post(f"{self.base_url}/upload-foto-corpo", data=form_data, headers=headers)
-            
-            if response.status_code == 200:
-                self.log_test("Upload Body Photo", True, "Body photo uploaded successfully")
-                return True
-            else:
-                self.log_test("Upload Body Photo", False, f"Status: {response.status_code}, Response: {response.text}")
-                return False
+                client = AsyncIOMotorClient("mongodb://localhost:27017")
+                db = client["test_database"]
                 
-        except Exception as e:
-            self.log_test("Upload Body Photo", False, f"Exception: {str(e)}")
-            return False
-    
-    def create_sample_clothing(self):
-        """Create sample clothing items for testing"""
-        clothing_image = self.create_test_image_base64(300, 300, "clothing")
-        
-        clothing_data = {
-            "tipo": "camiseta",
-            "cor": "vermelha",
-            "estilo": "casual",
-            "nome": "Camiseta Teste Try-On",
-            "imagem_original": clothing_image
-        }
-        
-        headers = {"Authorization": f"Bearer {self.token}"}
-        
-        logger.info(f"Creating clothing item: {clothing_data['nome']}")
-        response = requests.post(f"{self.base_url}/upload-roupa", json=clothing_data, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.clothing_ids.append(data["id"])
-            self.log_test("Upload Clothing", True, f"Clothing uploaded with ID: {data['id']}")
-            return True
-        else:
-            self.log_test("Upload Clothing", False, f"Status: {response.status_code}, Response: {response.text}")
-            return False
-    
-    def test_virtual_tryon_api(self):
-        """Test the main virtual try-on API endpoint"""
-        try:
-            if not self.clothing_ids:
-                self.log_test("Virtual Try-On API", False, "No clothing ID available - upload clothing first")
-                return False
-            
-            form_data = {"roupa_ids": self.clothing_ids}
-            headers = {"Authorization": f"Bearer {self.token}"}
-            
-            logger.info("=" * 60)
-            logger.info("TESTING POST /api/gerar-look-visual ENDPOINT")
-            logger.info("=" * 60)
-            logger.info(f"🔍 Testing Virtual Try-On with clothing ID: {self.clothing_ids[0]}")
-            logger.info(f"🔍 API Key being used: b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b")
-            logger.info(f"🔍 Fal.ai endpoint: https://fal.run/fal-ai/fashn/tryon/v1.5")
-            
-            response = requests.post(f"{self.base_url}/gerar-look-visual", data=form_data, headers=headers)
-            
-            logger.info(f"🔍 Response Status: {response.status_code}")
-            logger.info(f"🔍 Response Headers: {dict(response.headers)}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                logger.info(f"🔍 Response Keys: {list(data.keys())}")
-                logger.info(f"🔍 Full Response: {json.dumps(data, indent=2)}")
+                # Get a sample clothing item
+                sample_item = await db.clothing_items.find_one({}, {"_id": 0})
                 
-                # Check response structure
-                required_fields = ["message", "clothing_items", "tryon_image", "status", "api_used"]
-                missing_fields = [field for field in required_fields if field not in data]
-                
-                if missing_fields:
-                    self.log_test("Virtual Try-On API", False, f"Missing fields: {missing_fields}")
-                    return False
-                
-                # Check if API was called or fallback was used
-                api_used = data.get("api_used", "unknown")
-                tryon_image = data.get("tryon_image", "")
-                status = data.get("status", "")
-                note = data.get("note", "")
-                
-                logger.info(f"🔍 API Used: {api_used}")
-                logger.info(f"🔍 Status: {status}")
-                logger.info(f"🔍 Note: {note}")
-                logger.info(f"🔍 Try-on Image Length: {len(tryon_image)} chars")
-                
-                if api_used == "fallback":
-                    self.log_test("Virtual Try-On API", False, f"API in fallback mode. Note: {note}")
-                    return False
-                elif api_used == "fal.ai-fashn":
-                    self.log_test("Virtual Try-On API", True, f"Fal.ai API working successfully. Image generated: {len(tryon_image)} chars")
-                    return True
+                if sample_item:
+                    if "imagem_sem_fundo" not in sample_item:
+                        results.add_result("MongoDB - No imagem_sem_fundo in Documents", True)
+                        print(f"   ✅ Confirmed: MongoDB documents do NOT contain 'imagem_sem_fundo' field")
+                        print(f"   Document fields: {list(sample_item.keys())}")
+                    else:
+                        results.add_result("MongoDB - No imagem_sem_fundo in Documents", False, "imagem_sem_fundo field found in MongoDB document")
+                        print(f"   ❌ ERROR: 'imagem_sem_fundo' field found in MongoDB document")
                 else:
-                    self.log_test("Virtual Try-On API", True, f"API responded successfully with status: {status}")
-                    return True
-                    
-            else:
-                self.log_test("Virtual Try-On API", False, f"Status: {response.status_code}, Response: {response.text}")
-                return False
+                    results.add_result("MongoDB - Document Check", False, "No clothing items found in database")
                 
-        except Exception as e:
-            self.log_test("Virtual Try-On API", False, f"Exception: {str(e)}")
-            return False
+                client.close()
+                
+            except Exception as e:
+                results.add_result("MongoDB - Connection", False, f"MongoDB connection error: {str(e)}")
+        
+        # Run async function
+        asyncio.run(check_mongodb())
+        
+    except ImportError:
+        results.add_result("MongoDB - Direct Check", False, "motor library not available for direct MongoDB check")
+        print(f"   ⚠️  Skipping direct MongoDB check (motor not available)")
+    except Exception as e:
+        results.add_result("MongoDB - Direct Check", False, f"Exception: {str(e)}")
     
-    def check_backend_logs(self):
-        """Check backend logs for detailed error information"""
-        try:
-            logger.info("=" * 60)
-            logger.info("CHECKING BACKEND LOGS FOR FAL.AI ERRORS")
-            logger.info("=" * 60)
-            
-            # Check supervisor logs
-            import subprocess
-            result = subprocess.run(
-                ["tail", "-n", "50", "/var/log/supervisor/backend.err.log"],
-                capture_output=True,
-                text=True
-            )
-            
-            if result.returncode == 0:
-                logs = result.stdout
-                logger.info(f"🔍 Backend Error Logs (last 50 lines):")
-                logger.info(logs)
-                
-                # Look for specific Fal.ai errors
-                if "401" in logs and "No user found for Key ID" in logs:
-                    logger.error("❌ FOUND: 401 Authentication error with Fal.ai API")
-                    return "401_auth_error"
-                elif "422" in logs and "Failed to detect body pose" in logs:
-                    logger.error("❌ FOUND: 422 Body pose detection error")
-                    return "422_pose_error"
-                elif "403" in logs and "Exhausted balance" in logs:
-                    logger.error("❌ FOUND: 403 Exhausted balance error")
-                    return "403_balance_error"
-                else:
-                    logger.info("ℹ️ No specific Fal.ai errors found in recent logs")
-                    return "no_specific_error"
-            else:
-                logger.warning("⚠️ Could not read backend logs")
-                return "log_read_error"
-                
-        except Exception as e:
-            logger.error(f"⚠️ Error checking logs: {str(e)}")
-            return "log_check_exception"
-    
-    def run_virtual_tryon_tests(self):
-        """Run all virtual try-on tests in sequence"""
-        logger.info("🚀 Starting Virtual Try-On Test Suite")
-        logger.info("=" * 50)
-        
-        # Test sequence
-        tests = [
-            ("User Registration/Login", self.create_test_user),
-            ("Upload Body Photo", self.upload_body_photo),
-            ("Upload Clothing", self.create_sample_clothing),
-            ("Virtual Try-On API", self.test_virtual_tryon_api)
-        ]
-        
-        for test_name, test_func in tests:
-            logger.info(f"\n📋 Running: {test_name}")
-            success = test_func()
-            if not success and test_name != "Virtual Try-On API":
-                logger.error(f"❌ Stopping tests due to failure in: {test_name}")
-                break
-        
-        # Always check logs for debugging
-        logger.info(f"\n📋 Checking Backend Logs")
-        log_status = self.check_backend_logs()
-        
-        # Summary
-        logger.info("\n" + "=" * 50)
-        logger.info("📊 TEST SUMMARY")
-        logger.info("=" * 50)
-        
-        passed = sum(1 for result in self.test_results if result["success"])
-        total = len(self.test_results)
-        
-        logger.info(f"Tests Passed: {passed}/{total}")
-        
-        for result in self.test_results:
-            status = "✅" if result["success"] else "❌"
-            logger.info(f"{status} {result['test']}")
-            if result["details"]:
-                logger.info(f"   {result['details']}")
-        
-        # Specific analysis for virtual try-on
-        logger.info(f"\n🔍 VIRTUAL TRY-ON ANALYSIS:")
-        logger.info(f"Backend Log Status: {log_status}")
-        
-        if log_status == "401_auth_error":
-            logger.error("❌ CRITICAL: Fal.ai API Key authentication failed")
-            logger.error("   Current key: b6f0f11d-2620-49cb-9d9b-342b6a877915:4340b42a760df77a641cd8d5c0794b8b")
-            logger.error("   Action needed: Verify API key validity with Fal.ai")
-        elif log_status == "422_pose_error":
-            logger.warning("⚠️ WARNING: Fal.ai cannot detect body pose in uploaded images")
-            logger.warning("   Action needed: Use real human photos with clear body poses")
-        elif log_status == "403_balance_error":
-            logger.warning("⚠️ WARNING: Fal.ai account balance exhausted")
-            logger.warning("   Action needed: Add credits to Fal.ai account")
-        
-        return passed == total
+    return results
 
 def main():
     """Main test function"""
