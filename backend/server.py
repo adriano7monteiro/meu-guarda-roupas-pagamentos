@@ -84,7 +84,6 @@ class ClothingItem(BaseModel):
     cor: str
     estilo: str
     imagem_original: str  # base64
-    imagem_sem_fundo: Optional[str] = None  # base64
     nome: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
