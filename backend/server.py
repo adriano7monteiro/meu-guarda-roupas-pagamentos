@@ -32,7 +32,7 @@ db = client[os.environ['DB_NAME']]
 openai_client = AsyncOpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 
 # JWT Secret (in production, use a secure secret)
-JWT_SECRET = "meu-look-ia-secret-key-2025"
+JWT_SECRET = os.environ.get('JWT_SECRET', 'meu-look-ia-secret-key-2025-default-CHANGE-IN-PRODUCTION')
 security = HTTPBearer()
 
 # Stripe configuration
