@@ -1599,6 +1599,76 @@ async def get_planos():
 async def root():
     return {"message": "Meu Look IA API"}
 
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint para monitoramento"""
+    try:
+        # Testar conexão com MongoDB
+        await db.command("ping")
+        
+        return {
+            "status": "healthy",
+            "service": "Meu Look IA API",
+            "version": "1.0.0",
+            "database": "connected",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "service": "Meu Look IA API",
+            "version": "1.0.0",
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
+@api_router.get("/status")
+async def status():
+    """Status detalhado do sistema"""
+    try:
+        # Contadores de documentos
+        users_count = await db.users.count_documents({})
+        roupas_count = await db.clothing_items.count_documents({})
+        looks_count = await db.looks.count_documents({})
+        suggestions_count = await db.suggestions.count_documents({})
+        
+        # Testar MongoDB
+        db_status = "connected"
+        try:
+            await db.command("ping")
+        except:
+            db_status = "disconnected"
+        
+        return {
+            "status": "online",
+            "service": "Meu Look IA API",
+            "version": "1.0.0",
+            "timestamp": datetime.utcnow().isoformat(),
+            "database": {
+                "status": db_status,
+                "name": os.environ.get('DB_NAME', 'unknown')
+            },
+            "statistics": {
+                "users": users_count,
+                "clothing_items": roupas_count,
+                "looks": looks_count,
+                "suggestions": suggestions_count
+            },
+            "features": {
+                "openai": bool(os.environ.get('OPENAI_API_KEY')),
+                "stripe": bool(os.environ.get('STRIPE_SECRET_KEY')),
+                "sendgrid": bool(os.environ.get('SENDGRID_API_KEY')),
+                "fal_ai": bool(os.environ.get('FAL_API_KEY'))
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        }
+
 @api_router.post("/sugestoes")
 async def criar_sugestao(
     suggestion: SuggestionCreate,
