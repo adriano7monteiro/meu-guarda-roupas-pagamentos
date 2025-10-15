@@ -4,7 +4,7 @@
 
 O sistema agora possui um endpoint completo para receber e processar webhooks do Stripe:
 
-- **URL do Webhook:** `https://aiwardrobe-5.preview.emergentagent.com/api/stripe-webhook`
+- **URL do Webhook:** `https://lookgenerator.preview.emergentagent.com/api/stripe-webhook`
 - **Eventos processados:**
   - ✅ `invoice.payment_succeeded` - Pagamento recorrente bem-sucedido
   - ❌ `invoice.payment_failed` - Falha no pagamento recorrente
@@ -26,7 +26,7 @@ O sistema agora possui um endpoint completo para receber e processar webhooks do
 
 **URL do endpoint:**
 ```
-https://aiwardrobe-5.preview.emergentagent.com/api/stripe-webhook
+https://lookgenerator.preview.emergentagent.com/api/stripe-webhook
 ```
 
 **Eventos para ouvir:**
