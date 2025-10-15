@@ -75,11 +75,11 @@ function SubscriptionContent() {
   };
 
   const handleSubscribe = async () => {
-    // Check if running on web
+    // Check if running on web or Expo Go
     if (Platform.OS === 'web') {
       modal.showWarning(
-        '📱 Use o App Mobile',
-        'O pagamento com Stripe funciona apenas no app mobile (iOS/Android). Abra este app no Expo Go do seu celular para assinar!',
+        '📱 Use o App Nativo',
+        'Os pagamentos via Google Play funcionam apenas no app nativo (APK). Faça o build do APK e instale no seu dispositivo para assinar!',
         [
           {
             text: 'Entendi',
@@ -90,94 +90,45 @@ function SubscriptionContent() {
       return;
     }
 
-    // Dismiss keyboard before showing payment sheet (workaround for topFocus bug)
-    if (Platform.OS !== 'web') {
-      const { Keyboard } = require('react-native');
-      Keyboard.dismiss();
-      await new Promise(resolve => setTimeout(resolve, 300));
+    // Check if IAP is available (won't work in Expo Go)
+    if (!subscriptions || subscriptions.length === 0) {
+      modal.showWarning(
+        '📱 Build Nativo Necessário',
+        'Os pagamentos In-App não funcionam no Expo Go. Você precisa gerar um APK nativo usando "eas build" para testar as compras.',
+        [
+          {
+            text: 'Entendi',
+            onPress: () => modal.hideModal(),
+          },
+        ]
+      );
+      return;
     }
 
-    setLoading(true);
-    
     try {
-      const token = await AsyncStorage.getItem('auth_token');
-      if (!token) {
-        modal.showError('Erro', 'Token de autenticação não encontrado.');
-        return;
-      }
-
-      // Step 1: Create subscription and get payment intent from backend
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/criar-assinatura`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          plano: selectedPlan,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        modal.showError('Erro', data.detail || 'Erro ao criar assinatura.');
-        return;
-      }
-
-      // Step 2: Initialize Payment Sheet with client_secret from backend
-      const { error: initError } = await initPaymentSheet({
-        merchantDisplayName: 'Meu Look IA',
-        paymentIntentClientSecret: data.client_secret,
-        customerId: data.customer_id,
-        defaultBillingDetails: {
-          address: {
-            country: 'BR',
+      // Initiate purchase with Google Play
+      await purchaseSubscription(selectedPlan);
+      
+      // Success modal will be shown by the useInAppPurchase hook after verification
+      modal.showSuccess(
+        '🎉 Assinatura Ativada!',
+        `Seu plano ${selectedPlan} está ativo! Aproveite looks ilimitados!`,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              modal.hideModal();
+              fetchSubscriptionStatus();
+              router.push('/' as any);
+            },
+            style: 'primary',
           },
-        },
-        returnURL: 'meulookia://stripe-redirect',
-        appearance: {
-          colors: {
-            primary: '#6c5ce7',
-          },
-        },
-        // Configuração de idioma para Português
-        primaryButtonLabel: 'Assinar',
-        applePay: {
-          merchantCountryCode: 'BR',
-        },
-        googlePay: {
-          merchantCountryCode: 'BR',
-          testEnv: false,
-        },
-      });
-
-      if (initError) {
-        modal.showError('Erro', `Erro ao inicializar pagamento: ${initError.message}`);
-        return;
-      }
-
-      // Step 3: Present the Payment Sheet to user
-      const { error: presentError } = await presentPaymentSheet();
-
-      if (presentError) {
-        // User cancelled or error occurred
-        if (presentError.code === 'Canceled') {
-          modal.showWarning('Pagamento Cancelado', 'Você cancelou o pagamento.');
-        } else {
-          modal.showError('Erro no Pagamento', presentError.message);
-        }
-        return;
-      }
-
-      // Step 4: Payment successful! Confirm on backend
-      await confirmPayment(data.payment_intent_id);
-
-    } catch (error) {
-      console.error('Error creating subscription:', error);
-      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
-    } finally {
-      setLoading(false);
+        ]
+      );
+      
+    } catch (error: any) {
+      console.error('Error purchasing subscription:', error);
+      modal.showError('Erro', error.message || 'Erro ao processar pagamento.');
     }
   };
 
