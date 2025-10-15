@@ -157,6 +157,46 @@ export default function Index() {
     }
   };
 
+  const handleSendSuggestion = async () => {
+    if (!suggestionText.trim()) {
+      modal.showWarning('Atenção', 'Por favor, escreva sua sugestão antes de enviar.');
+      return;
+    }
+
+    setSendingSuggestion(true);
+    try {
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) return;
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/sugestoes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          mensagem: suggestionText
+        }),
+      });
+
+      if (response.ok) {
+        setShowSuggestionModal(false);
+        setSuggestionText('');
+        modal.showSuccess(
+          'Obrigado!', 
+          'Sua sugestão foi enviada com sucesso. Agradecemos seu feedback!'
+        );
+      } else {
+        modal.showError('Erro', 'Erro ao enviar sugestão. Tente novamente.');
+      }
+    } catch (error) {
+      console.error('Error sending suggestion:', error);
+      modal.showError('Erro', 'Erro de conexão. Tente novamente.');
+    } finally {
+      setSendingSuggestion(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.removeItem('auth_token');
