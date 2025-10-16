@@ -147,7 +147,6 @@ function SubscriptionContent() {
           text: 'Sim, Cancelar',
           onPress: async () => {
             modal.hideModal();
-            setLoading(true);
             
             try {
               const token = await AsyncStorage.getItem('auth_token');
