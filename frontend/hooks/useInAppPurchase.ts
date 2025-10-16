@@ -1,16 +1,4 @@
 import { useEffect, useState } from 'react';
-import {
-  initConnection,
-  endConnection,
-  getSubscriptions,
-  requestSubscription,
-  purchaseUpdatedListener,
-  purchaseErrorListener,
-  finishTransaction,
-  Purchase,
-  PurchaseError,
-  Subscription,
-} from 'react-native-iap';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
@@ -22,7 +10,7 @@ const SUBSCRIPTION_SKUS = Platform.select({
 });
 
 export interface PurchaseState {
-  subscriptions: Subscription[];
+  subscriptions: any[];
   loading: boolean;
   purchasing: boolean;
   error: string | null;
