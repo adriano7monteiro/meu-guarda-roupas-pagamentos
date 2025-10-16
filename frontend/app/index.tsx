@@ -148,7 +148,7 @@ export default function Index() {
       console.log('👔 Looks response:', looksResponse.status, looksResponse.ok);
 
       // Fetch favoritos count
-      const favoritosResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks/stats/favoritos`, {
+      const favoritosResponse = await fetch(`${BACKEND_URL}/api/looks/stats/favoritos`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
