@@ -524,7 +524,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
 
       
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}${endpoint}`, {
+      const response = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
