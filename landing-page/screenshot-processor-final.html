@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processador de Screenshots - Meu Look IA</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .section {
+            margin: 30px 0;
+        }
+        
+        .section h2 {
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .link-card {
+            background: #f8f5ff;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .link-card:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.2);
+        }
+        
+        .link-card h3 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .link-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .link-card .emoji {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .info-box strong {
+            color: #856404;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .success-box strong {
+            color: #155724;
+        }
+        
+        .upload-area {
+            border: 3px dashed #8b5cf6;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            background: #f8f5ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        
+        .upload-area:hover {
+            background: #f0e9ff;
+            border-color: #7c3aed;
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-area {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .preview-area.active {
+            display: block;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-box h3 {
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .preview-box canvas {
+            max-width: 100%;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .specs {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        ol {
+            margin: 15px 0;
+            padding-left: 24px;
+        }
+        
+        ol li {
+            margin: 10px 0;
+            color: #444;
+            line-height: 1.6;
+        }
+        
+        @media (max-width: 768px) {
+            .links-grid,
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Processador de Screenshots</h1>
+        <p class="subtitle">Otimize suas screenshots para Google Play Store (9:16)</p>
+        
+        <div class="info-box">
+            <strong>⚠️ Problema de CORS Detectado!</strong><br>
+            As imagens externas não podem ser processadas diretamente por segurança do navegador. Use o método abaixo para processar suas screenshots.
+        </div>
+        
+        <div class="section">
+            <h2>📤 Método 1: Upload Manual (Recomendado)</h2>
+            <p style="color: #666; margin-bottom: 20px;">Arraste suas screenshots aqui para processar:</p>
+            
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📸</div>
+                <h3>Clique ou arraste suas screenshots aqui</h3>
+                <p style="color: #666; margin-top: 10px;">Aceita PNG, JPG, JPEG • Processa múltiplas imagens</p>
+                <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg" multiple>
+            </div>
+        </div>
+        
+        <div class="preview-area" id="previewArea">
+            <div class="success-box">
+                <strong>✅ Imagens Processadas!</strong> Role para baixo para ver todas as versões geradas.
+            </div>
+            
+            <div id="previewContainer"></div>
+            
+            <div class="controls">
+                <button class="button" onclick="downloadAll()">
+                    📦 Baixar Todas as Versões
+                </button>
+                <button class="button" onclick="reset()" style="background: #ef4444;">
+                    🔄 Processar Novas Imagens
+                </button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📥 Método 2: Baixar Links Diretos</h2>
+            <p style="color: #666; margin-bottom: 20px;">Clique nos links para baixar as screenshots originais e depois faça upload acima:</p>
+            
+            <div class="links-grid">
+                <div class="link-card">
+                    <div class="emoji">🏠</div>
+                    <h3>Screenshot 1 - Home</h3>
+                    <p>Tela inicial do app</p>
+                    <a href="https://customer-assets.emergentagent.com/job_fashion-wallet/artifacts/y5mp9qhs_Screenshot_1760651938.png" 
+                       download="screenshot-1-home.png" 
+                       class="button">
+                        📥 Baixar Imagem
+                    </a>
+                </div>
+                
+                <div class="link-card">
+                    <div class="emoji">👔</div>
+                    <h3>Screenshot 2 - Guarda-Roupa</h3>
+                    <p>Tela de roupas cadastradas</p>
+                    <a href="https://customer-assets.emergentagent.com/job_fashion-wallet/artifacts/2p4akcyx_Screenshot_1760652771.png" 
+                       download="screenshot-2-guarda-roupa.png" 
+                       class="button">
+                        📥 Baixar Imagem
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📋 Instruções Passo a Passo</h2>
+            <ol>
+                <li><strong>Baixe as screenshots:</strong> Clique nos botões acima para baixar as 2 imagens</li>
+                <li><strong>Arraste para cá:</strong> Volte ao topo e arraste ambas as imagens na área de upload</li>
+                <li><strong>Aguarde o processamento:</strong> As imagens serão otimizadas automaticamente</li>
+                <li><strong>Baixe as versões:</strong> Clique em "Baixar Todas as Versões"</li>
+                <li><strong>Upload na Play Store:</strong> Use os arquivos baixados na Google Play Console</li>
+            </ol>
+        </div>
+        
+        <div class="success-box">
+            <strong>💡 Dica:</strong> Você pode arrastar múltiplas screenshots de uma vez! O sistema processará todas automaticamente.
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const previewContainer = document.getElementById('previewContainer');
+        let processedImages = [];
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#e9d5ff';
+            uploadArea.style.borderColor = '#6366f1';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '#f8f5ff';
+            uploadArea.style.borderColor = '#8b5cf6';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f8f5ff';
+            uploadArea.style.borderColor = '#8b5cf6';
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                processImages(files);
+            }
+        });
+
+        function processImages(files) {
+            previewContainer.innerHTML = '';
+            processedImages = [];
+            uploadArea.style.display = 'none';
+            previewArea.classList.add('active');
+            
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        createPreviewSection(img, file.name, index);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function createPreviewSection(img, filename, index) {
+            const section = document.createElement('div');
+            section.style.marginBottom = '40px';
+            
+            const title = document.createElement('h3');
+            title.textContent = `📱 Screenshot ${index + 1}: ${filename}`;
+            title.style.marginBottom = '20px';
+            title.style.color = '#1a1a1a';
+            section.appendChild(title);
+            
+            const grid = document.createElement('div');
+            grid.className = 'preview-grid';
+            
+            // Versão 1080x1920
+            const box1 = createPreviewBox(img, 1080, 1920, 'HD', filename, index);
+            grid.appendChild(box1);
+            
+            // Versão 1440x2560
+            const box2 = createPreviewBox(img, 1440, 2560, 'Full HD', filename, index);
+            grid.appendChild(box2);
+            
+            section.appendChild(grid);
+            previewContainer.appendChild(section);
+        }
+
+        function createPreviewBox(img, width, height, label, filename, index) {
+            const box = document.createElement('div');
+            box.className = 'preview-box';
+            
+            const title = document.createElement('h3');
+            title.textContent = `📱 ${label} (${width}x${height})`;
+            box.appendChild(title);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            canvas.id = `canvas-${index}-${width}`;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Calcular crop centralizado
+            const sourceAspect = img.width / img.height;
+            const targetAspect = width / height;
+            
+            let sourceWidth, sourceHeight, sourceX, sourceY;
+            
+            if (sourceAspect > targetAspect) {
+                sourceHeight = img.height;
+                sourceWidth = sourceHeight * targetAspect;
+                sourceX = (img.width - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                sourceWidth = img.width;
+                sourceHeight = sourceWidth / targetAspect;
+                sourceX = 0;
+                sourceY = (img.height - sourceHeight) / 2;
+            }
+            
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, width, height);
+            
+            box.appendChild(canvas);
+            
+            const specs = document.createElement('div');
+            specs.className = 'specs';
+            specs.textContent = `${width} x ${height} pixels • Proporção 9:16`;
+            box.appendChild(specs);
+            
+            const badge = document.createElement('div');
+            badge.className = 'badge';
+            badge.textContent = label === 'HD' ? 'Ideal para maioria' : 'Alta qualidade premium';
+            box.appendChild(badge);
+            
+            const btn = document.createElement('button');
+            btn.className = 'button';
+            btn.textContent = `📥 Baixar ${label}`;
+            btn.onclick = () => downloadCanvas(canvas.id, `screenshot-${index + 1}-${width}x${height}.png`);
+            box.appendChild(btn);
+            
+            processedImages.push({ canvasId: canvas.id, filename: `screenshot-${index + 1}-${width}x${height}.png` });
+            
+            return box;
+        }
+
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png', 0.95);
+            link.click();
+        }
+
+        function downloadAll() {
+            processedImages.forEach((img, index) => {
+                setTimeout(() => downloadCanvas(img.canvasId, img.filename), index * 300);
+            });
+        }
+
+        function reset() {
+            uploadArea.style.display = 'block';
+            previewArea.classList.remove('active');
+            fileInput.value = '';
+            previewContainer.innerHTML = '';
+            processedImages = [];
+        }
+    </script>
+</body>
+</html>
