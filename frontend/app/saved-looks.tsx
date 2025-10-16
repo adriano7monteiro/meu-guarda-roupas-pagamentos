@@ -28,6 +28,7 @@ interface Look {
   clima?: string;
   favorito: boolean;
   imagem_look?: string;
+  sugestao_ia?: string;  // Texto da sugestão gerado pela IA
   created_at: string;
 }
 
