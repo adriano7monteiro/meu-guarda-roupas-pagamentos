@@ -6,10 +6,11 @@ Landing page promocional para o aplicativo "Meu Look IA".
 
 ```
 landing-page/
-├── index.html      # Página principal HTML
-├── styles.css      # Estilos e design
-├── script.js       # Interatividade JavaScript
-└── README.md       # Este arquivo
+├── index.html        # Página principal HTML
+├── privacidade.html  # Política de Privacidade
+├── styles.css        # Estilos e design
+├── script.js         # Interatividade JavaScript
+└── README.md         # Este arquivo
 ```
 
 ## 🎨 Características
