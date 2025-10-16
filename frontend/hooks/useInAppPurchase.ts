@@ -154,7 +154,7 @@ export const useInAppPurchase = () => {
       throw new Error('Usuário não autenticado');
     }
 
-    const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/verify-purchase`, {
+    const response = await fetch(`${BACKEND_URL}/api/verify-purchase`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
