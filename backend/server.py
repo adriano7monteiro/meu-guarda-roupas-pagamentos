@@ -16,6 +16,7 @@ import jwt
 import base64
 import json
 import random
+import traceback
 from email_service import email_service
 from openai import AsyncOpenAI
 from google.oauth2 import service_account
