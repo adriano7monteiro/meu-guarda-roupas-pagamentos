@@ -24,6 +24,9 @@ landing-page/
   - Preços e planos
   - Call-to-action
   - Footer completo
+- **Páginas Legais**:
+  - Política de Privacidade completa e detalhada
+  - Conformidade com LGPD e GDPR
 
 ## 🚀 Como Usar
 
