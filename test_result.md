@@ -328,6 +328,8 @@ test_plan:
 
 agent_communication:
     - agent: "main"
+      message: "Refatoração completa do sistema de variáveis de ambiente para resolver problema de AAB builds. Criado sistema centralizado de configuração em config/api.ts que lê de Constants.expoConfig.extra (via app.config.js) com fallbacks apropriados. Todos os arquivos frontend refatorados para usar BACKEND_URL ao invés de process.env. Bugs corrigidos: imports duplicados em useInAppPurchase.ts e subscription.tsx, variável undefined 'loading' em subscription.tsx. Grep confirmou zero ocorrências de process.env.EXPO_PUBLIC_BACKEND_URL no frontend. Sistema pronto para AAB builds no EAS. Necessita teste para confirmar que todas as chamadas API ainda funcionam corretamente."
+    - agent: "main"
       message: "Implementado carrossel de imagens na tela de looks salvos. Agora cada look exibe um carrossel horizontal com as imagens reais das roupas que compõem o look. Cards visuais (120x120px) com imagem, nome, tipo e cor. Ao tocar em qualquer card, abre visualização em tela cheia da roupa. Ícone de expandir em cada card indica possibilidade de ampliar. Interface muito mais visual e intuitiva. Pronto para teste."
     - agent: "main"
       message: "Removida funcionalidade de try-on virtual com Fal.ai. Agora a tela de gerar look é mais simples: usuário escolhe ocasião/clima, gera sugestão com IA (GPT), visualiza as imagens das roupas sugeridas em cards horizontais, e pode salvar diretamente sem precisar gerar visualização. Botões reorganizados: 'Salvar Look' (sempre habilitado após sugestão) e 'Novo Look'. Removidas todas as funções e UI relacionadas a try-on virtual, compartilhamento social, e estados desnecessários. Código mais limpo e focado. Pronto para teste."
