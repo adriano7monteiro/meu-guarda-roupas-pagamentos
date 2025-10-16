@@ -56,9 +56,18 @@ class User(BaseModel):
     ocasiao_preferida: str = "casual"
     looks_usados: int = 0  # Contador de looks gratuitos usados
     plano_ativo: str = "free"  # free, mensal, semestral, anual
-    google_play_purchase_token: Optional[str] = None  # Token de compra do Google Play
-    google_play_order_id: Optional[str] = None  # ID do pedido do Google Play
-    apple_transaction_id: Optional[str] = None  # ID da transação da Apple (futuro)
+    
+    # Google Play Subscription Fields
+    google_play_purchase_token: Optional[str] = None  # Token da compra/assinatura
+    google_play_order_id: Optional[str] = None  # ID do pedido
+    google_play_subscription_id: Optional[str] = None  # ID da subscription (mensal/anual)
+    google_play_expiry_time: Optional[datetime] = None  # Quando a subscription expira
+    google_play_auto_renewing: Optional[bool] = None  # Se está com renovação automática ativa
+    google_play_payment_state: Optional[int] = None  # 0=pending, 1=received, 2=free_trial, 3=pending_deferred
+    
+    # Apple (futuro)
+    apple_transaction_id: Optional[str] = None  # ID da transação da Apple
+    
     data_expiracao_plano: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
