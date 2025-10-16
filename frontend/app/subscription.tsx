@@ -281,9 +281,9 @@ function SubscriptionContent() {
             <TouchableOpacity 
               style={styles.cancelButton}
               onPress={handleCancelSubscription}
-              disabled={loading}
+              disabled={purchasing}
             >
-              {loading ? (
+              {purchasing ? (
                 <ActivityIndicator color="#fff" />
               ) : (
                 <>
