@@ -115,7 +115,8 @@ export const useInAppPurchase = () => {
   const loadSubscriptions = async () => {
     try {
       setState(prev => ({ ...prev, loading: true }));
-      const subs = await getSubscriptions({ skus: SUBSCRIPTION_SKUS });
+      const RNIap = await import('react-native-iap');
+      const subs = await RNIap.getSubscriptions({ skus: SUBSCRIPTION_SKUS });
       console.log('📋 Subscriptions loaded:', subs);
       setState(prev => ({ ...prev, subscriptions: subs, loading: false }));
     } catch (error) {
@@ -129,7 +130,8 @@ export const useInAppPurchase = () => {
       setState(prev => ({ ...prev, purchasing: true, error: null }));
       console.log('🛒 Requesting subscription:', sku);
       
-      await requestSubscription({ sku });
+      const RNIap = await import('react-native-iap');
+      await RNIap.requestSubscription({ sku });
       
       // O listener purchaseUpdatedListener irá processar o resultado
     } catch (error: any) {
