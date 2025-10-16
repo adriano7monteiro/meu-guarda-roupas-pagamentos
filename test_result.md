@@ -311,8 +311,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "Refatoração de variáveis de ambiente (EXPO_PUBLIC_BACKEND_URL → API_URL)"
+  current_focus: []
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
