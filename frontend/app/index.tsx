@@ -200,7 +200,7 @@ export default function Index() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/sugestoes`, {
+      const response = await fetch(`${BACKEND_URL}/api/sugestoes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
