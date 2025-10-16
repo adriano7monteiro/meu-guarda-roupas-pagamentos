@@ -973,6 +973,7 @@ async def verify_purchase(
                 raise HTTPException(status_code=400, detail="purchaseToken é obrigatório para Android")
             
             # Verificar com Google Play API (se configurado)
+            subscription_data = None
             if GOOGLE_PLAY_SERVICE_ACCOUNT_FILE and os.path.exists(GOOGLE_PLAY_SERVICE_ACCOUNT_FILE):
                 try:
                     credentials = service_account.Credentials.from_service_account_file(
@@ -989,11 +990,24 @@ async def verify_purchase(
                         token=purchase.purchaseToken
                     ).execute()
                     
+                    logging.info(f"✅ Google Play API response: {result}")
+                    
                     # Verificar se a compra é válida
-                    if result.get('paymentState') != 1:  # 1 = Payment received
+                    payment_state = result.get('paymentState', 0)
+                    if payment_state not in [1, 2]:  # 1=Payment received, 2=Free trial
                         raise HTTPException(status_code=400, detail="Pagamento não confirmado pelo Google Play")
                     
-                    logging.info(f"✅ Google Play purchase verified: {result}")
+                    # Extrair informações importantes
+                    subscription_data = {
+                        'expiry_time_millis': result.get('expiryTimeMillis'),
+                        'auto_renewing': result.get('autoRenewing', False),
+                        'payment_state': payment_state,
+                        'order_id': result.get('orderId'),
+                        'price_currency_code': result.get('priceCurrencyCode'),
+                        'price_amount_micros': result.get('priceAmountMicros'),
+                    }
+                    
+                    logging.info(f"✅ Google Play purchase verified successfully")
                     
                 except Exception as e:
                     logging.error(f"❌ Error verifying Google Play purchase: {str(e)}")
@@ -1013,26 +1027,44 @@ async def verify_purchase(
         else:
             raise HTTPException(status_code=400, detail=f"Plataforma inválida: {purchase.platform}")
         
-        # Calcular data de expiração
+        # Calcular data de expiração baseado no Google Play ou fallback manual
         now = datetime.utcnow()
-        if purchase.productId == "mensal":
-            expiration_date = now + timedelta(days=30)
-        elif purchase.productId == "semestral":
-            expiration_date = now + timedelta(days=180)
-        elif purchase.productId == "anual":
-            expiration_date = now + timedelta(days=365)
+        if subscription_data and subscription_data.get('expiry_time_millis'):
+            # Usar data de expiração do Google Play (mais precisa)
+            expiry_millis = int(subscription_data['expiry_time_millis'])
+            expiration_date = datetime.fromtimestamp(expiry_millis / 1000.0)
+        else:
+            # Fallback: calcular manualmente
+            if purchase.productId == "mensal":
+                expiration_date = now + timedelta(days=30)
+            elif purchase.productId == "semestral":
+                expiration_date = now + timedelta(days=180)
+            elif purchase.productId == "anual":
+                expiration_date = now + timedelta(days=365)
         
-        # Atualizar usuário com plano ativo
+        # Atualizar usuário com plano ativo e TODAS as informações da subscription
         update_data = {
             "plano_ativo": purchase.productId,
             "data_expiracao_plano": expiration_date,
         }
         
-        # Salvar token de compra
+        # Salvar informações completas do Google Play
         if purchase.platform == "android":
             update_data["google_play_purchase_token"] = purchase.purchaseToken
+            update_data["google_play_subscription_id"] = purchase.productId
+            
             if purchase.transactionId:
                 update_data["google_play_order_id"] = purchase.transactionId
+            
+            # Salvar informações da API (se disponível)
+            if subscription_data:
+                update_data["google_play_expiry_time"] = expiration_date
+                update_data["google_play_auto_renewing"] = subscription_data.get('auto_renewing', True)
+                update_data["google_play_payment_state"] = subscription_data.get('payment_state', 1)
+                
+                if subscription_data.get('order_id'):
+                    update_data["google_play_order_id"] = subscription_data['order_id']
+        
         elif purchase.platform == "ios":
             update_data["apple_transaction_id"] = purchase.transactionId
         
@@ -1041,13 +1073,15 @@ async def verify_purchase(
             {"$set": update_data}
         )
         
-        logging.info(f"✅ Subscription activated: {purchase.productId} for user {user['id']}, expires: {expiration_date.strftime('%d/%m/%Y')}")
+        logging.info(f"✅ Subscription activated: {purchase.productId} for user {user['id']}, expires: {expiration_date.strftime('%d/%m/%Y %H:%M')}")
+        logging.info(f"📊 Auto-renewing: {update_data.get('google_play_auto_renewing', 'N/A')}")
         
         return {
             "success": True,
             "message": f"Assinatura {purchase.productId} ativada com sucesso!",
             "plano_ativo": purchase.productId,
             "data_expiracao": expiration_date.isoformat(),
+            "auto_renewing": update_data.get("google_play_auto_renewing", True),
         }
         
     except HTTPException:
