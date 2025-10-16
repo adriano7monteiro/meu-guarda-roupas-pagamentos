@@ -86,7 +86,7 @@ export default function Index() {
 
   const fetchUserProfile = async (token: string) => {
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/auth/me`, {
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
