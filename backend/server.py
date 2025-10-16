@@ -124,6 +124,7 @@ class LookCreate(BaseModel):
     ocasiao: str
     clima: Optional[str] = None
     imagem_look: Optional[str] = None
+    sugestao_ia: Optional[str] = None
 
 class SugestaoLook(BaseModel):
     sugestao_texto: str
