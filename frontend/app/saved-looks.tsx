@@ -18,6 +18,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
+import { BACKEND_URL } from '../config/api';
 
 interface Look {
   id: string;
