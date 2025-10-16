@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend Test Suite for Meu Look IA
-Testing POST /api/upload-roupa after removal of imagem_sem_fundo field
+Comprehensive backend testing after environment variable refactoring
 """
 
 import requests
@@ -10,9 +10,10 @@ import base64
 import os
 from datetime import datetime
 import sys
+import time
 
-# Configuration
-BACKEND_URL = "https://expo-subs.preview.emergentagent.com/api"
+# Configuration - Using the production backend URL from frontend config
+BACKEND_URL = "https://meulookia-e68fc7ce1afa.herokuapp.com/api"
 
 # Test data
 TEST_USER = {
