@@ -12,7 +12,7 @@ from datetime import datetime
 import sys
 
 # Configuration
-BACKEND_URL = "https://lookgenerator.preview.emergentagent.com/api"
+BACKEND_URL = "https://expo-subs.preview.emergentagent.com/api"
 
 # Test data
 TEST_USER = {
