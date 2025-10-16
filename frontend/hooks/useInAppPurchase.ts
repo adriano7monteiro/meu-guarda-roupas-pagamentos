@@ -37,6 +37,20 @@ export const useInAppPurchase = () => {
   });
 
   useEffect(() => {
+    // 🚫 DESABILITAR IAP EM EMULADOR/WEB/EXPO GO
+    const isEmulator = Constants.isDevice === false;
+    const isWeb = Platform.OS === 'web';
+    
+    if (isEmulator || isWeb) {
+      console.log('⚠️ IAP desabilitado: Emulador/Web/Expo Go detectado');
+      setState(prev => ({ 
+        ...prev, 
+        loading: false, 
+        error: 'IAP não disponível em emulador. Use dispositivo físico.' 
+      }));
+      return;
+    }
+
     let purchaseUpdateSubscription: any;
     let purchaseErrorSubscription: any;
 
