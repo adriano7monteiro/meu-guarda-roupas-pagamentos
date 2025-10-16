@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import CustomModal from '../components/CustomModal';
 import { useModal } from '../hooks/useModal';
+import { BACKEND_URL } from '../config/api';
 
 interface User {
   email: string;
