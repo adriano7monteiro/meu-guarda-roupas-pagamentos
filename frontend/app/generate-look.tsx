@@ -1,11 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
-import { BACKEND_URL } from '../config/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKEND_URL } from '../config/api';
-import { router } from 'expo-router';
-import { BACKEND_URL } from '../config/api';
 import React, { useEffect, useState } from 'react';
-import { BACKEND_URL } from '../config/api';
 import {
   Dimensions,
   Image,
@@ -19,8 +12,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { router } from 'expo-router';
 import CustomModal from '../components/CustomModal';
-import { BACKEND_URL } from '../config/api';
 import { useModal } from '../hooks/useModal';
 import { BACKEND_URL } from '../config/api';
 
