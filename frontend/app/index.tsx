@@ -140,7 +140,7 @@ export default function Index() {
       console.log('📦 Roupas response:', roupasResponse.status, roupasResponse.ok);
 
       // Fetch looks count
-      const looksResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks?skip=0&limit=1`, {
+      const looksResponse = await fetch(`${BACKEND_URL}/api/looks?skip=0&limit=1`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
