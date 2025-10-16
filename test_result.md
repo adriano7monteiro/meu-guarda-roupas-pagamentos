@@ -217,13 +217,25 @@ backend:
           comment: "✅ TESTE COMPLETO CONFIRMADO: Campo 'imagem_sem_fundo' removido com sucesso do modelo ClothingItem. Testes executados: ✅ Usuário criado e autenticado, ✅ POST /api/upload-roupa funcionando sem o campo (200 OK), ✅ GET /api/roupas não retorna o campo, ✅ MongoDB - novos documentos não contêm o campo. Verificação direta no MongoDB confirmou: 56 documentos antigos ainda têm o campo, 2 documentos novos não têm o campo. Endpoint funcionando perfeitamente após a remoção. Estrutura atual dos documentos: ['id', 'user_id', 'tipo', 'cor', 'estilo', 'imagem_original', 'nome', 'created_at']. Sistema continua funcionando normalmente sem o campo removido."
 
 frontend:
+  - task: "Refatoração de variáveis de ambiente (EXPO_PUBLIC_BACKEND_URL → API_URL)"
+    implemented: true
+    working: "NA"
+    file: "config/api.ts, app.config.js, hooks/useInAppPurchase.ts, app/subscription.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Problema resolvido: EXPO_PUBLIC_BACKEND_URL não estava sendo corretamente acessada durante builds AAB do EAS. Solução implementada: 1) Criado app.config.js para expor variáveis do eas.json via Constants.expoConfig.extra.backendUrl, 2) Criado config/api.ts com função getBackendUrl() que tenta primeiro Constants.expoConfig.extra, depois process.env, e fallback para URL de produção, 3) Refatorado TODOS os arquivos frontend para usar BACKEND_URL importado de config/api.ts em vez de process.env.EXPO_PUBLIC_BACKEND_URL. Arquivos modificados: useInAppPurchase.ts (linha 159 e limpeza de imports duplicados), subscription.tsx (limpeza de imports duplicados e fix de variável loading→purchasing), index.tsx, saved-looks.tsx, generate-look.tsx, my-wardrobe.tsx, profile.tsx, upload-clothes.tsx, forgot-password.tsx. eas.json já estava configurado com EXPO_PUBLIC_BACKEND_URL em todos os perfis de build (development, preview, production, production-apk). Grep confirmou: zero ocorrências de process.env.EXPO_PUBLIC_BACKEND_URL no frontend. Sistema agora usa variáveis de ambiente de forma consistente e compatível com EAS builds."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
     file: "saved-looks.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: "NA"
           agent: "main"
