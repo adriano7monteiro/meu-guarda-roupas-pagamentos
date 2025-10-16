@@ -165,12 +165,13 @@ export default function GenerateLook() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
-      // Prepare look data
+      // Prepare look data (incluindo o texto da sugestão da IA)
       const lookData = {
         nome: `Look ${suggestion.ocasiao}`,
         roupas_ids: suggestion.roupas_ids,
         ocasiao: suggestion.ocasiao,
         clima: suggestion.temperatura,
+        sugestao_ia: suggestion.texto, // Salvar o texto gerado pela IA
       };
 
       const response = await fetch(`${BACKEND_URL}/api/looks`, {
