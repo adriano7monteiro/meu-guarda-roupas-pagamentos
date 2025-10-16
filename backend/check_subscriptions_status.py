@@ -145,7 +145,7 @@ async def check_all_subscriptions():
                 logging.error(f"❌ Erro ao verificar {user.get('email', 'unknown')}: {str(e)}")
                 error_count += 1
         
-        logging.info(f"\n📊 RESUMO:")
+        logging.info("\n📊 RESUMO:")
         logging.info(f"  ✅ Atualizadas: {updated_count}")
         logging.info(f"  ⏰ Expiradas: {expired_count}")
         logging.info(f"  ❌ Erros: {error_count}")
