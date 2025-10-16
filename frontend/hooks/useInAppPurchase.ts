@@ -12,6 +12,7 @@ import {
   Subscription,
 } from 'react-native-iap';
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 // IDs dos produtos no Google Play Console (você precisará criar esses IDs lá)
 const SUBSCRIPTION_SKUS = Platform.select({
