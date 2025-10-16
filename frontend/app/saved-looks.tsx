@@ -49,6 +49,7 @@ export default function SavedLooks() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('todos');
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [selectedSuggestion, setSelectedSuggestion] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalLooks, setTotalLooks] = useState(0);
