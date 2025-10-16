@@ -109,7 +109,7 @@ export default function Index() {
   const fetchSubscriptionStatus = async (token: string) => {
     try {
       
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/status-assinatura`, {
+      const response = await fetch(`${BACKEND_URL}/api/status-assinatura`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
