@@ -184,7 +184,6 @@ function SubscriptionContent() {
             } catch (error) {
               console.error('Error cancelling subscription:', error);
               modal.showError('Erro', 'Erro de conexão. Tente novamente.');
-            } finally {
             }
           },
           style: 'danger',
