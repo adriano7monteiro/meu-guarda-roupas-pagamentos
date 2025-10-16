@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import {
   View,
   Text,
@@ -11,9 +12,13 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BACKEND_URL } from '../config/api';
 import * as ImagePicker from 'expo-image-picker';
+import { BACKEND_URL } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_URL } from '../config/api';
 import { router } from 'expo-router';
+import { BACKEND_URL } from '../config/api';
 
 interface UserProfile {
   email: string;
