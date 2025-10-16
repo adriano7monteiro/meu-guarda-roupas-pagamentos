@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { BACKEND_URL } from '../config/api';
 import {
   View,
   Text,
@@ -12,15 +11,10 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BACKEND_URL } from '../config/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKEND_URL } from '../config/api';
 import { router } from 'expo-router';
-import { BACKEND_URL } from '../config/api';
 import { useModal } from '../hooks/useModal';
-import { BACKEND_URL } from '../config/api';
 import CustomModal from '../components/CustomModal';
-import { BACKEND_URL } from '../config/api';
 import { useInAppPurchase } from '../hooks/useInAppPurchase';
 import { BACKEND_URL } from '../config/api';
 
