@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot 2 Processado - Meu Look IA</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-box h3 {
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+        
+        .preview-box canvas {
+            max-width: 100%;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .specs {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .info-box {
+            background: #f8f5ff;
+            border-left: 4px solid #8b5cf6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .info-box strong {
+            color: #8b5cf6;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Screenshot 2 - Guarda-Roupa</h1>
+        <p class="subtitle">Meu Look IA - Otimizado para Google Play Store</p>
+        
+        <div class="preview-grid">
+            <div class="preview-box">
+                <h3>📱 HD (1080x1920)</h3>
+                <canvas id="canvas1080"></canvas>
+                <div class="specs">1080 x 1920 pixels • Proporção 9:16</div>
+                <div class="badge">Ideal para maioria dos devices</div>
+                <button class="button" onclick="downloadCanvas('canvas1080', 'screenshot-2-guarda-roupa-1080x1920.png')">
+                    📥 Baixar HD
+                </button>
+            </div>
+            
+            <div class="preview-box">
+                <h3>📱 Full HD (1440x2560)</h3>
+                <canvas id="canvas1440"></canvas>
+                <div class="specs">1440 x 2560 pixels • Proporção 9:16</div>
+                <div class="badge">Alta qualidade premium</div>
+                <button class="button" onclick="downloadCanvas('canvas1440', 'screenshot-2-guarda-roupa-1440x2560.png')">
+                    📥 Baixar Full HD
+                </button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="button" onclick="downloadAll()">
+                📦 Baixar Ambas as Versões
+            </button>
+        </div>
+        
+        <div class="info-box">
+            <strong>💡 Dica:</strong> Este é o screenshot 2 mostrando o guarda-roupa. Continue processando mais telas do app para ter 4-8 screenshots na Google Play Store! Telas sugeridas:
+            <ul style="margin: 10px 0 0 20px;">
+                <li>Tela de geração de look</li>
+                <li>Resultado da prova virtual</li>
+                <li>Tela de perfil</li>
+                <li>Tela de assinatura premium</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const imageUrl = 'https://customer-assets.emergentagent.com/job_fashion-wallet/artifacts/2p4akcyx_Screenshot_1760652771.png';
+        
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            processImage(img);
+        };
+        img.src = imageUrl;
+        
+        function processImage(img) {
+            generateVersion('canvas1080', 1080, 1920, img);
+            generateVersion('canvas1440', 1440, 2560, img);
+        }
+        
+        function generateVersion(canvasId, targetWidth, targetHeight, img) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            // Calcular proporções para crop centralizado
+            const sourceAspect = img.width / img.height;
+            const targetAspect = targetWidth / targetHeight; // 9:16 = 0.5625
+            
+            let sourceWidth, sourceHeight, sourceX, sourceY;
+            
+            if (sourceAspect > targetAspect) {
+                // Imagem é mais larga, crop nas laterais
+                sourceHeight = img.height;
+                sourceWidth = sourceHeight * targetAspect;
+                sourceX = (img.width - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                // Imagem é mais alta, crop em cima/baixo
+                sourceWidth = img.width;
+                sourceHeight = sourceWidth / targetAspect;
+                sourceX = 0;
+                sourceY = (img.height - sourceHeight) / 2;
+            }
+            
+            // Desenhar imagem com crop centralizado e suavização
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            ctx.drawImage(
+                img,
+                sourceX, sourceY, sourceWidth, sourceHeight,
+                0, 0, targetWidth, targetHeight
+            );
+        }
+        
+        function downloadCanvas(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png', 0.95);
+            link.click();
+        }
+        
+        function downloadAll() {
+            setTimeout(() => downloadCanvas('canvas1080', 'meu-look-ia-screenshot-2-guarda-roupa-1080x1920.png'), 100);
+            setTimeout(() => downloadCanvas('canvas1440', 'meu-look-ia-screenshot-2-guarda-roupa-1440x2560.png'), 500);
+        }
+    </script>
+</body>
+</html>
