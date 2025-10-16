@@ -253,15 +253,324 @@ def test_mongodb_direct_verification(expected_clothing_id):
     
     return results
 
+def test_authentication_flow(token):
+    """Test GET /api/auth/me endpoint"""
+    results = TestResults()
+    
+    print(f"\n🔐 Testing GET /api/auth/me Endpoint")
+    
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    
+    try:
+        response = requests.get(f"{BACKEND_URL}/auth/me", headers=headers, timeout=30)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["email", "nome", "ocasiao_preferida", "created_at"]
+            
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if not missing_fields:
+                results.add_result("Auth Me - Success Response", True)
+                print(f"   User profile retrieved: {data.get('email')}")
+            else:
+                results.add_result("Auth Me - Success Response", False, f"Missing fields: {missing_fields}")
+        else:
+            results.add_result("Auth Me - Success Response", False, f"HTTP {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        results.add_result("Auth Me - Success Response", False, f"Exception: {str(e)}")
+    
+    return results
+
+def test_look_generation(token):
+    """Test POST /api/sugerir-look endpoint"""
+    results = TestResults()
+    
+    print(f"\n🤖 Testing POST /api/sugerir-look Endpoint")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+    
+    # First upload a clothing item for the AI to suggest
+    clothing_data = {
+        "tipo": "camiseta",
+        "cor": "branca",
+        "estilo": "casual",
+        "nome": "Camiseta Branca Básica",
+        "imagem_original": SAMPLE_IMAGE_BASE64
+    }
+    
+    try:
+        # Upload clothing first
+        upload_response = requests.post(f"{BACKEND_URL}/upload-roupa", 
+                                      json=clothing_data, 
+                                      headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"}, 
+                                      timeout=30)
+        
+        if upload_response.status_code != 200:
+            results.add_result("Look Generation - Clothing Upload", False, f"Failed to upload clothing: {upload_response.status_code}")
+            return results
+        
+        # Now test look suggestion
+        suggestion_data = {
+            "ocasiao": "trabalho",
+            "temperatura": "ameno",
+            "detalhes_contexto": "reunião importante"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/sugerir-look", 
+                               data=suggestion_data, 
+                               headers=headers, 
+                               timeout=60)
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["sugestao_texto", "roupas_ids", "ocasiao"]
+            
+            missing_fields = [field for field in required_fields if field not in data]
+            
+            if not missing_fields:
+                results.add_result("Look Generation - Success Response", True)
+                print(f"   Suggestion generated: {len(data.get('sugestao_texto', ''))} chars")
+                print(f"   Suggested clothes: {len(data.get('roupas_ids', []))} items")
+            else:
+                results.add_result("Look Generation - Success Response", False, f"Missing fields: {missing_fields}")
+        else:
+            results.add_result("Look Generation - Success Response", False, f"HTTP {response.status_code}: {response.text}")
+            
+    except Exception as e:
+        results.add_result("Look Generation - Success Response", False, f"Exception: {str(e)}")
+    
+    return results
+
+def test_look_management(token):
+    """Test look CRUD operations"""
+    results = TestResults()
+    
+    print(f"\n👔 Testing Look Management Endpoints")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        # First create a clothing item to use in the look
+        clothing_data = {
+            "tipo": "calca",
+            "cor": "preta",
+            "estilo": "social",
+            "nome": "Calça Social Preta",
+            "imagem_original": SAMPLE_IMAGE_BASE64
+        }
+        
+        clothing_response = requests.post(f"{BACKEND_URL}/upload-roupa", 
+                                        json=clothing_data, 
+                                        headers=headers, 
+                                        timeout=30)
+        
+        if clothing_response.status_code != 200:
+            results.add_result("Look Management - Clothing Setup", False, "Failed to create clothing for look")
+            return results
+        
+        clothing_id = clothing_response.json().get("id")
+        
+        # Test POST /api/looks (create look)
+        look_data = {
+            "nome": "Look Executivo",
+            "roupas_ids": [clothing_id],
+            "ocasiao": "trabalho",
+            "clima": "ameno"
+        }
+        
+        create_response = requests.post(f"{BACKEND_URL}/looks", 
+                                      json=look_data, 
+                                      headers=headers, 
+                                      timeout=30)
+        
+        if create_response.status_code == 200:
+            look_id = create_response.json().get("id")
+            results.add_result("Look Management - Create Look", True)
+            print(f"   Look created: {look_id}")
+            
+            # Test GET /api/looks (list looks)
+            list_response = requests.get(f"{BACKEND_URL}/looks", headers=headers, timeout=30)
+            
+            if list_response.status_code == 200:
+                looks_data = list_response.json()
+                if "items" in looks_data and len(looks_data["items"]) > 0:
+                    results.add_result("Look Management - List Looks", True)
+                    print(f"   Found {len(looks_data['items'])} looks")
+                else:
+                    results.add_result("Look Management - List Looks", False, "No looks found in response")
+            else:
+                results.add_result("Look Management - List Looks", False, f"HTTP {list_response.status_code}")
+            
+            # Test POST /api/looks/{id}/favoritar (toggle favorite)
+            favorite_response = requests.post(f"{BACKEND_URL}/looks/{look_id}/favoritar", 
+                                            headers=headers, 
+                                            timeout=30)
+            
+            if favorite_response.status_code == 200:
+                results.add_result("Look Management - Toggle Favorite", True)
+                print(f"   Look favorited successfully")
+            else:
+                results.add_result("Look Management - Toggle Favorite", False, f"HTTP {favorite_response.status_code}")
+            
+            # Test GET /api/looks/stats/favoritos
+            stats_response = requests.get(f"{BACKEND_URL}/looks/stats/favoritos", 
+                                        headers=headers, 
+                                        timeout=30)
+            
+            if stats_response.status_code == 200:
+                stats_data = stats_response.json()
+                if "count" in stats_data:
+                    results.add_result("Look Management - Favorites Stats", True)
+                    print(f"   Favorites count: {stats_data['count']}")
+                else:
+                    results.add_result("Look Management - Favorites Stats", False, "Missing count in response")
+            else:
+                results.add_result("Look Management - Favorites Stats", False, f"HTTP {stats_response.status_code}")
+            
+            # Test DELETE /api/looks/{id}
+            delete_response = requests.delete(f"{BACKEND_URL}/looks/{look_id}", 
+                                            headers=headers, 
+                                            timeout=30)
+            
+            if delete_response.status_code == 200:
+                results.add_result("Look Management - Delete Look", True)
+                print(f"   Look deleted successfully")
+            else:
+                results.add_result("Look Management - Delete Look", False, f"HTTP {delete_response.status_code}")
+                
+        else:
+            results.add_result("Look Management - Create Look", False, f"HTTP {create_response.status_code}: {create_response.text}")
+            
+    except Exception as e:
+        results.add_result("Look Management - Exception", False, f"Exception: {str(e)}")
+    
+    return results
+
+def test_subscription_system(token):
+    """Test subscription-related endpoints"""
+    results = TestResults()
+    
+    print(f"\n💳 Testing Subscription System Endpoints")
+    
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    
+    try:
+        # Test GET /api/status-assinatura
+        status_response = requests.get(f"{BACKEND_URL}/status-assinatura", headers=headers, timeout=30)
+        
+        if status_response.status_code == 200:
+            status_data = status_response.json()
+            expected_fields = ["plano_ativo", "looks_usados"]
+            
+            missing_fields = [field for field in expected_fields if field not in status_data]
+            
+            if not missing_fields:
+                results.add_result("Subscription - Status Check", True)
+                print(f"   Plan: {status_data.get('plano_ativo')}")
+                print(f"   Looks used: {status_data.get('looks_usados')}")
+            else:
+                results.add_result("Subscription - Status Check", False, f"Missing fields: {missing_fields}")
+        else:
+            results.add_result("Subscription - Status Check", False, f"HTTP {status_response.status_code}: {status_response.text}")
+        
+        # Test GET /api/planos
+        plans_response = requests.get(f"{BACKEND_URL}/planos", headers=headers, timeout=30)
+        
+        if plans_response.status_code == 200:
+            plans_data = plans_response.json()
+            if isinstance(plans_data, list) and len(plans_data) > 0:
+                results.add_result("Subscription - Plans List", True)
+                print(f"   Found {len(plans_data)} plans")
+            else:
+                results.add_result("Subscription - Plans List", False, "No plans found or invalid format")
+        else:
+            results.add_result("Subscription - Plans List", False, f"HTTP {plans_response.status_code}: {plans_response.text}")
+            
+    except Exception as e:
+        results.add_result("Subscription - Exception", False, f"Exception: {str(e)}")
+    
+    return results
+
+def test_profile_and_suggestions(token):
+    """Test profile and suggestions endpoints"""
+    results = TestResults()
+    
+    print(f"\n👤 Testing Profile and Suggestions Endpoints")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        # Test POST /api/sugestoes (user feedback)
+        suggestion_data = {
+            "mensagem": "Adorei o app! Sugestão: adicionar mais opções de cores."
+        }
+        
+        feedback_response = requests.post(f"{BACKEND_URL}/sugestoes", 
+                                        json=suggestion_data, 
+                                        headers=headers, 
+                                        timeout=30)
+        
+        if feedback_response.status_code == 200:
+            results.add_result("Profile - User Feedback", True)
+            print(f"   Feedback submitted successfully")
+        else:
+            results.add_result("Profile - User Feedback", False, f"HTTP {feedback_response.status_code}: {feedback_response.text}")
+        
+        # Test POST /api/upload-foto-corpo
+        form_headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+        
+        body_photo_data = {
+            "imagem": SAMPLE_IMAGE_BASE64
+        }
+        
+        photo_response = requests.post(f"{BACKEND_URL}/upload-foto-corpo", 
+                                     data=body_photo_data, 
+                                     headers=form_headers, 
+                                     timeout=30)
+        
+        if photo_response.status_code == 200:
+            results.add_result("Profile - Upload Body Photo", True)
+            print(f"   Body photo uploaded successfully")
+        else:
+            results.add_result("Profile - Upload Body Photo", False, f"HTTP {photo_response.status_code}: {photo_response.text}")
+            
+    except Exception as e:
+        results.add_result("Profile - Exception", False, f"Exception: {str(e)}")
+    
+    return results
+
 def main():
-    """Main test function"""
-    print(f"🧪 BACKEND TEST SUITE - POST /api/upload-roupa")
-    print(f"Testing removal of 'imagem_sem_fundo' field")
+    """Main comprehensive test function"""
+    print(f"🧪 COMPREHENSIVE BACKEND TEST SUITE")
+    print(f"Testing all critical endpoints after environment variable refactoring")
+    print(f"Backend URL: {BACKEND_URL}")
     print(f"Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
     all_results = TestResults()
     
     # Step 1: Register user and login
+    print(f"\n{'='*60}")
+    print(f"STEP 1: AUTHENTICATION FLOW")
+    print(f"{'='*60}")
+    
     token, reg_results = test_user_registration_and_login()
     all_results.tests_run += reg_results.tests_run
     all_results.tests_passed += reg_results.tests_passed
@@ -273,42 +582,94 @@ def main():
         all_results.print_summary()
         return False
     
-    # Step 2: Test upload roupa endpoint
+    # Step 2: Test auth/me endpoint
+    auth_results = test_authentication_flow(token)
+    all_results.tests_run += auth_results.tests_run
+    all_results.tests_passed += auth_results.tests_passed
+    all_results.tests_failed += auth_results.tests_failed
+    all_results.failures.extend(auth_results.failures)
+    
+    # Step 3: Test clothes management
+    print(f"\n{'='*60}")
+    print(f"STEP 2: CLOTHES MANAGEMENT")
+    print(f"{'='*60}")
+    
     clothing_id, upload_results = test_upload_roupa_endpoint(token)
     all_results.tests_run += upload_results.tests_run
     all_results.tests_passed += upload_results.tests_passed
     all_results.tests_failed += upload_results.tests_failed
     all_results.failures.extend(upload_results.failures)
     
-    if not clothing_id:
-        print(f"\n❌ Cannot proceed without successful clothing upload")
-        all_results.print_summary()
-        return False
+    if clothing_id:
+        get_results = test_get_roupas_endpoint(token, clothing_id)
+        all_results.tests_run += get_results.tests_run
+        all_results.tests_passed += get_results.tests_passed
+        all_results.tests_failed += get_results.tests_failed
+        all_results.failures.extend(get_results.failures)
     
-    # Step 3: Test get roupas endpoint
-    get_results = test_get_roupas_endpoint(token, clothing_id)
-    all_results.tests_run += get_results.tests_run
-    all_results.tests_passed += get_results.tests_passed
-    all_results.tests_failed += get_results.tests_failed
-    all_results.failures.extend(get_results.failures)
+    # Step 4: Test AI look generation
+    print(f"\n{'='*60}")
+    print(f"STEP 3: AI LOOK GENERATION")
+    print(f"{'='*60}")
     
-    # Step 4: Test MongoDB direct verification
-    mongo_results = test_mongodb_direct_verification(clothing_id)
-    all_results.tests_run += mongo_results.tests_run
-    all_results.tests_passed += mongo_results.tests_passed
-    all_results.tests_failed += mongo_results.tests_failed
-    all_results.failures.extend(mongo_results.failures)
+    ai_results = test_look_generation(token)
+    all_results.tests_run += ai_results.tests_run
+    all_results.tests_passed += ai_results.tests_passed
+    all_results.tests_failed += ai_results.tests_failed
+    all_results.failures.extend(ai_results.failures)
+    
+    # Step 5: Test look management
+    print(f"\n{'='*60}")
+    print(f"STEP 4: LOOK MANAGEMENT")
+    print(f"{'='*60}")
+    
+    look_results = test_look_management(token)
+    all_results.tests_run += look_results.tests_run
+    all_results.tests_passed += look_results.tests_passed
+    all_results.tests_failed += look_results.tests_failed
+    all_results.failures.extend(look_results.failures)
+    
+    # Step 6: Test subscription system
+    print(f"\n{'='*60}")
+    print(f"STEP 5: SUBSCRIPTION SYSTEM")
+    print(f"{'='*60}")
+    
+    sub_results = test_subscription_system(token)
+    all_results.tests_run += sub_results.tests_run
+    all_results.tests_passed += sub_results.tests_passed
+    all_results.tests_failed += sub_results.tests_failed
+    all_results.failures.extend(sub_results.failures)
+    
+    # Step 7: Test profile and suggestions
+    print(f"\n{'='*60}")
+    print(f"STEP 6: PROFILE & SUGGESTIONS")
+    print(f"{'='*60}")
+    
+    profile_results = test_profile_and_suggestions(token)
+    all_results.tests_run += profile_results.tests_run
+    all_results.tests_passed += profile_results.tests_passed
+    all_results.tests_failed += profile_results.tests_failed
+    all_results.failures.extend(profile_results.failures)
     
     # Print final summary
+    print(f"\n{'='*60}")
+    print(f"FINAL RESULTS")
+    print(f"{'='*60}")
+    
     success = all_results.print_summary()
     
     if success:
-        print(f"\n🎉 ALL TESTS PASSED! The 'imagem_sem_fundo' field has been successfully removed.")
-        print(f"✅ POST /api/upload-roupa works correctly without the field")
-        print(f"✅ GET /api/roupas does not return the field")
-        print(f"✅ MongoDB documents do not contain the field")
+        print(f"\n🎉 ALL TESTS PASSED!")
+        print(f"✅ Authentication flow working correctly")
+        print(f"✅ Clothes management endpoints functional")
+        print(f"✅ AI look generation working")
+        print(f"✅ Look CRUD operations successful")
+        print(f"✅ Subscription system responding")
+        print(f"✅ Profile and feedback endpoints working")
+        print(f"✅ No regressions detected after environment variable refactoring")
     else:
-        print(f"\n⚠️  SOME TESTS FAILED! Please review the failures above.")
+        print(f"\n⚠️  SOME TESTS FAILED!")
+        print(f"Please review the failures above to identify any regressions.")
     
     return success
 
