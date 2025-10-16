@@ -309,7 +309,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Lazy loading implementado em Meu Guarda-Roupas e Looks Salvos"
+    - "Refatoração de variáveis de ambiente (EXPO_PUBLIC_BACKEND_URL → API_URL)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
