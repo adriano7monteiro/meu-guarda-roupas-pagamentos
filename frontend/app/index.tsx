@@ -132,7 +132,7 @@ export default function Index() {
       console.log('📊 Fetching stats...');
       
       // Fetch roupas count
-      const roupasResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1`, {
+      const roupasResponse = await fetch(`${BACKEND_URL}/api/roupas?skip=0&limit=1`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
