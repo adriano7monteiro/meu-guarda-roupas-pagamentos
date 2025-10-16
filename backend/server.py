@@ -115,6 +115,7 @@ class Look(BaseModel):
     clima: Optional[str] = None
     favorito: bool = False
     imagem_look: Optional[str] = None  # base64 da simulação
+    sugestao_ia: Optional[str] = None  # Texto da sugestão gerado pela IA
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class LookCreate(BaseModel):
