@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Otimizador de Screenshots - Google Play Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #8b5cf6;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            background: #f8f5ff;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+        
+        .upload-area:hover {
+            background: #f0e9ff;
+            border-color: #7c3aed;
+        }
+        
+        .upload-area.dragover {
+            background: #e9d5ff;
+            border-color: #6366f1;
+        }
+        
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .preview-area {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .preview-area.active {
+            display: block;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-box h3 {
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .preview-box canvas {
+            max-width: 100%;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .specs {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-box {
+            background: #f8f5ff;
+            border-left: 4px solid #8b5cf6;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .info-box strong {
+            color: #8b5cf6;
+        }
+        
+        .info-box ul {
+            margin: 10px 0 0 20px;
+        }
+        
+        .info-box li {
+            margin: 8px 0;
+            color: #444;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Otimizador de Screenshots</h1>
+        <p class="subtitle">Processe screenshots para Google Play Store (proporção 9:16)</p>
+        
+        <div class="info-box">
+            <strong>📋 Especificações Google Play Store:</strong>
+            <ul>
+                <li><strong>Proporção:</strong> 9:16 (vertical, ideal para smartphones)</li>
+                <li><strong>Dimensões:</strong> 1080x1920px ou 1440x2560px</li>
+                <li><strong>Formato:</strong> PNG ou JPEG</li>
+                <li><strong>Tamanho:</strong> Até 8MB por imagem</li>
+                <li><strong>Quantidade:</strong> Mínimo 2, recomendado 4-8 screenshots</li>
+            </ul>
+        </div>
+        
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📸</div>
+            <h2>Clique ou arraste a imagem aqui</h2>
+            <p style="color: #666; margin-top: 10px;">Suporta PNG, JPG, JPEG</p>
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg">
+        </div>
+        
+        <div class="preview-area" id="previewArea">
+            <h2 style="margin-bottom: 20px;">✅ Imagens Processadas</h2>
+            
+            <div class="preview-grid">
+                <div class="preview-box">
+                    <h3>📱 Qualidade HD (1080x1920)</h3>
+                    <canvas id="canvas1080"></canvas>
+                    <div class="specs">1080 x 1920 pixels • Proporção 9:16</div>
+                    <div class="badge">Tamanho ideal para a maioria dos devices</div>
+                    <button class="button" onclick="downloadImage('canvas1080', '1080x1920')">
+                        📥 Baixar HD
+                    </button>
+                </div>
+                
+                <div class="preview-box">
+                    <h3>📱 Qualidade Full HD (1440x2560)</h3>
+                    <canvas id="canvas1440"></canvas>
+                    <div class="specs">1440 x 2560 pixels • Proporção 9:16</div>
+                    <div class="badge">Alta qualidade para displays premium</div>
+                    <button class="button" onclick="downloadImage('canvas1440', '1440x2560')">
+                        📥 Baixar Full HD
+                    </button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="button" onclick="downloadAll()">
+                    📦 Baixar Todas as Versões
+                </button>
+                <button class="button" onclick="reset()" style="background: #ef4444;">
+                    🔄 Nova Imagem
+                </button>
+            </div>
+            
+            <div class="info-box" style="margin-top: 30px;">
+                <strong>💡 Dica:</strong> Você pode processar múltiplas screenshots do seu app (telas diferentes) e fazer upload de todas na Google Play Console para mostrar diferentes funcionalidades!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        let originalImage = null;
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                processImage(file);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                processImage(file);
+            }
+        });
+
+        function processImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    originalImage = img;
+                    generateScreenshots();
+                    uploadArea.style.display = 'none';
+                    previewArea.classList.add('active');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function generateScreenshots() {
+            // Gerar versão 1080x1920
+            generateVersion('canvas1080', 1080, 1920);
+            
+            // Gerar versão 1440x2560
+            generateVersion('canvas1440', 1440, 2560);
+        }
+
+        function generateVersion(canvasId, targetWidth, targetHeight) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            
+            // Calcular proporções para crop centralizado
+            const sourceAspect = originalImage.width / originalImage.height;
+            const targetAspect = targetWidth / targetHeight; // 9:16 = 0.5625
+            
+            let sourceWidth, sourceHeight, sourceX, sourceY;
+            
+            if (sourceAspect > targetAspect) {
+                // Imagem é mais larga, crop nas laterais
+                sourceHeight = originalImage.height;
+                sourceWidth = sourceHeight * targetAspect;
+                sourceX = (originalImage.width - sourceWidth) / 2;
+                sourceY = 0;
+            } else {
+                // Imagem é mais alta, crop em cima/baixo
+                sourceWidth = originalImage.width;
+                sourceHeight = sourceWidth / targetAspect;
+                sourceX = 0;
+                sourceY = (originalImage.height - sourceHeight) / 2;
+            }
+            
+            // Desenhar imagem com crop centralizado
+            ctx.drawImage(
+                originalImage,
+                sourceX, sourceY, sourceWidth, sourceHeight,
+                0, 0, targetWidth, targetHeight
+            );
+        }
+
+        function downloadImage(canvasId, resolution) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = `screenshot-${resolution}-${Date.now()}.png`;
+            link.href = canvas.toDataURL('image/png', 0.95);
+            link.click();
+        }
+
+        function downloadAll() {
+            setTimeout(() => downloadImage('canvas1080', '1080x1920'), 100);
+            setTimeout(() => downloadImage('canvas1440', '1440x2560'), 500);
+        }
+
+        function reset() {
+            uploadArea.style.display = 'block';
+            previewArea.classList.remove('active');
+            fileInput.value = '';
+            originalImage = null;
+        }
+    </script>
+</body>
+</html>
