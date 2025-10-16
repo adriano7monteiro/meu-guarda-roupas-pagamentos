@@ -1091,6 +1091,163 @@ async def verify_purchase(
         raise HTTPException(status_code=500, detail=f"Erro ao verificar compra: {str(e)}")
 
 
+# Google Play Real-time Developer Notifications (RTDN) Webhook
+@api_router.post("/google-play-webhook")
+async def google_play_webhook(request: Request):
+    """
+    Recebe notificações em tempo real do Google Play sobre mudanças de status de assinatura
+    
+    Documentação: https://developer.android.com/google/play/billing/rtdn-reference
+    """
+    try:
+        # Receber o corpo da requisição
+        body = await request.json()
+        logging.info(f"[GOOGLE_PLAY_WEBHOOK] Received notification: {json.dumps(body, indent=2)}")
+        
+        # Extrair a mensagem do Pub/Sub
+        if 'message' not in body:
+            logging.error("[GOOGLE_PLAY_WEBHOOK] No message field in request")
+            return {"status": "error", "message": "No message field"}
+        
+        message_data = body['message']
+        
+        # Decodificar o base64 data
+        import base64
+        if 'data' not in message_data:
+            logging.error("[GOOGLE_PLAY_WEBHOOK] No data field in message")
+            return {"status": "error", "message": "No data field"}
+        
+        decoded_data = base64.b64decode(message_data['data']).decode('utf-8')
+        notification = json.loads(decoded_data)
+        
+        logging.info(f"[GOOGLE_PLAY_WEBHOOK] Decoded notification: {json.dumps(notification, indent=2)}")
+        
+        # Verificar se é notificação de subscription
+        if 'subscriptionNotification' not in notification:
+            logging.warning("[GOOGLE_PLAY_WEBHOOK] Not a subscription notification, ignoring")
+            return {"status": "ok", "message": "Not a subscription notification"}
+        
+        sub_notification = notification['subscriptionNotification']
+        
+        # Extrair informações importantes
+        notification_type = sub_notification.get('notificationType')
+        subscription_id = sub_notification.get('subscriptionId')  # mensal, semestral, anual
+        purchase_token = sub_notification.get('purchaseToken')
+        
+        logging.info(f"[GOOGLE_PLAY_WEBHOOK] Type: {notification_type}, Subscription: {subscription_id}, Token: {purchase_token[:20]}...")
+        
+        # Tipos de notificação:
+        # 1 = SUBSCRIPTION_RECOVERED - Recuperada após problema de pagamento
+        # 2 = SUBSCRIPTION_RENEWED - Renovada com sucesso
+        # 3 = SUBSCRIPTION_CANCELED - Cancelada pelo usuário
+        # 4 = SUBSCRIPTION_PURCHASED - Nova compra
+        # 5 = SUBSCRIPTION_ON_HOLD - Em espera por problema de pagamento
+        # 6 = SUBSCRIPTION_IN_GRACE_PERIOD - Período de carência após problema
+        # 7 = SUBSCRIPTION_RESTARTED - Reiniciada
+        # 8 = SUBSCRIPTION_PRICE_CHANGE_CONFIRMED - Mudança de preço confirmada
+        # 9 = SUBSCRIPTION_DEFERRED - Adiada
+        # 10 = SUBSCRIPTION_PAUSED - Pausada
+        # 11 = SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED - Agendamento de pausa mudado
+        # 12 = SUBSCRIPTION_REVOKED - Revogada
+        # 13 = SUBSCRIPTION_EXPIRED - Expirada
+        
+        # Buscar usuário pelo purchase_token
+        user = await db.users.find_one({"google_play_purchase_token": purchase_token})
+        
+        if not user:
+            logging.error(f"[GOOGLE_PLAY_WEBHOOK] User not found for token: {purchase_token[:20]}...")
+            return {"status": "error", "message": "User not found"}
+        
+        logging.info(f"[GOOGLE_PLAY_WEBHOOK] Found user: {user['email']} ({user['id']})")
+        
+        # Buscar informações atualizadas da subscription no Google Play
+        subscription_info = None
+        if GOOGLE_PLAY_SERVICE_ACCOUNT_FILE and os.path.exists(GOOGLE_PLAY_SERVICE_ACCOUNT_FILE):
+            try:
+                credentials = service_account.Credentials.from_service_account_file(
+                    GOOGLE_PLAY_SERVICE_ACCOUNT_FILE,
+                    scopes=['https://www.googleapis.com/auth/androidpublisher']
+                )
+                
+                service = build('androidpublisher', 'v3', credentials=credentials)
+                
+                result = service.purchases().subscriptions().get(
+                    packageName=GOOGLE_PACKAGE_NAME,
+                    subscriptionId=subscription_id,
+                    token=purchase_token
+                ).execute()
+                
+                subscription_info = result
+                logging.info(f"[GOOGLE_PLAY_WEBHOOK] Fetched subscription info from Google Play API")
+                
+            except Exception as e:
+                logging.error(f"[GOOGLE_PLAY_WEBHOOK] Error fetching subscription info: {str(e)}")
+        
+        # Processar cada tipo de notificação
+        update_data = {}
+        
+        if notification_type in [1, 2]:  # RECOVERED ou RENEWED
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ✅ Subscription renewed/recovered")
+            
+            # Renovar a assinatura
+            if subscription_info:
+                expiry_millis = int(subscription_info.get('expiryTimeMillis', 0))
+                expiration_date = datetime.fromtimestamp(expiry_millis / 1000.0)
+                
+                update_data = {
+                    "plano_ativo": subscription_id,
+                    "data_expiracao_plano": expiration_date,
+                    "google_play_expiry_time": expiration_date,
+                    "google_play_auto_renewing": subscription_info.get('autoRenewing', True),
+                    "google_play_payment_state": subscription_info.get('paymentState', 1),
+                }
+                
+                logging.info(f"[GOOGLE_PLAY_WEBHOOK] New expiration: {expiration_date.strftime('%d/%m/%Y %H:%M')}")
+            
+        elif notification_type == 3:  # CANCELED
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ⚠️ Subscription canceled by user")
+            update_data = {
+                "google_play_auto_renewing": False,
+            }
+            # Não desativar imediatamente - usuário tem acesso até expirar
+            
+        elif notification_type in [5, 6]:  # ON_HOLD ou GRACE_PERIOD
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ⚠️ Subscription in grace period/on hold")
+            # Manter ativo durante período de carência
+            
+        elif notification_type == 12:  # REVOKED
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ❌ Subscription revoked (refund/chargeback)")
+            update_data = {
+                "plano_ativo": "free",
+                "google_play_auto_renewing": False,
+                "data_expiracao_plano": datetime.utcnow(),
+            }
+            
+        elif notification_type == 13:  # EXPIRED
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ⏰ Subscription expired")
+            update_data = {
+                "plano_ativo": "free",
+                "google_play_auto_renewing": False,
+            }
+        
+        # Atualizar banco de dados se houver mudanças
+        if update_data:
+            await db.users.update_one(
+                {"id": user["id"]},
+                {"$set": update_data}
+            )
+            logging.info(f"[GOOGLE_PLAY_WEBHOOK] ✅ User updated: {json.dumps(update_data, default=str, indent=2)}")
+        
+        return {"status": "ok", "processed": True}
+        
+    except Exception as e:
+        logging.error(f"[GOOGLE_PLAY_WEBHOOK] ❌ Error processing webhook: {str(e)}")
+        logging.error(f"[GOOGLE_PLAY_WEBHOOK] Full traceback: {traceback.format_exc()}")
+        # Retornar 200 mesmo com erro para não reenviar
+        return {"status": "error", "message": str(e)}
+
+
+
 @api_router.post("/criar-assinatura")
 async def criar_assinatura(
     request: CreateSubscriptionRequest,
