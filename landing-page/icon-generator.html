@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Ícone - Meu Look IA</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        h1 {
+            margin: 0 0 10px;
+            color: #1a1a1a;
+            font-size: 28px;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        #iconCanvas {
+            border: 2px solid #e5e5e5;
+            border-radius: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .info {
+            background: #f8f5ff;
+            border-left: 4px solid #8b5cf6;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            border-radius: 8px;
+        }
+        
+        .info strong {
+            color: #8b5cf6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👔 Ícone do App - Meu Look IA</h1>
+        <p>Ícone 512x512px para Google Play Store</p>
+        
+        <canvas id="iconCanvas" width="512" height="512"></canvas>
+        
+        <div>
+            <button class="button" onclick="downloadIcon()">📥 Baixar Ícone (PNG)</button>
+            <button class="button" onclick="regenerateIcon()">🔄 Gerar Novo Design</button>
+        </div>
+        
+        <div class="info">
+            <strong>📋 Especificações:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>Tamanho: 512 x 512 pixels</li>
+                <li>Formato: PNG-24 com canal alfa</li>
+                <li>Uso: Google Play Store</li>
+                <li>Design: Moderno com gradiente roxo</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('iconCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function drawIcon() {
+            // Limpar canvas
+            ctx.clearRect(0, 0, 512, 512);
+            
+            // Fundo com gradiente roxo
+            const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+            gradient.addColorStop(0, '#8b5cf6');
+            gradient.addColorStop(1, '#6366f1');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+            
+            // Adicionar brilho sutil no topo
+            const topGlow = ctx.createLinearGradient(0, 0, 0, 200);
+            topGlow.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
+            topGlow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = topGlow;
+            ctx.fillRect(0, 0, 512, 200);
+            
+            // Desenhar cabide estilizado
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 24;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            // Gancho do cabide
+            ctx.beginPath();
+            ctx.arc(256, 140, 30, Math.PI, 0, false);
+            ctx.stroke();
+            
+            // Haste horizontal do cabide
+            ctx.beginPath();
+            ctx.moveTo(140, 170);
+            ctx.lineTo(372, 170);
+            ctx.stroke();
+            
+            // Ombros do cabide (formato triangular)
+            ctx.beginPath();
+            ctx.moveTo(140, 170);
+            ctx.lineTo(200, 280);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(372, 170);
+            ctx.lineTo(312, 280);
+            ctx.stroke();
+            
+            // Barra inferior do cabide
+            ctx.beginPath();
+            ctx.moveTo(200, 280);
+            ctx.lineTo(312, 280);
+            ctx.stroke();
+            
+            // Desenhar camiseta estilizada no cabide
+            ctx.fillStyle = 'white';
+            ctx.globalAlpha = 0.9;
+            
+            // Corpo da camiseta
+            ctx.beginPath();
+            ctx.moveTo(200, 230);
+            ctx.lineTo(190, 340);
+            ctx.lineTo(190, 380);
+            ctx.quadraticCurveTo(200, 390, 220, 390);
+            ctx.lineTo(292, 390);
+            ctx.quadraticCurveTo(312, 390, 322, 380);
+            ctx.lineTo(322, 340);
+            ctx.lineTo(312, 230);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Mangas
+            ctx.beginPath();
+            ctx.moveTo(200, 230);
+            ctx.lineTo(160, 260);
+            ctx.quadraticCurveTo(150, 270, 160, 280);
+            ctx.lineTo(190, 270);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.moveTo(312, 230);
+            ctx.lineTo(352, 260);
+            ctx.quadraticCurveTo(362, 270, 352, 280);
+            ctx.lineTo(322, 270);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.globalAlpha = 1.0;
+            
+            // Sparkles de IA (efeito mágico)
+            drawSparkle(380, 120, 20);
+            drawSparkle(430, 180, 16);
+            drawSparkle(400, 220, 14);
+            drawSparkle(100, 150, 18);
+            drawSparkle(80, 220, 14);
+            drawSparkle(120, 280, 16);
+            
+            // Adicionar sombra sutil embaixo
+            const shadowGradient = ctx.createRadialGradient(256, 420, 50, 256, 420, 200);
+            shadowGradient.addColorStop(0, 'rgba(0, 0, 0, 0.15)');
+            shadowGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = shadowGradient;
+            ctx.fillRect(0, 350, 512, 162);
+        }
+        
+        function drawSparkle(x, y, size) {
+            ctx.save();
+            ctx.fillStyle = 'white';
+            ctx.translate(x, y);
+            
+            // Estrela de 4 pontas
+            ctx.beginPath();
+            for (let i = 0; i < 4; i++) {
+                const angle = (Math.PI / 2) * i;
+                const x1 = Math.cos(angle) * size;
+                const y1 = Math.sin(angle) * size;
+                const x2 = Math.cos(angle + Math.PI / 4) * (size * 0.3);
+                const y2 = Math.sin(angle + Math.PI / 4) * (size * 0.3);
+                
+                if (i === 0) {
+                    ctx.moveTo(x1, y1);
+                } else {
+                    ctx.lineTo(x1, y1);
+                }
+                ctx.lineTo(x2, y2);
+            }
+            ctx.closePath();
+            ctx.fill();
+            
+            // Adicionar brilho no centro
+            const sparkleGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.5);
+            sparkleGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            sparkleGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = sparkleGradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'meu-look-ia-icon-512x512.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function regenerateIcon() {
+            // Pequenas variações no design
+            drawIcon();
+        }
+        
+        // Desenhar ícone ao carregar
+        drawIcon();
+    </script>
+</body>
+</html>
