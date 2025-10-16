@@ -80,7 +80,7 @@ export default function SavedLooks() {
 
       // Fetch looks with pagination
       const looksResponse = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks?skip=${skip}&limit=${ITEMS_PER_PAGE}`,
+        `${BACKEND_URL}/api/looks?skip=${skip}&limit=${ITEMS_PER_PAGE}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -89,7 +89,7 @@ export default function SavedLooks() {
       );
 
       // Fetch ALL clothing items (não paginado pois é usado como referência)
-      const clothesResponse = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
+      const clothesResponse = await fetch(`${BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -139,7 +139,7 @@ export default function SavedLooks() {
       if (!token) return;
 
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks/${lookId}/favoritar`,
+        `${BACKEND_URL}/api/looks/${lookId}/favoritar`,
         {
           method: 'POST',
           headers: {
@@ -180,7 +180,7 @@ export default function SavedLooks() {
               if (!token) return;
 
               const response = await fetch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks/${lookId}`,
+                `${BACKEND_URL}/api/looks/${lookId}`,
                 {
                   method: 'DELETE',
                   headers: {

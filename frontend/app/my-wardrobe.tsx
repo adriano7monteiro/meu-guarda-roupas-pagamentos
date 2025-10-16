@@ -90,7 +90,7 @@ export default function MyWardrobe() {
       const skip = currentPage * ITEMS_PER_PAGE;
 
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=${skip}&limit=${ITEMS_PER_PAGE}`, 
+        `${BACKEND_URL}/api/roupas?skip=${skip}&limit=${ITEMS_PER_PAGE}`, 
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -150,7 +150,7 @@ export default function MyWardrobe() {
               if (!token) return;
 
               const response = await fetch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas/${itemId}`,
+                `${BACKEND_URL}/api/roupas/${itemId}`,
                 {
                   method: 'DELETE',
                   headers: {

@@ -34,7 +34,7 @@ function SubscriptionContent() {
 
   const fetchPlans = async () => {
     try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/planos`);
+      const response = await fetch(`${BACKEND_URL}/api/planos`);
       if (response.ok) {
         const data = await response.json();
         // Format plans for display
@@ -59,7 +59,7 @@ function SubscriptionContent() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/status-assinatura`, {
+      const response = await fetch(`${BACKEND_URL}/api/status-assinatura`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -151,7 +151,7 @@ function SubscriptionContent() {
             try {
               const token = await AsyncStorage.getItem('auth_token');
               const response = await fetch(
-                `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/cancelar-assinatura`,
+                `${BACKEND_URL}/api/cancelar-assinatura`,
                 {
                   method: 'POST',
                   headers: {

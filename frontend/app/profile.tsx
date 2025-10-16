@@ -47,7 +47,7 @@ export default function Profile() {
         return;
       }
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/auth/me`, {
+      const response = await fetch(`${BACKEND_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -134,7 +134,7 @@ export default function Profile() {
       const formData = new FormData();
       formData.append('imagem', imageBase64);
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/upload-foto-corpo`, {
+      const response = await fetch(`${BACKEND_URL}/api/upload-foto-corpo`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

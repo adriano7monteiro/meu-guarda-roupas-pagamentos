@@ -178,7 +178,7 @@ export default function UploadClothes() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/upload-roupa`, {
+      const response = await fetch(`${BACKEND_URL}/api/upload-roupa`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

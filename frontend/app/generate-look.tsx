@@ -72,7 +72,7 @@ export default function GenerateLook() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
+      const response = await fetch(`${BACKEND_URL}/api/roupas?skip=0&limit=1000`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -128,7 +128,7 @@ export default function GenerateLook() {
         formData.append('detalhes_contexto', contextDetails.trim());
       }
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/sugerir-look`, {
+      const response = await fetch(`${BACKEND_URL}/api/sugerir-look`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -172,7 +172,7 @@ export default function GenerateLook() {
         clima: suggestion.temperatura,
       };
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_BACKEND_URL}/api/looks`, {
+      const response = await fetch(`${BACKEND_URL}/api/looks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

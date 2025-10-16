@@ -45,7 +45,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/auth/forgot-password`,
+        `${BACKEND_URL}/api/auth/forgot-password`,
         {
           method: 'POST',
           headers: {
@@ -122,7 +122,7 @@ export default function ForgotPassword() {
 
     try {
       const response = await fetch(
-        `${process.env.EXPO_PUBLIC_BACKEND_URL}/api/auth/reset-password`,
+        `${BACKEND_URL}/api/auth/reset-password`,
         {
           method: 'POST',
           headers: {
