@@ -44,13 +44,16 @@ export const useInAppPurchase = () => {
 
     const initIAP = async () => {
       try {
-        await initConnection();
+        // Import dinâmico da biblioteca apenas em dispositivos físicos
+        const RNIap = await import('react-native-iap');
+        
+        await RNIap.initConnection();
         console.log('✅ IAP Connection initialized');
         
         await loadSubscriptions();
 
         // Listener para atualizações de compra
-        purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase: Purchase) => {
+        purchaseUpdateSubscription = RNIap.purchaseUpdatedListener(async (purchase: any) => {
           console.log('📦 Purchase updated:', purchase);
           
           const receipt = purchase.transactionReceipt;
@@ -60,7 +63,7 @@ export const useInAppPurchase = () => {
               await verifyPurchaseWithBackend(purchase);
               
               // Finalizar transação
-              await finishTransaction({ purchase, isConsumable: false });
+              await RNIap.finishTransaction({ purchase, isConsumable: false });
               
               setState(prev => ({ ...prev, purchasing: false, error: null }));
               console.log('✅ Purchase completed and verified');
@@ -76,7 +79,7 @@ export const useInAppPurchase = () => {
         });
 
         // Listener para erros de compra
-        purchaseErrorSubscription = purchaseErrorListener((error: PurchaseError) => {
+        purchaseErrorSubscription = RNIap.purchaseErrorListener((error: any) => {
           console.error('❌ Purchase error:', error);
           setState(prev => ({ 
             ...prev, 
@@ -101,7 +104,11 @@ export const useInAppPurchase = () => {
       if (purchaseErrorSubscription) {
         purchaseErrorSubscription.remove();
       }
-      endConnection();
+      
+      // Import dinâmico para cleanup
+      import('react-native-iap').then(RNIap => {
+        RNIap.endConnection();
+      }).catch(() => {});
     };
   }, []);
 
