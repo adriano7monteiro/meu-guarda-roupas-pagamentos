@@ -426,15 +426,26 @@ export default function SavedLooks() {
                       </View>
 
                       {/* Botão para ver sugestão da IA */}
-                      {look.sugestao_ia && (
-                        <TouchableOpacity
-                          style={styles.aiSuggestionButton}
-                          onPress={() => setSelectedSuggestion(look.sugestao_ia!)}
-                        >
-                          <Ionicons name="sparkles" size={18} color="#6c5ce7" />
-                          <Text style={styles.aiSuggestionButtonText}>Ver sugestão da IA</Text>
-                          <Ionicons name="chevron-forward" size={18} color="#6c5ce7" />
-                        </TouchableOpacity>
+                      {/* DEBUG: Forçar exibição para teste */}
+                      {(look.sugestao_ia || true) && (
+                        <View>
+                          {/* Indicador de debug */}
+                          {!look.sugestao_ia && (
+                            <Text style={{ color: 'red', fontSize: 10, padding: 5 }}>
+                              DEBUG: Sem sugestão_ia (campo: {String(look.sugestao_ia)})
+                            </Text>
+                          )}
+                          <TouchableOpacity
+                            style={styles.aiSuggestionButton}
+                            onPress={() => setSelectedSuggestion(look.sugestao_ia || 'Teste de sugestão da IA - este look não tem sugestão salva.')}
+                          >
+                            <Ionicons name="sparkles" size={18} color="#6c5ce7" />
+                            <Text style={styles.aiSuggestionButtonText}>
+                              {look.sugestao_ia ? 'Ver sugestão da IA' : 'Ver sugestão da IA (DEBUG)'}
+                            </Text>
+                            <Ionicons name="chevron-forward" size={18} color="#6c5ce7" />
+                          </TouchableOpacity>
+                        </View>
                       )}
 
                       {/* Clothing Items Carousel */}
