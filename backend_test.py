@@ -820,6 +820,17 @@ def main():
     all_results.tests_failed += profile_results.tests_failed
     all_results.failures.extend(profile_results.failures)
     
+    # Step 8: Test sugestao_ia field (USER REQUEST)
+    print(f"\n{'='*60}")
+    print(f"STEP 7: SUGESTAO_IA FIELD TEST (USER REQUEST)")
+    print(f"{'='*60}")
+    
+    sugestao_results = test_sugestao_ia_field(token)
+    all_results.tests_run += sugestao_results.tests_run
+    all_results.tests_passed += sugestao_results.tests_passed
+    all_results.tests_failed += sugestao_results.tests_failed
+    all_results.failures.extend(sugestao_results.failures)
+    
     # Print final summary
     print(f"\n{'='*60}")
     print(f"FINAL RESULTS")
