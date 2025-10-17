@@ -122,3 +122,5 @@ yarl==1.22.0
 zipp==3.23.0
 python-http-client==3.3.7
 sendgrid==6.12.5
+python-http-client==3.3.7
+sendgrid==6.12.5
