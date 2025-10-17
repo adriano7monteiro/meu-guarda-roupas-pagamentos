@@ -216,6 +216,18 @@ backend:
           agent: "testing"
           comment: "✅ TESTE COMPLETO CONFIRMADO: Campo 'imagem_sem_fundo' removido com sucesso do modelo ClothingItem. Testes executados: ✅ Usuário criado e autenticado, ✅ POST /api/upload-roupa funcionando sem o campo (200 OK), ✅ GET /api/roupas não retorna o campo, ✅ MongoDB - novos documentos não contêm o campo. Verificação direta no MongoDB confirmou: 56 documentos antigos ainda têm o campo, 2 documentos novos não têm o campo. Endpoint funcionando perfeitamente após a remoção. Estrutura atual dos documentos: ['id', 'user_id', 'tipo', 'cor', 'estilo', 'imagem_original', 'nome', 'created_at']. Sistema continua funcionando normalmente sem o campo removido."
 
+  - task: "Campo sugestao_ia em looks salvos"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "✅ TESTE ESPECÍFICO CAMPO SUGESTAO_IA CONFIRMADO: Campo 'sugestao_ia' funcionando perfeitamente no sistema de looks. Teste completo executado conforme solicitação do usuário: ✅ Usuário criado e autenticado, ✅ Roupas criadas (camiseta azul + calça preta), ✅ Look COM sugestao_ia criado com sucesso (196 chars), ✅ Look SEM sugestao_ia criado (retrocompatibilidade), ✅ GET /api/looks retorna campo corretamente. VERIFICAÇÕES: Look com sugestao_ia tem campo presente e texto completo preservado. Look sem sugestao_ia tem campo null (retrocompatibilidade OK). Análise de campos confirmou: Look 1 (has_field=True, value_length=196, value_type=str), Look 2 (has_field=True, value_length=0, value_type=NoneType). Campo está sendo salvo e retornado corretamente pelo backend. Problema reportado pelo usuário não é do backend - campo funciona perfeitamente."
+
 frontend:
   - task: "Refatoração de variáveis de ambiente (EXPO_PUBLIC_BACKEND_URL → API_URL)"
     implemented: true
