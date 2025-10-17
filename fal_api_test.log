@@ -12,7 +12,7 @@
 2025-10-10 22:59:38,363 - INFO - ✅ Clothing created: Calça Preta Social (ID: 9aad7335-b37c-4865-acda-ccb2a90d60ec)
 2025-10-10 22:59:38,364 - INFO - 📋 STEP 3: Testing Fal.ai virtual try-on integration
 2025-10-10 22:59:38,364 - INFO - 🔵 Testing Fal.ai integration with clothing ID: eec9a214-b53a-4539-942a-d804d354db8b
-2025-10-10 22:59:38,364 - INFO - 🔵 Making request to: https://fashionai-app-1.preview.emergentagent.com/api/gerar-look-visual
+2025-10-10 22:59:38,364 - INFO - 🔵 Making request to: https://expo-subs.preview.emergentagent.com/api/gerar-look-visual
 2025-10-10 22:59:40,107 - INFO - 🔵 Response status code: 200
 2025-10-10 22:59:40,107 - INFO - 🔵 Response headers: {'Content-Length': '3564', 'content-type': 'application/json', 'date': 'Fri, 10 Oct 2025 22:59:38 GMT', 'server': 'uvicorn', 'via': '1.1 google', 'Alt-Svc': 'h3=":443"; ma=2592000,h3-29=":443"; ma=2592000'}
 2025-10-10 22:59:40,107 - INFO - 🟢 FAL.AI API RESPONSE ANALYSIS:
