@@ -126,11 +126,12 @@ export default function UploadClothes() {
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [4, 3],
+        aspect: [9, 16],  // Aspecto vertical para tela cheia
         quality: 0.8,
         base64: true,
         exif: false,
         presentationStyle: 'fullScreen',
+        cameraType: ImagePicker.CameraType.back,  // Câmera traseira
       });
 
       if (!result.canceled && result.assets[0]) {
