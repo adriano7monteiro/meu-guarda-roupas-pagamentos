@@ -405,6 +405,18 @@ export default function SavedLooks() {
                         </View>
                       </View>
 
+                      {/* Botão para ver sugestão da IA */}
+                      {look.sugestao_ia && (
+                        <TouchableOpacity
+                          style={styles.aiSuggestionButton}
+                          onPress={() => setSelectedSuggestion(look.sugestao_ia!)}
+                        >
+                          <Ionicons name="sparkles" size={18} color="#6c5ce7" />
+                          <Text style={styles.aiSuggestionButtonText}>Ver sugestão da IA</Text>
+                          <Ionicons name="chevron-forward" size={18} color="#6c5ce7" />
+                        </TouchableOpacity>
+                      )}
+
                       {/* Clothing Items Carousel */}
                       <View style={styles.clothingItemsContainer}>
                         <Text style={styles.clothingItemsTitle}>
