@@ -350,6 +350,13 @@ export default function SavedLooks() {
             renderItem={({ item: look }) => {
               const clothingDetails = getClothingDetails(look.roupas_ids);
               
+              // DEBUG: Log para verificar se sugestao_ia está chegando
+              console.log(`[LOOK ${look.id}] Nome: ${look.nome}`);
+              console.log(`[LOOK ${look.id}] Tem sugestao_ia:`, 'sugestao_ia' in look);
+              console.log(`[LOOK ${look.id}] Valor sugestao_ia:`, look.sugestao_ia);
+              console.log(`[LOOK ${look.id}] Tipo sugestao_ia:`, typeof look.sugestao_ia);
+              console.log(`[LOOK ${look.id}] Condição (look.sugestao_ia):`, !!look.sugestao_ia);
+              
               return (
                 <View style={styles.lookCard}>
                       {/* Look Image (if available) */}
