@@ -103,19 +103,6 @@ export default function SavedLooks() {
         
         console.log('✅ Looks carregados:', looksData.items.length, 'Total:', looksData.total);
         
-        // DEBUG: Log detalhado dos looks
-        looksData.items.forEach((look: any, index: number) => {
-          console.log(`📦 Look ${index + 1}:`, {
-            nome: look.nome,
-            tem_sugestao_ia: 'sugestao_ia' in look,
-            sugestao_ia_null: look.sugestao_ia === null,
-            sugestao_ia_undefined: look.sugestao_ia === undefined,
-            sugestao_ia_vazio: look.sugestao_ia === '',
-            sugestao_ia_length: look.sugestao_ia?.length || 0,
-            sugestao_ia_tipo: typeof look.sugestao_ia,
-          });
-        });
-        
         if (resetPage) {
           setLooks(looksData.items);
           setPage(0);
