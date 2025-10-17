@@ -45,9 +45,9 @@
         {
           "android": {
             "minSdkVersion": 24,
-            "compileSdkVersion": 34,
-            "targetSdkVersion": 34,
-            "buildToolsVersion": "34.0.0"
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0"
           },
           "ios": {
             "deploymentTarget": "15.1"
@@ -61,7 +61,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "84e4ed9c-089d-4e2e-9ab2-4c30b0456e75"
+        "projectId": "48204880-bc16-43d4-98d3-88325a3d422c"
       }
     }
   }
