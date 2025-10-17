@@ -171,8 +171,14 @@ export default function GenerateLook() {
         roupas_ids: suggestion.roupas_ids,
         ocasiao: suggestion.ocasiao,
         clima: suggestion.temperatura,
-        sugestao_ia: suggestion.texto, // Salvar o texto gerado pela IA
+        sugestao_ia: suggestion.sugestao_texto, // CORRIGIDO: usar sugestao_texto
       };
+
+      console.log('💾 Salvando look com sugestão:', {
+        nome: lookData.nome,
+        tem_sugestao: !!lookData.sugestao_ia,
+        tamanho_sugestao: lookData.sugestao_ia?.length || 0,
+      });
 
       const response = await fetch(`${BACKEND_URL}/api/looks`, {
         method: 'POST',
