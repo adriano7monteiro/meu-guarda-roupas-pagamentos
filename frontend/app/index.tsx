@@ -284,7 +284,7 @@ export default function Index() {
           >
             <View style={styles.mainActionContent}>
               <Ionicons name="sparkles" size={32} color="#fff" />
-              <Text style={styles.mainActionTitle}>Gerar Meu Look do Dia</Text>
+              <Text style={styles.mainActionTitle}>Gerar Meu Look</Text>
               <Text style={styles.mainActionSubtitle}>
                 Deixe a IA criar o look perfeito para você
               </Text>

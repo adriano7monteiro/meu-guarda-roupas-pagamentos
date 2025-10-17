@@ -106,7 +106,7 @@ export default function Profile() {
     try {
       const result = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        aspect: [9, 16],  // Aspecto mais alto para corpo inteiro (quase tela cheia)
+        aspect: [16, 9],  // Aspecto mais alto para corpo inteiro (quase tela cheia)
         quality: 0.8,
         base64: true,
         exif: false,
@@ -225,9 +225,9 @@ export default function Profile() {
 
         {/* Body Photo Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Foto do Corpo</Text>
+          <Text style={styles.sectionTitle}>Avatar</Text>
           <Text style={styles.sectionSubtitle}>
-            Use para o try-on virtual de roupas
+            
           </Text>
           
           <View style={styles.bodyPhotoContainer}>
