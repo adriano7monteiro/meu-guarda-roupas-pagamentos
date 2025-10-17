@@ -529,6 +529,39 @@ export default function SavedLooks() {
           </View>
         </View>
       </Modal>
+
+      {/* Modal de Sugestão da IA */}
+      <Modal
+        visible={selectedSuggestion !== null}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSelectedSuggestion(null)}
+      >
+        <View style={styles.aiModalOverlay}>
+          <View style={styles.aiModalContainer}>
+            <View style={styles.aiModalHeader}>
+              <View style={styles.aiModalTitleContainer}>
+                <Ionicons name="sparkles" size={24} color="#6c5ce7" />
+                <Text style={styles.aiModalTitle}>Sugestão da IA</Text>
+              </View>
+              <TouchableOpacity onPress={() => setSelectedSuggestion(null)}>
+                <Ionicons name="close" size={28} color="#fff" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.aiModalContent}>
+              <Text style={styles.aiModalText}>{selectedSuggestion}</Text>
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={styles.aiModalCloseButton}
+              onPress={() => setSelectedSuggestion(null)}
+            >
+              <Text style={styles.aiModalCloseButtonText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
