@@ -557,6 +557,175 @@ def test_profile_and_suggestions(token):
     
     return results
 
+def test_sugestao_ia_field(token):
+    """Test specific sugestao_ia field functionality as requested by user"""
+    results = TestResults()
+    
+    print(f"\n🤖 Testing sugestao_ia Field in Looks (User Request)")
+    
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        # Step 1: Create clothing items for the test
+        print(f"   Step 1: Creating clothing items...")
+        
+        # Create camiseta
+        camiseta_data = {
+            "tipo": "camiseta",
+            "cor": "azul",
+            "estilo": "casual",
+            "nome": "Camiseta Azul",
+            "imagem_original": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+        }
+        
+        camiseta_response = requests.post(f"{BACKEND_URL}/upload-roupa", 
+                                        json=camiseta_data, 
+                                        headers=headers, 
+                                        timeout=30)
+        
+        if camiseta_response.status_code != 200:
+            results.add_result("Sugestao IA - Create Camiseta", False, f"Failed to create camiseta: {camiseta_response.status_code}")
+            return results
+        
+        camiseta_id = camiseta_response.json().get("id")
+        results.add_result("Sugestao IA - Create Camiseta", True)
+        print(f"      Camiseta created: {camiseta_id}")
+        
+        # Create calca
+        calca_data = {
+            "tipo": "calca",
+            "cor": "preta",
+            "estilo": "casual",
+            "nome": "Calça Preta",
+            "imagem_original": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+        }
+        
+        calca_response = requests.post(f"{BACKEND_URL}/upload-roupa", 
+                                     json=calca_data, 
+                                     headers=headers, 
+                                     timeout=30)
+        
+        if calca_response.status_code != 200:
+            results.add_result("Sugestao IA - Create Calca", False, f"Failed to create calca: {calca_response.status_code}")
+            return results
+        
+        calca_id = calca_response.json().get("id")
+        results.add_result("Sugestao IA - Create Calca", True)
+        print(f"      Calça created: {calca_id}")
+        
+        # Step 2: Create look WITH sugestao_ia field
+        print(f"   Step 2: Creating look WITH sugestao_ia field...")
+        
+        look_with_sugestao = {
+            "nome": "Look Casual",
+            "roupas_ids": [camiseta_id, calca_id],
+            "ocasiao": "casual",
+            "clima": "quente",
+            "sugestao_ia": "Este look é perfeito para um dia casual! A camiseta azul combina perfeitamente com a calça preta, criando um visual moderno e descontraído. Ideal para passeios ao ar livre ou encontros com amigos."
+        }
+        
+        create_with_sugestao_response = requests.post(f"{BACKEND_URL}/looks", 
+                                                    json=look_with_sugestao, 
+                                                    headers=headers, 
+                                                    timeout=30)
+        
+        if create_with_sugestao_response.status_code == 200:
+            look_with_sugestao_id = create_with_sugestao_response.json().get("id")
+            results.add_result("Sugestao IA - Create Look WITH sugestao_ia", True)
+            print(f"      Look with sugestao_ia created: {look_with_sugestao_id}")
+        else:
+            results.add_result("Sugestao IA - Create Look WITH sugestao_ia", False, f"HTTP {create_with_sugestao_response.status_code}: {create_with_sugestao_response.text}")
+            return results
+        
+        # Step 3: Create look WITHOUT sugestao_ia field (backward compatibility)
+        print(f"   Step 3: Creating look WITHOUT sugestao_ia field...")
+        
+        look_without_sugestao = {
+            "nome": "Look Sem Sugestão",
+            "roupas_ids": [camiseta_id, calca_id],
+            "ocasiao": "trabalho"
+        }
+        
+        create_without_sugestao_response = requests.post(f"{BACKEND_URL}/looks", 
+                                                       json=look_without_sugestao, 
+                                                       headers=headers, 
+                                                       timeout=30)
+        
+        if create_without_sugestao_response.status_code == 200:
+            look_without_sugestao_id = create_without_sugestao_response.json().get("id")
+            results.add_result("Sugestao IA - Create Look WITHOUT sugestao_ia", True)
+            print(f"      Look without sugestao_ia created: {look_without_sugestao_id}")
+        else:
+            results.add_result("Sugestao IA - Create Look WITHOUT sugestao_ia", False, f"HTTP {create_without_sugestao_response.status_code}: {create_without_sugestao_response.text}")
+            return results
+        
+        # Step 4: Fetch looks and verify sugestao_ia field
+        print(f"   Step 4: Fetching looks and verifying sugestao_ia field...")
+        
+        get_looks_response = requests.get(f"{BACKEND_URL}/looks", headers=headers, timeout=30)
+        
+        if get_looks_response.status_code == 200:
+            looks_data = get_looks_response.json()
+            looks_items = looks_data.get("items", [])
+            
+            results.add_result("Sugestao IA - Fetch Looks", True)
+            print(f"      Found {len(looks_items)} looks")
+            
+            # Find and verify look WITH sugestao_ia
+            look_with_found = None
+            look_without_found = None
+            
+            for look in looks_items:
+                if look.get("id") == look_with_sugestao_id:
+                    look_with_found = look
+                elif look.get("id") == look_without_sugestao_id:
+                    look_without_found = look
+            
+            # Verify look WITH sugestao_ia
+            if look_with_found:
+                if "sugestao_ia" in look_with_found and look_with_found["sugestao_ia"]:
+                    expected_text = "Este look é perfeito para um dia casual! A camiseta azul combina perfeitamente com a calça preta, criando um visual moderno e descontraído. Ideal para passeios ao ar livre ou encontros com amigos."
+                    actual_text = look_with_found["sugestao_ia"]
+                    
+                    if actual_text == expected_text:
+                        results.add_result("Sugestao IA - Look WITH sugestao_ia Field Present and Correct", True)
+                        print(f"      ✅ Look WITH sugestao_ia: Field present and correct ({len(actual_text)} chars)")
+                    else:
+                        results.add_result("Sugestao IA - Look WITH sugestao_ia Field Present and Correct", False, f"Text mismatch. Expected: '{expected_text[:50]}...', Got: '{actual_text[:50]}...'")
+                else:
+                    results.add_result("Sugestao IA - Look WITH sugestao_ia Field Present and Correct", False, "sugestao_ia field missing or empty in look that should have it")
+            else:
+                results.add_result("Sugestao IA - Look WITH sugestao_ia Field Present and Correct", False, "Look with sugestao_ia not found in response")
+            
+            # Verify look WITHOUT sugestao_ia (backward compatibility)
+            if look_without_found:
+                sugestao_ia_value = look_without_found.get("sugestao_ia")
+                if sugestao_ia_value is None or sugestao_ia_value == "":
+                    results.add_result("Sugestao IA - Look WITHOUT sugestao_ia Backward Compatibility", True)
+                    print(f"      ✅ Look WITHOUT sugestao_ia: Field absent or null (backward compatibility OK)")
+                else:
+                    results.add_result("Sugestao IA - Look WITHOUT sugestao_ia Backward Compatibility", False, f"sugestao_ia field should be null/absent but found: '{sugestao_ia_value}'")
+            else:
+                results.add_result("Sugestao IA - Look WITHOUT sugestao_ia Backward Compatibility", False, "Look without sugestao_ia not found in response")
+            
+            # Print detailed field analysis
+            print(f"      📊 Field Analysis:")
+            for i, look in enumerate([look_with_found, look_without_found], 1):
+                if look:
+                    has_field = "sugestao_ia" in look
+                    field_value = look.get("sugestao_ia")
+                    print(f"         Look {i}: has_field={has_field}, value_length={len(field_value) if field_value else 0}, value_type={type(field_value).__name__}")
+        else:
+            results.add_result("Sugestao IA - Fetch Looks", False, f"HTTP {get_looks_response.status_code}: {get_looks_response.text}")
+        
+    except Exception as e:
+        results.add_result("Sugestao IA - Exception", False, f"Exception: {str(e)}")
+    
+    return results
+
 def main():
     """Main comprehensive test function"""
     print(f"🧪 COMPREHENSIVE BACKEND TEST SUITE")
