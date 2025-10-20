@@ -28,16 +28,27 @@ export const useInAppPurchase = () => {
   useEffect(() => {
     // 🚫 DESABILITAR IAP APENAS EM WEB E EXPO GO
     const isWeb = Platform.OS === 'web';
-    const isExpoGo = Constants.appOwnership === 'expo'; // Detecta Expo Go corretamente
+    
+    // Múltiplas verificações para detectar Expo Go de forma mais precisa
+    const isExpoGo = 
+      Constants.appOwnership === 'expo' || 
+      Constants.executionEnvironment === 'storeClient' ||
+      (Constants.manifest?.packagerOpts?.dev === true && !Constants.isDevice);
+    
+    // Em builds EAS, appOwnership deve ser 'standalone' ou null
+    const isStandalone = Constants.appOwnership === 'standalone' || Constants.appOwnership === null;
     
     console.log('🔍 Verificação IAP:', {
       platform: Platform.OS,
       isDevice: Constants.isDevice,
       appOwnership: Constants.appOwnership,
+      executionEnvironment: Constants.executionEnvironment,
       isExpoGo,
+      isStandalone,
       isWeb,
     });
     
+    // Apenas bloquear se for web
     if (isWeb) {
       console.log('⚠️ IAP desabilitado: Plataforma Web detectada');
       setState(prev => ({ 
@@ -48,7 +59,11 @@ export const useInAppPurchase = () => {
       return;
     }
     
-    if (isExpoGo) {
+    // Se for standalone (build EAS), permitir IAP independente de outras verificações
+    if (isStandalone) {
+      console.log('✅ Build standalone detectado - IAP habilitado');
+      // Continuar com inicialização do IAP
+    } else if (isExpoGo) {
       console.log('⚠️ IAP desabilitado: Expo Go detectado');
       setState(prev => ({ 
         ...prev, 
