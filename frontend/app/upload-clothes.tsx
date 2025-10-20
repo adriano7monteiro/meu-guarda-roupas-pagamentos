@@ -441,7 +441,7 @@ export default function UploadClothes() {
           </Text>
         </TouchableOpacity>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: Platform.OS === 'android' ? 100 : 40 }} />
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
