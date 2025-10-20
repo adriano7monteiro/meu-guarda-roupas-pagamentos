@@ -3,6 +3,7 @@ import {
   Dimensions,
   Image,
   Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
