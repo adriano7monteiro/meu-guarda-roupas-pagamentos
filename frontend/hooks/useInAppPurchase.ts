@@ -139,12 +139,21 @@ export const useInAppPurchase = () => {
       const methods = Object.keys(RNIap).filter(key => typeof (RNIap as any)[key] === 'function');
       console.log('🔍 TODOS os métodos disponíveis:', methods);
       
-      // Tentar chamar
-      if (typeof RNIap.getSubscriptions !== 'function') {
-        throw new Error(`getSubscriptions não é uma função. Tipo: ${typeof RNIap.getSubscriptions}. Métodos disponíveis: ${methods.join(', ')}`);
-      }
+      let subs;
       
-      const subs = await RNIap.getSubscriptions(SUBSCRIPTION_SKUS);
+      // Tentar diferentes APIs
+      if (typeof RNIap.getSubscriptions === 'function') {
+        console.log('✅ Usando getSubscriptions');
+        subs = await RNIap.getSubscriptions(SUBSCRIPTION_SKUS);
+      } else if (typeof RNIap.getProducts === 'function') {
+        console.log('✅ Usando getProducts (alternativo)');
+        subs = await RNIap.getProducts(SUBSCRIPTION_SKUS);
+      } else if (typeof (RNIap as any).default?.getSubscriptions === 'function') {
+        console.log('✅ Usando default.getSubscriptions');
+        subs = await (RNIap as any).default.getSubscriptions(SUBSCRIPTION_SKUS);
+      } else {
+        throw new Error(`Nenhum método encontrado! Métodos disponíveis: ${methods.join(', ')}`);
+      }
       
       console.log('✅ Subscriptions loaded:', subs?.length || 0, 'produtos');
       console.log('Detalhes:', JSON.stringify(subs, null, 2));
