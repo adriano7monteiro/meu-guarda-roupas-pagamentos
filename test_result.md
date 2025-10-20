@@ -254,7 +254,19 @@ frontend:
     status_history:
         - working: "NA"
           agent: "main"
-          comment: "Corrigido problema de botões nativos do Android cortando conteúdo dos footers. Adicionado padding condicional baseado em Platform.OS === 'android' em todos os screens com elementos de footer. Modificações: 1) index.tsx - actionsContainer paddingBottom aumentado de 20 para 100 no Android, 2) generate-look.tsx - spacer no final aumentado de 40 para 100, 3) saved-looks.tsx - looksContainer paddingBottom aumentado para 100, 4) my-wardrobe.tsx - itemsContainer paddingBottom aumentado para 100, 5) profile.tsx - spacer no final aumentado para 100, 6) upload-clothes.tsx - spacer no final aumentado para 100, 7) courses.tsx - footer marginBottom aumentado para 100, 8) suggest-pieces.tsx - footer marginBottom aumentado para 100, 9) subscription.tsx - spacer no final aumentado para 100. Todos os valores Android foram ajustados para 100px enquanto iOS/web mantiveram valores originais (20-40px). Solução garante que conteúdo de footer não seja obscurecido por botões de navegação nativos do Android."
+          comment: "Corrigido problema de botões nativos do Android cortando conteúdo dos footers. Adicionado padding condicional baseado em Platform.OS === 'android' em todos os screens com elementos de footer. Modificações: 1) index.tsx - actionsContainer paddingBottom aumentado de 20 para 100 no Android, 2) generate-look.tsx - spacer no final aumentado de 40 para 100, 3) saved-looks.tsx - looksContainer paddingBottom aumentado para 100, 4) my-wardrobe.tsx - itemsContainer paddingBottom aumentado para 100, 5) profile.tsx - spacer no final aumentado para 100, 6) upload-clothes.tsx - spacer no final aumentado para 100, 7) courses.tsx - footer marginBottom aumentado para 100, 8) suggest-pieces.tsx - footer marginBottom aumentado para 100, 9) subscription.tsx - spacer no final aumentado para 100. Todos os valores Android foram ajustados para 100px enquanto iOS/web mantiveram valores originais (20-40px). Solução garante que conteúdo de footer não seja obscurecido por botões de navegação nativos do Android. Adicionado import Platform em todos os arquivos necessários."
+
+  - task: "Otimização de paginação - redução para 5 itens por página"
+    implemented: true
+    working: true
+    file: "saved-looks.tsx, my-wardrobe.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Ajustado ITEMS_PER_PAGE de 20 para 5 itens em saved-looks.tsx e my-wardrobe.tsx. Agora as listas carregam apenas 5 itens inicialmente e fazem lazy loading (scroll infinito) quando usuário chega ao final da lista. Isso melhora performance inicial e reduz uso de dados/memória. Sistema de paginação já existente (onEndReached) continua funcionando normalmente."
 
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
