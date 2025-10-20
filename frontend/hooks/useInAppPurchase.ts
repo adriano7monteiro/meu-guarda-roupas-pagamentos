@@ -156,7 +156,17 @@ export const useInAppPurchase = () => {
       console.log('🛒 Requesting subscription:', sku);
       
       const RNIap = await import('react-native-iap');
-      await RNIap.requestSubscription({ sku });
+      
+      // Verificar qual método usar
+      if (typeof RNIap.requestSubscription === 'function') {
+        console.log('Usando requestSubscription');
+        await RNIap.requestSubscription({ sku });
+      } else if (typeof RNIap.requestPurchase === 'function') {
+        console.log('Usando requestPurchase');
+        await RNIap.requestPurchase({ sku });
+      } else {
+        throw new Error('Nenhum método de compra encontrado na biblioteca react-native-iap');
+      }
       
       // O listener purchaseUpdatedListener irá processar o resultado
     } catch (error: any) {
@@ -164,7 +174,7 @@ export const useInAppPurchase = () => {
       setState(prev => ({ 
         ...prev, 
         purchasing: false, 
-        error: error.message || 'Erro ao iniciar compra' 
+        error: error?.message || 'Erro ao iniciar compra' 
       }));
     }
   };
