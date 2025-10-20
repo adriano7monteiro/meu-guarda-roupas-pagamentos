@@ -170,7 +170,7 @@ def verify_password(password: str, hashed: str) -> bool:
 def create_jwt_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
-        "exp": datetime.utcnow() + timedelta(days=30)
+        "exp": datetime.utcnow() + timedelta(days=365)  # Token válido por 1 ano
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
