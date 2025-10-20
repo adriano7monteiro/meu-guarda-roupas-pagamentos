@@ -78,8 +78,6 @@ export default function Profile() {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [9, 16],  // Aspecto vertical consistente
         quality: 0.8,
         base64: true,
       });
