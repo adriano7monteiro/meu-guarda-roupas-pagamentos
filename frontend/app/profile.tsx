@@ -103,12 +103,9 @@ export default function Profile() {
 
     try {
       const result = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
-        aspect: [9, 16],  // Aspecto vertical para corpo inteiro (tela cheia)
         quality: 0.8,
         base64: true,
         exif: false,
-        presentationStyle: 'fullScreen',
         cameraType: ImagePicker.CameraType.back,  // Câmera traseira
       });
 
