@@ -26,62 +26,18 @@ export const useInAppPurchase = () => {
   });
 
   useEffect(() => {
-    // 🚫 DESABILITAR IAP APENAS EM WEB E EXPO GO
-    const isWeb = Platform.OS === 'web';
+    // 🔥 REMOVENDO TODAS AS VERIFICAÇÕES - SEMPRE TENTAR INICIALIZAR IAP
+    // Se falhar, veremos o erro real da biblioteca
     
-    // Variável de ambiente para forçar IAP em produção
-    const forceEnableIAP = Constants.expoConfig?.extra?.enableIAP === true || 
-                          process.env.EXPO_PUBLIC_ENABLE_IAP === 'true';
-    
-    // Múltiplas verificações para detectar Expo Go de forma mais precisa
-    const isExpoGo = 
-      Constants.appOwnership === 'expo' || 
-      Constants.executionEnvironment === 'storeClient' ||
-      (Constants.manifest?.packagerOpts?.dev === true && !Constants.isDevice);
-    
-    // Em builds EAS, appOwnership deve ser 'standalone' ou null
-    const isStandalone = Constants.appOwnership === 'standalone' || Constants.appOwnership === null;
-    
-    console.log('🔍 Verificação IAP:', {
+    console.log('🔍 Informações do dispositivo:', {
       platform: Platform.OS,
       isDevice: Constants.isDevice,
       appOwnership: Constants.appOwnership,
       executionEnvironment: Constants.executionEnvironment,
-      forceEnableIAP,
-      isExpoGo,
-      isStandalone,
-      isWeb,
+      expoConfig_extra: Constants.expoConfig?.extra,
     });
     
-    // Apenas bloquear se for web
-    if (isWeb) {
-      console.log('⚠️ IAP desabilitado: Plataforma Web detectada');
-      setState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'IAP não disponível na web.' 
-      }));
-      return;
-    }
-    
-    // Se forceEnableIAP estiver ativo, sempre permitir (build de produção)
-    if (forceEnableIAP) {
-      console.log('✅ IAP forçadamente habilitado via variável de ambiente');
-      // Continuar com inicialização do IAP
-    }
-    // Se for standalone (build EAS), permitir IAP independente de outras verificações
-    else if (isStandalone) {
-      console.log('✅ Build standalone detectado - IAP habilitado');
-      // Continuar com inicialização do IAP
-    } else if (isExpoGo) {
-      console.log('⚠️ IAP desabilitado: Expo Go detectado');
-      setState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'IAP não funciona no Expo Go. Use um build nativo (EAS Build).' 
-      }));
-      return;
-    }
+    console.log('✅ Inicializando IAP SEM verificações - vamos ver o erro real se houver');
 
     let purchaseUpdateSubscription: any;
     let purchaseErrorSubscription: any;
