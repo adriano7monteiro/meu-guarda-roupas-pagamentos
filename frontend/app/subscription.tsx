@@ -432,7 +432,7 @@ function SubscriptionContent() {
           * Cobrança recorrente. Cancele quando quiser. Acesso continua até o fim do período pago.
         </Text>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: Platform.OS === 'android' ? 100 : 40 }} />
       </ScrollView>
 
       {/* Custom Modal */}
