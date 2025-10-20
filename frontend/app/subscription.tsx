@@ -143,6 +143,15 @@ function SubscriptionContent() {
     }
     */
 
+    // COMENTADO: IAP removido temporariamente
+    modal.showWarning(
+      '🚧 Pagamentos Temporariamente Desabilitados',
+      'A funcionalidade de pagamentos está sendo configurada. Por enquanto, você tem acesso ilimitado a todas as funcionalidades.',
+      [{ text: 'Entendi', onPress: () => modal.hideModal() }]
+    );
+    return;
+
+    /*
     try {
       // Initiate purchase with Google Play
       await purchaseSubscription(selectedPlan);
@@ -163,6 +172,7 @@ function SubscriptionContent() {
           },
         ]
       );
+    */
       
     } catch (error: any) {
       console.error('Error purchasing subscription:', error);
