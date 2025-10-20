@@ -15,7 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useModal } from '../hooks/useModal';
 import CustomModal from '../components/CustomModal';
-import { useInAppPurchase } from '../hooks/useInAppPurchase';
+// COMENTADO: IAP removido temporariamente
+// import { useInAppPurchase } from '../hooks/useInAppPurchase';
 import { BACKEND_URL } from '../config/api';
 
 function SubscriptionContent() {
@@ -25,15 +26,20 @@ function SubscriptionContent() {
   const [loadingPlans, setLoadingPlans] = useState(true);
   const modal = useModal();
   
-  // Use In-App Purchase hooks (only works on native builds, not Expo Go or Web)
-  const { subscriptions, loading, purchasing, error, purchaseSubscription } = useInAppPurchase();
+  // COMENTADO: IAP removido temporariamente
+  // const { subscriptions, loading, purchasing, error, purchaseSubscription } = useInAppPurchase();
+  const subscriptions: any[] = [];
+  const loading = false;
+  const purchasing = false;
+  const error = null;
 
   useEffect(() => {
     fetchSubscriptionStatus();
     fetchPlans();
   }, []);
 
-  // DEBUG: Log do estado IAP
+  // COMENTADO: Debug IAP
+  /*
   useEffect(() => {
     console.log('📱 Estado IAP:', {
       subscriptions_length: subscriptions?.length || 0,
