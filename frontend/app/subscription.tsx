@@ -173,11 +173,12 @@ function SubscriptionContent() {
         ]
       );
     */
-      
+      /*  
     } catch (error: any) {
       console.error('Error purchasing subscription:', error);
       modal.showError('Erro', error.message || 'Erro ao processar pagamento.');
     }
+    */
   };
 
   const handleCancelSubscription = async () => {
