@@ -1104,4 +1104,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  // Sugerir Peças Styles
+  suggestPiecesButton: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#6c5ce7',
+    shadowColor: '#6c5ce7',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  suggestPiecesContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  suggestPiecesText: {
+    flex: 1,
+  },
+  suggestPiecesTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  suggestPiecesSubtitle: {
+    color: '#999',
+    fontSize: 13,
+  },
 });
