@@ -112,7 +112,12 @@ export const useInAppPurchase = () => {
 
       } catch (error) {
         console.error('❌ Error initializing IAP:', error);
-        setState(prev => ({ ...prev, loading: false, error: 'Erro ao inicializar pagamentos' }));
+        console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
+        setState(prev => ({ 
+          ...prev, 
+          loading: false, 
+          error: `Erro ao inicializar pagamentos: ${error}` 
+        }));
       }
     };
 
