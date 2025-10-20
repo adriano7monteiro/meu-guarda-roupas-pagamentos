@@ -125,14 +125,28 @@ export const useInAppPurchase = () => {
       console.log('📋 Carregando assinaturas... SKUs:', SUBSCRIPTION_SKUS);
       setState(prev => ({ ...prev, loading: true }));
       const RNIap = await import('react-native-iap');
-      const subs = await RNIap.getSubscriptions({ skus: SUBSCRIPTION_SKUS });
-      console.log('✅ Subscriptions loaded:', subs.length, 'produtos');
+      
+      console.log('🔍 Verificando métodos disponíveis:', Object.keys(RNIap));
+      
+      // Tentar diferentes APIs da biblioteca
+      let subs;
+      if (typeof RNIap.getSubscriptions === 'function') {
+        console.log('Usando getSubscriptions (API antiga)');
+        subs = await RNIap.getSubscriptions({ skus: SUBSCRIPTION_SKUS });
+      } else if (typeof RNIap.getProducts === 'function') {
+        console.log('Usando getProducts (API nova)');
+        subs = await RNIap.getProducts({ skus: SUBSCRIPTION_SKUS });
+      } else {
+        throw new Error('Nenhum método de carregamento de produtos encontrado na biblioteca react-native-iap');
+      }
+      
+      console.log('✅ Subscriptions loaded:', subs?.length || 0, 'produtos');
       console.log('Detalhes:', JSON.stringify(subs, null, 2));
-      setState(prev => ({ ...prev, subscriptions: subs, loading: false }));
-    } catch (error) {
+      setState(prev => ({ ...prev, subscriptions: subs || [], loading: false }));
+    } catch (error: any) {
       console.error('❌ Error loading subscriptions:', error);
-      console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
-      setState(prev => ({ ...prev, loading: false, error: `Erro ao carregar planos: ${error}` }));
+      console.error('Detalhes do erro:', error?.message || error);
+      setState(prev => ({ ...prev, loading: false, error: `Erro ao carregar planos: ${error?.message || error}` }));
     }
   };
 
