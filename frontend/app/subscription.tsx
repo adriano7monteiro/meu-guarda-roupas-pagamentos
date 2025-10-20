@@ -111,7 +111,9 @@ function SubscriptionContent() {
       return;
     }
 
-    // Check if IAP is available (won't work in Expo Go)
+    // REMOVIDO: Verificação que bloqueava se subscriptions estava vazio
+    // Agora deixamos a biblioteca tentar e mostrar o erro real
+    /*
     if (!subscriptions || subscriptions.length === 0) {
       modal.showWarning(
         '📱 Build Nativo Necessário',
@@ -125,6 +127,7 @@ function SubscriptionContent() {
       );
       return;
     }
+    */
 
     try {
       // Initiate purchase with Google Play
