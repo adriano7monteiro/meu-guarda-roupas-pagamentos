@@ -149,20 +149,15 @@ export const useInAppPurchase = () => {
       
       const RNIap = await import('react-native-iap');
       
-      // Verificar qual método usar
-      if (typeof RNIap.requestSubscription === 'function') {
-        console.log('Usando requestSubscription');
-        await RNIap.requestSubscription({ sku });
-      } else if (typeof RNIap.requestPurchase === 'function') {
-        console.log('Usando requestPurchase');
-        await RNIap.requestPurchase({ sku });
-      } else {
-        throw new Error('Nenhum método de compra encontrado na biblioteca react-native-iap');
-      }
+      // API correta para v14.x: requestSubscription com string direto
+      await RNIap.requestSubscription(sku);
+      
+      console.log('✅ Subscription request sent, aguardando confirmação...');
       
       // O listener purchaseUpdatedListener irá processar o resultado
     } catch (error: any) {
       console.error('❌ Error purchasing subscription:', error);
+      console.error('Detalhes:', error?.message || error);
       setState(prev => ({ 
         ...prev, 
         purchasing: false, 
