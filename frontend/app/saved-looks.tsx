@@ -81,6 +81,8 @@ export default function SavedLooks() {
       const currentPage = resetPage ? 0 : page;
       const skip = currentPage * ITEMS_PER_PAGE;
 
+      console.log('📥 Requisição Looks:', `skip=${skip}, limit=${ITEMS_PER_PAGE}, page=${currentPage}`);
+
       // Fetch looks with pagination
       const looksResponse = await fetch(
         `${BACKEND_URL}/api/looks?skip=${skip}&limit=${ITEMS_PER_PAGE}`,
@@ -102,7 +104,7 @@ export default function SavedLooks() {
         const looksData = await looksResponse.json();
         const clothesData = await clothesResponse.json();
         
-        console.log('✅ Looks carregados:', looksData.items.length, 'Total:', looksData.total);
+        console.log('📦 Resposta Looks:', 'items:', looksData.items.length, 'total:', looksData.total, 'has_more:', looksData.has_more);
         
         if (resetPage) {
           setLooks(looksData.items);
