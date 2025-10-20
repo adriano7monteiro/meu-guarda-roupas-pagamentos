@@ -29,6 +29,10 @@ export const useInAppPurchase = () => {
     // 🚫 DESABILITAR IAP APENAS EM WEB E EXPO GO
     const isWeb = Platform.OS === 'web';
     
+    // Variável de ambiente para forçar IAP em produção
+    const forceEnableIAP = Constants.expoConfig?.extra?.enableIAP === true || 
+                          process.env.EXPO_PUBLIC_ENABLE_IAP === 'true';
+    
     // Múltiplas verificações para detectar Expo Go de forma mais precisa
     const isExpoGo = 
       Constants.appOwnership === 'expo' || 
@@ -43,6 +47,7 @@ export const useInAppPurchase = () => {
       isDevice: Constants.isDevice,
       appOwnership: Constants.appOwnership,
       executionEnvironment: Constants.executionEnvironment,
+      forceEnableIAP,
       isExpoGo,
       isStandalone,
       isWeb,
@@ -59,8 +64,13 @@ export const useInAppPurchase = () => {
       return;
     }
     
+    // Se forceEnableIAP estiver ativo, sempre permitir (build de produção)
+    if (forceEnableIAP) {
+      console.log('✅ IAP forçadamente habilitado via variável de ambiente');
+      // Continuar com inicialização do IAP
+    }
     // Se for standalone (build EAS), permitir IAP independente de outras verificações
-    if (isStandalone) {
+    else if (isStandalone) {
       console.log('✅ Build standalone detectado - IAP habilitado');
       // Continuar com inicialização do IAP
     } else if (isExpoGo) {
