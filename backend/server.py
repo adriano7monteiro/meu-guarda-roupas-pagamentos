@@ -831,6 +831,126 @@ async def sugerir_look(
         logging.error(f"Error in AI suggestion: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro ao gerar sugestão de look")
 
+
+@api_router.post("/sugerir-pecas")
+async def sugerir_pecas(
+    current_user=Depends(security)
+):
+    """
+    Analisa o guarda-roupa do usuário e sugere peças que faltam,
+    gerando tags de pesquisa para Shopee
+    """
+    user = await get_current_user(current_user)
+    
+    # Get user's clothing items
+    roupas = await db.clothing_items.find({"user_id": user["id"]}).to_list(1000)
+    
+    if not roupas:
+        raise HTTPException(status_code=400, detail="Você precisa cadastrar roupas primeiro para receber sugestões")
+    
+    # Prepare context for AI
+    roupas_context = []
+    for roupa in roupas:
+        roupas_context.append({
+            "tipo": roupa["tipo"],
+            "cor": roupa["cor"],
+            "estilo": roupa["estilo"],
+            "nome": roupa["nome"]
+        })
+    
+    # Create AI prompt for gap analysis
+    prompt = f"""
+    Como personal shopper especializado, analise o guarda-roupa do usuário e identifique peças que faltam ou que complementariam bem o que ele já tem.
+    
+    Guarda-roupa atual:
+    {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
+    
+    Analise e sugira 4-6 peças que faltam ou complementariam o guarda-roupa. Para cada sugestão, forneça:
+    1. Nome da peça (específico e pesquisável na Shopee)
+    2. Razão pela qual seria uma boa adição
+    3. Termo de busca otimizado para Shopee (curto, direto, em português)
+    
+    Responda APENAS com JSON válido (sem markdown):
+    {{
+        "sugestoes": [
+            {{
+                "peca": "Nome da peça sugerida",
+                "razao": "Por que essa peça complementaria o guarda-roupa",
+                "tag_busca": "termo busca shopee"
+            }}
+        ]
+    }}
+    
+    Exemplos de tags boas: "calça jeans feminina", "blusa branca social", "tênis branco casual"
+    """
+    
+    try:
+        # Call OpenAI API
+        completion = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você é um personal shopper especializado em análise de guarda-roupa e sugestões de compras."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+        
+        response = completion.choices[0].message.content
+        
+        # Parse response
+        try:
+            # Clean up markdown code blocks if present
+            clean_response = response.strip()
+            if clean_response.startswith('```json'):
+                clean_response = clean_response[7:]
+            if clean_response.endswith('```'):
+                clean_response = clean_response[:-3]
+            clean_response = clean_response.strip()
+            
+            ai_response = json.loads(clean_response)
+            
+            # Validar estrutura
+            if "sugestoes" not in ai_response or not isinstance(ai_response["sugestoes"], list):
+                raise ValueError("Resposta da IA inválida")
+            
+            return {
+                "sugestoes": ai_response["sugestoes"]
+            }
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            logging.warning(f"Failed to parse JSON response: {response[:200]}...")
+            # Fallback: criar sugestões básicas baseadas no que falta
+            return {
+                "sugestoes": [
+                    {
+                        "peca": "Calça Jeans Clássica",
+                        "razao": "Uma calça jeans versátil complementa qualquer guarda-roupa",
+                        "tag_busca": "calça jeans básica"
+                    },
+                    {
+                        "peca": "Camiseta Branca Básica",
+                        "razao": "Peça essencial que combina com tudo",
+                        "tag_busca": "camiseta branca básica"
+                    },
+                    {
+                        "peca": "Tênis Casual Branco",
+                        "razao": "Calçado versátil para looks casuais",
+                        "tag_busca": "tênis branco casual"
+                    }
+                ]
+            }
+            
+    except Exception as e:
+        logging.error(f"Error in clothing suggestion: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao gerar sugestões de peças")
+
 # Look management routes
 @api_router.post("/looks")
 async def create_look(
