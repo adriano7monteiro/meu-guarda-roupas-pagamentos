@@ -63,8 +63,11 @@ export const useInAppPurchase = () => {
 
     const initIAP = async () => {
       try {
+        console.log('🔄 Iniciando IAP...');
+        
         // Import dinâmico da biblioteca apenas em dispositivos físicos
         const RNIap = await import('react-native-iap');
+        console.log('✅ Biblioteca react-native-iap carregada');
         
         await RNIap.initConnection();
         console.log('✅ IAP Connection initialized');
