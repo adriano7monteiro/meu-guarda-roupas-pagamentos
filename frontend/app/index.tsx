@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: Platform.OS === 'android' ? 100 : 20,
   },
   mainActionButton: {
     backgroundColor: '#6c5ce7',
