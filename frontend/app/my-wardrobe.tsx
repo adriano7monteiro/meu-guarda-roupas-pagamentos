@@ -58,7 +58,7 @@ export default function MyWardrobe() {
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const modal = useModal();
   
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 5;
   const { width, height } = Dimensions.get('window');
 
   const filters = [
