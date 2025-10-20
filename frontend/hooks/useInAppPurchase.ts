@@ -122,9 +122,22 @@ export const useInAppPurchase = () => {
       console.log('📋 Carregando assinaturas... SKUs:', SUBSCRIPTION_SKUS);
       setState(prev => ({ ...prev, loading: true }));
       
+      // DEBUG COMPLETO
+      console.log('🔍 RNIap é:', RNIap);
+      console.log('🔍 Tipo de RNIap:', typeof RNIap);
+      console.log('🔍 Keys de RNIap:', Object.keys(RNIap));
+      console.log('🔍 getSubscriptions existe?', 'getSubscriptions' in RNIap);
       console.log('🔍 Tipo de getSubscriptions:', typeof RNIap.getSubscriptions);
       
-      // API correta para v14.x: getSubscriptions com array direto
+      // Listar TODOS os métodos disponíveis
+      const methods = Object.keys(RNIap).filter(key => typeof (RNIap as any)[key] === 'function');
+      console.log('🔍 TODOS os métodos disponíveis:', methods);
+      
+      // Tentar chamar
+      if (typeof RNIap.getSubscriptions !== 'function') {
+        throw new Error(`getSubscriptions não é uma função. Tipo: ${typeof RNIap.getSubscriptions}. Métodos disponíveis: ${methods.join(', ')}`);
+      }
+      
       const subs = await RNIap.getSubscriptions(SUBSCRIPTION_SKUS);
       
       console.log('✅ Subscriptions loaded:', subs?.length || 0, 'produtos');
