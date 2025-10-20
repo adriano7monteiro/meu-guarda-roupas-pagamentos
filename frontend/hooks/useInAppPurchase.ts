@@ -38,6 +38,11 @@ export const useInAppPurchase = () => {
       try {
         console.log('🔄 Conectando ao IAP...');
         
+        // Verificar se o módulo nativo está disponível
+        if (!InAppPurchases.connectAsync) {
+          throw new Error('Módulo nativo expo-in-app-purchases não está disponível. Você precisa fazer um build EAS para testar IAP.');
+        }
+        
         // Conectar ao serviço de IAP
         await InAppPurchases.connectAsync();
         console.log('✅ IAP conectado com sucesso');
@@ -87,11 +92,21 @@ export const useInAppPurchase = () => {
       } catch (error: any) {
         console.error('❌ Erro ao inicializar IAP:', error);
         console.error('Stack:', error?.stack);
-        setState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: `Erro ao inicializar pagamentos: ${error?.message || error}` 
-        }));
+        
+        // Se o erro for de módulo nativo não encontrado
+        if (error?.message?.includes('native module') || error?.message?.includes('ExpoInAppPurchases')) {
+          setState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: '⚠️ IAP só funciona em build nativo (AAB/IPA). Use: eas build --platform android --profile production' 
+          }));
+        } else {
+          setState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: `Erro ao inicializar pagamentos: ${error?.message || error}` 
+          }));
+        }
       }
     };
 
