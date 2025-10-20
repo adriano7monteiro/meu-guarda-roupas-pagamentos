@@ -413,24 +413,24 @@ export default function Index() {
             </TouchableOpacity>
           </View>
 
-          {/* Quick Stats */}
-          <View style={styles.statsContainer}>
-            <Text style={styles.statsTitle}>Suas estatísticas</Text>
-            <View style={styles.statsRow}>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{stats.roupas}</Text>
-                <Text style={styles.statLabel}>Roupas</Text>
+          {/* Courses Section - New */}
+          <TouchableOpacity 
+            style={styles.coursesSection}
+            onPress={() => router.push('/courses' as any)}
+          >
+            <View style={styles.coursesSectionContent}>
+              <View style={styles.coursesSectionIcon}>
+                <Ionicons name="school-outline" size={32} color="#6c5ce7" />
               </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{stats.looks}</Text>
-                <Text style={styles.statLabel}>Looks Criados</Text>
+              <View style={styles.coursesSectionText}>
+                <Text style={styles.coursesSectionTitle}>Aprenda se Vestir com Nossos Cursos</Text>
+                <Text style={styles.coursesSectionSubtitle}>
+                  Descubra dicas profissionais de estilo e moda
+                </Text>
               </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{stats.favoritos}</Text>
-                <Text style={styles.statLabel}>Favoritos</Text>
-              </View>
+              <Ionicons name="chevron-forward" size={24} color="#6c5ce7" />
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* Suggestion Card */}
           <TouchableOpacity 
