@@ -41,6 +41,16 @@ function SubscriptionContent() {
       error,
       has_purchaseSubscription: !!purchaseSubscription,
     });
+    
+    // Mostrar erro na tela se houver
+    if (error && !loading) {
+      console.error('🔴 ERRO IAP:', error);
+      modal.showError(
+        '⚠️ Erro ao Carregar Pagamentos',
+        `Detalhes do erro:\n\n${error}\n\nPor favor, envie essa mensagem para suporte.`,
+        [{ text: 'OK', onPress: () => modal.hideModal() }]
+      );
+    }
   }, [subscriptions, loading, error]);
 
   const fetchPlans = async () => {
