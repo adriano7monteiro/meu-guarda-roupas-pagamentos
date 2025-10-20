@@ -55,7 +55,6 @@ module.exports = {
           },
         },
       ],
-      './plugins/withInAppPurchasesFix.js',
     ],
     experiments: {
       typedRoutes: true,
