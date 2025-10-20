@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { BACKEND_URL } from '../config/api';
+import * as RNIap from 'react-native-iap';
 
 // IDs dos produtos no Google Play Console (você precisará criar esses IDs lá)
 const SUBSCRIPTION_SKUS = Platform.select({
