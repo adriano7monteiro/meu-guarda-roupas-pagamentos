@@ -45,6 +45,13 @@ function SubscriptionContent() {
       subscriptions_length: subscriptions?.length || 0,
       loading,
       error,
+  // COMENTADO: Debug IAP
+  /*
+  useEffect(() => {
+    console.log('📱 Estado IAP:', {
+      subscriptions_length: subscriptions?.length || 0,
+      loading,
+      error,
       has_purchaseSubscription: !!purchaseSubscription,
     });
     
@@ -58,6 +65,7 @@ function SubscriptionContent() {
       );
     }
   }, [subscriptions, loading, error]);
+  */
 
   const fetchPlans = async () => {
     try {
