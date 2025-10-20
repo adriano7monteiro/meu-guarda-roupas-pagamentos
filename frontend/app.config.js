@@ -53,13 +53,6 @@ module.exports = {
           },
         },
       ],
-      // Plugin para react-native-iap
-      [
-        'react-native-iap',
-        {
-          // Configuração para Android
-        },
-      ],
     ],
     experiments: {
       typedRoutes: true,
