@@ -33,6 +33,16 @@ function SubscriptionContent() {
     fetchPlans();
   }, []);
 
+  // DEBUG: Log do estado IAP
+  useEffect(() => {
+    console.log('📱 Estado IAP:', {
+      subscriptions_length: subscriptions?.length || 0,
+      loading,
+      error,
+      has_purchaseSubscription: !!purchaseSubscription,
+    });
+  }, [subscriptions, loading, error]);
+
   const fetchPlans = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/planos`);
