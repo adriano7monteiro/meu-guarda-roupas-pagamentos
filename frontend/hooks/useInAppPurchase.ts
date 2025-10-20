@@ -121,9 +121,8 @@ export const useInAppPurchase = () => {
     try {
       console.log('📋 Carregando assinaturas... SKUs:', SUBSCRIPTION_SKUS);
       setState(prev => ({ ...prev, loading: true }));
-      const RNIap = await import('react-native-iap');
       
-      console.log('🔍 Verificando métodos disponíveis:', Object.keys(RNIap));
+      console.log('🔍 Tipo de getSubscriptions:', typeof RNIap.getSubscriptions);
       
       // API correta para v14.x: getSubscriptions com array direto
       const subs = await RNIap.getSubscriptions(SUBSCRIPTION_SKUS);
@@ -143,8 +142,7 @@ export const useInAppPurchase = () => {
     try {
       setState(prev => ({ ...prev, purchasing: true, error: null }));
       console.log('🛒 Requesting subscription:', sku);
-      
-      const RNIap = await import('react-native-iap');
+      console.log('🔍 Tipo de requestSubscription:', typeof RNIap.requestSubscription);
       
       // API correta para v14.x: requestSubscription com string direto
       await RNIap.requestSubscription(sku);
