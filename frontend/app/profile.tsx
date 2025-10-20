@@ -326,7 +326,7 @@ export default function Profile() {
           <Text style={styles.logoutButtonText}>Sair da Conta</Text>
         </TouchableOpacity>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: Platform.OS === 'android' ? 100 : 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
