@@ -47,7 +47,13 @@ export const useInAppPurchase = () => {
       try {
         console.log('🔄 Iniciando IAP...');
         console.log('📦 RNIap disponível:', typeof RNIap);
-        console.log('📦 Métodos:', Object.keys(RNIap).slice(0, 20));
+        console.log('📦 RNIap é objeto?:', RNIap !== null && typeof RNIap === 'object');
+        console.log('📦 Keys (primeiras 30):', Object.keys(RNIap).slice(0, 30));
+        
+        // Verificar se initConnection existe
+        if (typeof RNIap.initConnection !== 'function') {
+          throw new Error(`initConnection não é uma função! Tipo: ${typeof RNIap.initConnection}`);
+        }
         
         await RNIap.initConnection();
         console.log('✅ IAP Connection initialized');
