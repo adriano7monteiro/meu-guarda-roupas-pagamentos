@@ -47,7 +47,7 @@ export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
-  const [stats, setStats] = useState({ roupas: 0, looks: 0, favoritos: 0 });
+  // REMOVIDO: stats state - não é mais necessário
   const [suggestionText, setSuggestionText] = useState('');
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [sendingSuggestion, setSendingSuggestion] = useState(false);
