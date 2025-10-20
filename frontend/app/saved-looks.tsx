@@ -55,7 +55,7 @@ export default function SavedLooks() {
   const [hasMore, setHasMore] = useState(true);
   const [totalLooks, setTotalLooks] = useState(0);
   
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 5;
 
   const filters = [
     { id: 'todos', label: 'Todos' },
