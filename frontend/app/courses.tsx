@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     marginTop: 8,
-    marginBottom: 32,
+    marginBottom: Platform.OS === 'android' ? 100 : 32,
   },
   footerText: {
     color: '#b2bec3',
