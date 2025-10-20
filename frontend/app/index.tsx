@@ -75,7 +75,7 @@ export default function Index() {
       if (token) {
         await fetchUserProfile(token);
         await fetchSubscriptionStatus(token);
-        await fetchStats(token);
+        // REMOVIDO: fetchStats(token) - não é mais necessário
       }
     } catch (error) {
       
