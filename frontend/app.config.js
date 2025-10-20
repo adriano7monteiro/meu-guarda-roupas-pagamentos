@@ -64,6 +64,7 @@ module.exports = {
       },
       // IMPORTANTE: Aqui é onde a variável do eas.json é injetada
       backendUrl: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://meulookia-e68fc7ce1afa.herokuapp.com',
+      enableIAP: process.env.EXPO_PUBLIC_ENABLE_IAP === 'true',
     },
   },
 };
