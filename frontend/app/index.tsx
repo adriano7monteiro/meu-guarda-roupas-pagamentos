@@ -127,67 +127,7 @@ export default function Index() {
     }
   };
 
-  const fetchStats = async (token: string) => {
-    try {
-      console.log('📊 Fetching stats...');
-      
-      // Fetch roupas count
-      const roupasResponse = await fetch(`${BACKEND_URL}/api/roupas?skip=0&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      console.log('📦 Roupas response:', roupasResponse.status, roupasResponse.ok);
-
-      // Fetch looks count
-      const looksResponse = await fetch(`${BACKEND_URL}/api/looks?skip=0&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      console.log('👔 Looks response:', looksResponse.status, looksResponse.ok);
-
-      // Fetch favoritos count
-      const favoritosResponse = await fetch(`${BACKEND_URL}/api/looks/stats/favoritos`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      console.log('⭐ Favoritos response:', favoritosResponse.status, favoritosResponse.ok);
-
-      if (roupasResponse.ok && looksResponse.ok && favoritosResponse.ok) {
-        const roupasData = await roupasResponse.json();
-        const looksData = await looksResponse.json();
-        const favoritosData = await favoritosResponse.json();
-        
-        console.log('📊 Stats data:', {
-          roupas: roupasData,
-          looks: looksData,
-          favoritos: favoritosData
-        });
-        
-        setStats({
-          roupas: roupasData.total || 0,
-          looks: looksData.total || 0,
-          favoritos: favoritosData.count || 0,
-        });
-        
-        console.log('✅ Stats updated:', {
-          roupas: roupasData.total || 0,
-          looks: looksData.total || 0,
-          favoritos: favoritosData.count || 0
-        });
-      } else {
-        console.log('❌ Some requests failed:', {
-          roupas: roupasResponse.ok,
-          looks: looksResponse.ok,
-          favoritos: favoritosResponse.ok
-        });
-      }
-    } catch (error) {
-      console.error('❌ Error fetching stats:', error);
-    }
-  };
+  // REMOVIDO: fetchStats - não é mais necessário
 
   const handleSendSuggestion = async () => {
     if (!suggestionText.trim()) {
