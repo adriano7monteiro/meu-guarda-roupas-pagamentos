@@ -1139,4 +1139,43 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 13,
   },
+  // Courses Section Styles
+  coursesSection: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: '#6c5ce7',
+    shadowColor: '#6c5ce7',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  coursesSectionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  coursesSectionIcon: {
+    backgroundColor: 'rgba(108, 92, 231, 0.2)',
+    borderRadius: 16,
+    padding: 16,
+  },
+  coursesSectionText: {
+    flex: 1,
+  },
+  coursesSectionTitle: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  coursesSectionSubtitle: {
+    color: '#b2bec3',
+    fontSize: 14,
+    lineHeight: 18,
+  },
 });
