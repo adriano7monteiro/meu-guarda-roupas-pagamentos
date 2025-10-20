@@ -244,6 +244,18 @@ frontend:
           agent: "testing"
           comment: "✅ TESTE COMPLETO PÓS-REFATORAÇÃO CONFIRMADO: Executado teste abrangente de todos os endpoints críticos após refatoração das variáveis de ambiente. RESULTADOS: 17/17 testes passaram (100% sucesso). ✅ Autenticação: POST /api/auth/register, POST /api/auth/login, GET /api/auth/me funcionando perfeitamente. ✅ Gerenciamento de roupas: POST /api/upload-roupa, GET /api/roupas, DELETE /api/roupas/{id} operacionais. ✅ IA e looks: POST /api/sugerir-look gerando sugestões (823 chars), POST /api/looks, GET /api/looks, POST /api/looks/{id}/favoritar, GET /api/looks/stats/favoritos, DELETE /api/looks/{id} todos funcionais. ✅ Sistema de assinatura: GET /api/status-assinatura, GET /api/planos respondendo corretamente. ✅ Perfil: POST /api/sugestoes, POST /api/upload-foto-corpo funcionando. CONCLUSÃO: Nenhuma regressão detectada após refatoração. Backend URL (https://meulookia-e68fc7ce1afa.herokuapp.com/api) acessível e todos os endpoints respondendo corretamente. Sistema 100% funcional."
 
+  - task: "Correção de UI clipping em footers Android"
+    implemented: true
+    working: true
+    file: "index.tsx, generate-look.tsx, saved-looks.tsx, my-wardrobe.tsx, profile.tsx, upload-clothes.tsx, courses.tsx, suggest-pieces.tsx, subscription.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Corrigido problema de botões nativos do Android cortando conteúdo dos footers. Adicionado padding condicional baseado em Platform.OS === 'android' em todos os screens com elementos de footer. Modificações: 1) index.tsx - actionsContainer paddingBottom aumentado de 20 para 100 no Android, 2) generate-look.tsx - spacer no final aumentado de 40 para 100, 3) saved-looks.tsx - looksContainer paddingBottom aumentado para 100, 4) my-wardrobe.tsx - itemsContainer paddingBottom aumentado para 100, 5) profile.tsx - spacer no final aumentado para 100, 6) upload-clothes.tsx - spacer no final aumentado para 100, 7) courses.tsx - footer marginBottom aumentado para 100, 8) suggest-pieces.tsx - footer marginBottom aumentado para 100, 9) subscription.tsx - spacer no final aumentado para 100. Todos os valores Android foram ajustados para 100px enquanto iOS/web mantiveram valores originais (20-40px). Solução garante que conteúdo de footer não seja obscurecido por botões de navegação nativos do Android."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
