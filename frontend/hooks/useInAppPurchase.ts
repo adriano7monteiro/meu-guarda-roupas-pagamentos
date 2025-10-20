@@ -86,17 +86,18 @@ export const useInAppPurchase = () => {
           setState(prev => ({ 
             ...prev, 
             purchasing: false, 
-            error: error.message || 'Erro ao processar pagamento' 
+            error: `Erro na compra: ${error.message}` 
           }));
         });
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('❌ Error initializing IAP:', error);
         console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
+        console.error('Stack:', error?.stack);
         setState(prev => ({ 
           ...prev, 
           loading: false, 
-          error: `Erro ao inicializar pagamentos: ${error}` 
+          error: `Erro ao inicializar pagamentos: ${error?.message || error}` 
         }));
       }
     };
@@ -112,10 +113,7 @@ export const useInAppPurchase = () => {
         purchaseErrorSubscription.remove();
       }
       
-      // Import dinâmico para cleanup
-      import('react-native-iap').then(RNIap => {
-        RNIap.endConnection();
-      }).catch(() => {});
+      RNIap.endConnection().catch(() => {});
     };
   }, []);
 
