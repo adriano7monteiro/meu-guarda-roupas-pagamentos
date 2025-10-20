@@ -128,17 +128,8 @@ export const useInAppPurchase = () => {
       
       console.log('🔍 Verificando métodos disponíveis:', Object.keys(RNIap));
       
-      // Tentar diferentes APIs da biblioteca
-      let subs;
-      if (typeof RNIap.getSubscriptions === 'function') {
-        console.log('Usando getSubscriptions (API antiga)');
-        subs = await RNIap.getSubscriptions({ skus: SUBSCRIPTION_SKUS });
-      } else if (typeof RNIap.getProducts === 'function') {
-        console.log('Usando getProducts (API nova)');
-        subs = await RNIap.getProducts({ skus: SUBSCRIPTION_SKUS });
-      } else {
-        throw new Error('Nenhum método de carregamento de produtos encontrado na biblioteca react-native-iap');
-      }
+      // API correta para v14.x: getSubscriptions com array direto
+      const subs = await RNIap.getSubscriptions(SUBSCRIPTION_SKUS);
       
       console.log('✅ Subscriptions loaded:', subs?.length || 0, 'produtos');
       console.log('Detalhes:', JSON.stringify(subs, null, 2));
@@ -146,6 +137,7 @@ export const useInAppPurchase = () => {
     } catch (error: any) {
       console.error('❌ Error loading subscriptions:', error);
       console.error('Detalhes do erro:', error?.message || error);
+      console.error('Stack:', error?.stack);
       setState(prev => ({ ...prev, loading: false, error: `Erro ao carregar planos: ${error?.message || error}` }));
     }
   };
