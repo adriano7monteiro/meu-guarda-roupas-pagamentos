@@ -26,16 +26,34 @@ export const useInAppPurchase = () => {
   });
 
   useEffect(() => {
-    // 🚫 DESABILITAR IAP EM EMULADOR/WEB/EXPO GO
-    const isEmulator = Constants.isDevice === false;
+    // 🚫 DESABILITAR IAP APENAS EM WEB E EXPO GO
     const isWeb = Platform.OS === 'web';
+    const isExpoGo = Constants.appOwnership === 'expo'; // Detecta Expo Go corretamente
     
-    if (isEmulator || isWeb) {
-      console.log('⚠️ IAP desabilitado: Emulador/Web/Expo Go detectado');
+    console.log('🔍 Verificação IAP:', {
+      platform: Platform.OS,
+      isDevice: Constants.isDevice,
+      appOwnership: Constants.appOwnership,
+      isExpoGo,
+      isWeb,
+    });
+    
+    if (isWeb) {
+      console.log('⚠️ IAP desabilitado: Plataforma Web detectada');
       setState(prev => ({ 
         ...prev, 
         loading: false, 
-        error: 'IAP não disponível em emulador. Use dispositivo físico.' 
+        error: 'IAP não disponível na web.' 
+      }));
+      return;
+    }
+    
+    if (isExpoGo) {
+      console.log('⚠️ IAP desabilitado: Expo Go detectado');
+      setState(prev => ({ 
+        ...prev, 
+        loading: false, 
+        error: 'IAP não funciona no Expo Go. Use um build nativo (EAS Build).' 
       }));
       return;
     }
