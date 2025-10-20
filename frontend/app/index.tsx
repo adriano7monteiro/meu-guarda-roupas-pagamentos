@@ -291,6 +291,25 @@ export default function Index() {
             </View>
           </TouchableOpacity>
 
+
+          {/* Sugerir Peças Button - New Section */}
+          <TouchableOpacity 
+            style={styles.suggestPiecesButton}
+            onPress={() => router.push('/suggest-pieces' as any)}
+          >
+            <View style={styles.suggestPiecesContent}>
+              <Ionicons name="cart-outline" size={28} color="#6c5ce7" />
+              <View style={styles.suggestPiecesText}>
+                <Text style={styles.suggestPiecesTitle}>Sugerir Peças de Roupa</Text>
+                <Text style={styles.suggestPiecesSubtitle}>
+                  Descubra o que falta no seu guarda-roupa
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#6c5ce7" />
+            </View>
+          </TouchableOpacity>
+
+
           {/* Premium Banner - Dynamic based on subscription status */}
           {subscriptionStatus?.is_premium ? (
             // Active Premium Card
