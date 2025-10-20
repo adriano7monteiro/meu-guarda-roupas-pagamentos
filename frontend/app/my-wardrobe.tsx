@@ -77,7 +77,7 @@ export default function MyWardrobe() {
   ];
 
   useEffect(() => {
-    fetchClothingItems();
+    fetchClothingItems(true); // Resetar página na primeira carga
   }, []);
 
   const fetchClothingItems = async (resetPage: boolean = false) => {
