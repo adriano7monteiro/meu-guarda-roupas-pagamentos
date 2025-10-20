@@ -100,9 +100,11 @@ export default function MyWardrobe() {
         }
       );
 
+      console.log('📥 Requisição:', `skip=${skip}, limit=${ITEMS_PER_PAGE}`);
+
       if (response.ok) {
         const data = await response.json();
-        console.log('Roupas carregadas:', data.items.length, 'Total:', data.total);
+        console.log('📦 Resposta:', 'items:', data.items.length, 'total:', data.total, 'has_more:', data.has_more);
         
         if (resetPage) {
           setClothingItems(data.items);
