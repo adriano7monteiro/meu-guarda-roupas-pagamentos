@@ -310,7 +310,8 @@ export default function Index() {
           </TouchableOpacity>
 
 
-          {/* Premium Banner - Dynamic based on subscription status */}
+          {/* Premium Banner - COMENTADO TEMPORARIAMENTE */}
+          {/* 
           {subscriptionStatus?.is_premium ? (
             // Active Premium Card
             <View style={styles.activePremiumCard}>
@@ -370,6 +371,8 @@ export default function Index() {
               </View>
             </TouchableOpacity>
           )}
+          */}
+
 
           {/* Secondary Actions Grid */}
           <View style={styles.secondaryGrid}>
