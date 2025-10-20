@@ -47,6 +47,8 @@ module.exports = {
             compileSdkVersion: 35,
             targetSdkVersion: 35,
             buildToolsVersion: '35.0.0',
+            enableProguardInReleaseBuilds: true,
+            enableShrinkResourcesInReleaseBuilds: true,
           },
           ios: {
             deploymentTarget: '15.1',
