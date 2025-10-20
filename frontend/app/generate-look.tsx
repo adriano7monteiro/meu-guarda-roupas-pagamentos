@@ -427,7 +427,7 @@ export default function GenerateLook() {
           </View>
         )}
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: Platform.OS === 'android' ? 100 : 40 }} />
       </ScrollView>
 
       {/* Custom Modal */}
