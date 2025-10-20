@@ -141,14 +141,17 @@ export const useInAppPurchase = () => {
 
   const loadSubscriptions = async () => {
     try {
+      console.log('📋 Carregando assinaturas... SKUs:', SUBSCRIPTION_SKUS);
       setState(prev => ({ ...prev, loading: true }));
       const RNIap = await import('react-native-iap');
       const subs = await RNIap.getSubscriptions({ skus: SUBSCRIPTION_SKUS });
-      console.log('📋 Subscriptions loaded:', subs);
+      console.log('✅ Subscriptions loaded:', subs.length, 'produtos');
+      console.log('Detalhes:', JSON.stringify(subs, null, 2));
       setState(prev => ({ ...prev, subscriptions: subs, loading: false }));
     } catch (error) {
       console.error('❌ Error loading subscriptions:', error);
-      setState(prev => ({ ...prev, loading: false, error: 'Erro ao carregar planos' }));
+      console.error('Detalhes do erro:', JSON.stringify(error, null, 2));
+      setState(prev => ({ ...prev, loading: false, error: `Erro ao carregar planos: ${error}` }));
     }
   };
 
