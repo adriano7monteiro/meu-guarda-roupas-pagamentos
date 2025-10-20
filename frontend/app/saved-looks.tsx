@@ -702,6 +702,7 @@ const styles = StyleSheet.create({
   looksContainer: {
     paddingHorizontal: 20,
     paddingTop: 20,
+    paddingBottom: Platform.OS === 'android' ? 100 : 20,
   },
   noResultsContainer: {
     alignItems: 'center',
