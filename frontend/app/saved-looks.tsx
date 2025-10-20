@@ -67,7 +67,7 @@ export default function SavedLooks() {
   ];
 
   useEffect(() => {
-    fetchData();
+    fetchData(true); // Resetar página na primeira carga
   }, []);
 
   const fetchData = async (resetPage: boolean = false) => {
