@@ -304,6 +304,18 @@ frontend:
           agent: "main"
           comment: "Removida a seção de estatísticas 'Seus looks' da tela saved-looks.tsx. Modificações: 1) Removido bloco JSX completo da statsSection com 6 statCards (Total, Favoritos, Trabalho, Casual, Festa, Esporte), 2) Removidos 7 estilos não utilizados: statsSection, statsTitle, statsScrollView, statsContainer, statCard, statNumber, statLabel. Interface agora mais limpa, mostrando diretamente os filtros e lista de looks. Consistente com a mudança feita em my-wardrobe.tsx."
 
+  - task: "Links individuais para cada curso"
+    implemented: true
+    working: true
+    file: "frontend/app/courses.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado sistema de links individuais para cada curso. Modificações: 1) Adicionado campo 'link' na interface Course, 2) Cada curso agora tem seu próprio link específico (curso-fundamentos-estilo, curso-cores-estampas, curso-guarda-roupa-capsula), 3) Função openWebsite renomeada para openCourseLink e modificada para receber URL como parâmetro, 4) Botão 'Comprar Agora' atualizado para usar course.link específico via onPress={() => openCourseLink(course.link)}. Cada produto agora direciona para sua página específica no site zenebathos.com.br."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
