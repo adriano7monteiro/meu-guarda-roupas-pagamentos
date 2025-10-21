@@ -1,5 +1,4 @@
 {
-  "_comment": "Configure EAS Secret GOOGLE_SERVICES_JSON para builds funcionarem com Firebase. Veja FIREBASE_EAS_SETUP.md",
   "cli": {
     "version": ">= 16.22.0",
     "appVersionSource": "remote"
