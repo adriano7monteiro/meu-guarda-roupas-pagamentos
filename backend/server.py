@@ -2149,6 +2149,14 @@ async def get_push_tokens():
     tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
     return {"tokens": tokens, "total": len(tokens)}
 
+@api_router.get("/push/stats")
+async def get_push_stats():
+    """
+    Retorna estatísticas de dispositivos registrados
+    """
+    total = await db.push_tokens.count_documents({})
+    return {"total_devices": total}
+
 # Shop Products routes
 @api_router.get("/shop/produto-destaque")
 async def get_produto_destaque():
