@@ -383,11 +383,7 @@ export default function Index() {
 
           {/* Shop Section - Lojinha */}
           {shopProduct && (
-            <TouchableOpacity 
-              style={styles.shopSection}
-              activeOpacity={0.9}
-              onPress={() => router.push('/shop-products')}
-            >
+            <View style={styles.shopSection}>
               <View style={styles.shopImageCarousel}>
                 <ScrollView
                   horizontal
@@ -422,7 +418,11 @@ export default function Index() {
                   ))}
                 </View>
               </View>
-              <View style={styles.shopContent}>
+              <TouchableOpacity 
+                style={styles.shopContent}
+                activeOpacity={0.7}
+                onPress={() => router.push('/shop-products')}
+              >
                 <View style={styles.shopHeader}>
                   <Ionicons name="storefront" size={24} color="#6c5ce7" />
                   <Text style={styles.shopBadge}>Lojinha</Text>
@@ -446,8 +446,8 @@ export default function Index() {
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
                   </View>
                 </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           )}
 
           {/* Courses Section - New */}
