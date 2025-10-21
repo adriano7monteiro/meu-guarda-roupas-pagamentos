@@ -57,6 +57,7 @@ export default function SavedLooks() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalLooks, setTotalLooks] = useState(0);
+  const [uploadingPhoto, setUploadingPhoto] = useState<string | null>(null); // ID do look sendo fotografado
   
   const ITEMS_PER_PAGE = 5;
 
