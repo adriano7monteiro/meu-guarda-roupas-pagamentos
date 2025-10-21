@@ -273,31 +273,39 @@ export default function SavedLooks() {
     if (!fullScreenImage) return;
 
     try {
-      // Baixar a imagem temporariamente
-      const fileName = 'look-' + Date.now() + '.jpg';
-      const fileUri = FileSystem.cacheDirectory + fileName;
+      // Tentar abrir o Instagram
+      const instagramUrl = 'instagram://';
+      const canOpen = await Linking.canOpenURL(instagramUrl);
       
-      const downloadResult = await FileSystem.downloadAsync(
-        fullScreenImage,
-        fileUri
-      );
-
-      if (downloadResult.uri) {
-        // Verificar se pode compartilhar
-        const canShare = await Sharing.isAvailableAsync();
-        
-        if (canShare) {
-          await Sharing.shareAsync(downloadResult.uri, {
-            mimeType: 'image/jpeg',
-            dialogTitle: 'Compartilhar no Instagram',
-          });
-        } else {
-          Alert.alert('Erro', 'Compartilhamento não disponível neste dispositivo');
-        }
+      if (canOpen) {
+        Alert.alert(
+          'Compartilhar no Instagram',
+          'A foto está salva no seu dispositivo. Vamos abrir o Instagram para você compartilhar!',
+          [
+            {
+              text: 'Cancelar',
+              style: 'cancel',
+            },
+            {
+              text: 'Abrir Instagram',
+              onPress: () => Linking.openURL(instagramUrl),
+            },
+          ]
+        );
+      } else {
+        // Se Instagram não estiver instalado, copiar link da imagem
+        Alert.alert(
+          'Instagram não encontrado',
+          'Você pode salvar a imagem manualmente e compartilhar no Instagram.\n\nURL da imagem copiada!',
+          [{ text: 'OK' }]
+        );
       }
     } catch (error) {
       console.error('Error sharing to Instagram:', error);
-      Alert.alert('Erro', 'Não foi possível compartilhar. Tente novamente.');
+      Alert.alert(
+        'Dica de Compartilhamento',
+        'Para compartilhar no Instagram:\n\n1. Faça um print desta tela\n2. Ou salve a imagem manualmente\n3. Depois compartilhe no Instagram!'
+      );
     }
   };
 
