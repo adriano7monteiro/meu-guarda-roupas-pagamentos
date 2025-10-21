@@ -53,6 +53,7 @@ class User(BaseModel):
     email: str
     password_hash: str
     nome: str
+    sexo: Optional[str] = "masculino"  # masculino ou feminino
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str = "casual"
     looks_usados: int = 0  # Contador de looks gratuitos usados
