@@ -481,23 +481,6 @@ export default function Index() {
             </View>
           </TouchableOpacity>
 
-          {/* Test Push Notifications Button - TEMPORÁRIO */}
-          <TouchableOpacity
-            style={[styles.suggestionCard, { backgroundColor: '#e74c3c' }]}
-            onPress={testPushPermission}
-          >
-            <View style={styles.suggestionIconContainer}>
-              <Ionicons name="notifications" size={32} color="#fff" />
-            </View>
-            <View style={styles.suggestionContent}>
-              <Text style={[styles.suggestionTitle, { color: '#fff' }]}>🔔 Ativar Notificações (TESTE)</Text>
-              <Text style={[styles.suggestionText, { color: '#fff' }]}>
-                Clique para solicitar permissão de notificações push
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#fff" />
-          </TouchableOpacity>
-
           {/* Suggestion Card */}
           <TouchableOpacity 
             style={styles.suggestionCard}
