@@ -1311,6 +1311,7 @@ const styles = StyleSheet.create({
   shopImage: {
     width: Dimensions.get('window').width - 32,
     height: 250,
+    backgroundColor: '#1a1a1a',
   },
   carouselDots: {
     position: 'absolute',
