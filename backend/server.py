@@ -52,10 +52,19 @@ try:
     if firebase_json:
         # Ler do environment variable (JSON como string)
         logging.info("📱 Loading Firebase config from environment variable...")
-        firebase_config = json.loads(firebase_json)
-        cred = credentials.Certificate(firebase_config)
-        firebase_admin.initialize_app(cred)
-        logging.info("✅ Firebase Admin SDK initialized from environment variable")
+        logging.info(f"📱 Firebase JSON length: {len(firebase_json)} characters")
+        logging.info(f"📱 First 50 chars: {firebase_json[:50]}...")
+        
+        try:
+            firebase_config = json.loads(firebase_json)
+            cred = credentials.Certificate(firebase_config)
+            firebase_admin.initialize_app(cred)
+            logging.info("✅ Firebase Admin SDK initialized from environment variable")
+        except json.JSONDecodeError as e:
+            logging.error(f"❌ Error parsing Firebase JSON from env var: {e}")
+            logging.error(f"❌ JSON content preview: {firebase_json[:200]}")
+            logging.error("💡 Tip: Make sure the JSON is properly formatted in Heroku config vars")
+            raise
     else:
         # Fallback para arquivo local
         firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
