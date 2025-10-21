@@ -151,6 +151,25 @@ class CourseCreate(BaseModel):
     highlights: List[str]
     link: str
 
+class ShopProduct(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    images: List[str]  # Array de 3 URLs de imagens
+    price: str
+    link: str  # Link externo para compra
+    active: bool = True  # Apenas o produto ativo aparece na home
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ShopProductCreate(BaseModel):
+    title: str
+    description: str
+    images: List[str]
+    price: str
+    link: str
+    active: bool = True
+
 class SugestaoLook(BaseModel):
     sugestao_texto: str
     roupas_sugeridas: List[str]
