@@ -130,27 +130,13 @@ export default function Courses() {
               <Text style={styles.courseTitle}>{course.title}</Text>
               <Text style={styles.courseDescription}>{course.description}</Text>
               
-              {/* Highlights */}
-              <View style={styles.highlightsContainer}>
-                {course.highlights.map((highlight, index) => (
-                  <View key={index} style={styles.highlightItem}>
-                    <Ionicons name="checkmark-circle" size={16} color="#6c5ce7" />
-                    <Text style={styles.highlightText}>{highlight}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {/* Price and Button */}
+              {/* Button */}
               <View style={styles.courseFooter}>
-                <View>
-                  <Text style={styles.priceLabel}>Investimento</Text>
-                  <Text style={styles.priceValue}>{course.price}</Text>
-                </View>
                 <TouchableOpacity
                   style={styles.buyButton}
                   onPress={() => openCourseLink(course.link)}
                 >
-                  <Text style={styles.buyButtonText}>Comprar Agora</Text>
+                  <Text style={styles.buyButtonText}>Ver mais</Text>
                   <Ionicons name="arrow-forward" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
