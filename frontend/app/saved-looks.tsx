@@ -499,7 +499,10 @@ export default function SavedLooks() {
                             <TouchableOpacity
                               key={clothingItem.id}
                               style={styles.clothingCard}
-                              onPress={() => setFullScreenImage(clothingItem.imagem_original)}
+                              onPress={() => {
+                                setFullScreenImage(clothingItem.imagem_original);
+                                setIsUserPhoto(false);
+                              }}
                               activeOpacity={0.8}
                             >
                               {clothingItem.imagem_original ? (
