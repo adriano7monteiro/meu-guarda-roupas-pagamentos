@@ -1972,6 +1972,49 @@ async def get_cursos():
     courses = await db.courses.find({"active": True}, {"_id": 0}).to_list(100)
     return courses
 
+@api_router.post("/cursos")
+async def create_curso(curso: CourseCreate):
+    """
+    Cria novo curso
+    """
+    curso_dict = curso.dict()
+    curso_dict["id"] = str(uuid.uuid4())
+    curso_dict["created_at"] = datetime.utcnow()
+    
+    new_curso = Course(**curso_dict)
+    await db.courses.insert_one(new_curso.dict())
+    
+    return {"message": "Curso criado com sucesso", "id": new_curso.id}
+
+@api_router.put("/cursos/{curso_id}")
+async def update_curso(curso_id: str, curso: CourseCreate):
+    """
+    Atualiza curso existente
+    """
+    curso_dict = curso.dict()
+    
+    result = await db.courses.update_one(
+        {"id": curso_id},
+        {"$set": curso_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    
+    return {"message": "Curso atualizado com sucesso"}
+
+@api_router.delete("/cursos/{curso_id}")
+async def delete_curso(curso_id: str):
+    """
+    Deleta curso
+    """
+    result = await db.courses.delete_one({"id": curso_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    
+    return {"message": "Curso deletado com sucesso"}
+
 # Shop Products routes
 @api_router.get("/shop/produto-destaque")
 async def get_produto_destaque():
