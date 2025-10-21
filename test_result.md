@@ -268,6 +268,18 @@ frontend:
           agent: "main"
           comment: "Ajustado ITEMS_PER_PAGE de 20 para 5 itens em saved-looks.tsx e my-wardrobe.tsx. Agora as listas carregam apenas 5 itens inicialmente e fazem lazy loading (scroll infinito) quando usuário chega ao final da lista. Isso melhora performance inicial e reduz uso de dados/memória. Sistema de paginação já existente (onEndReached) continua funcionando normalmente."
 
+  - task: "Campo de sexo no cadastro e integração com IA"
+    implemented: true
+    working: true
+    file: "backend/server.py, frontend/app/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado campo de seleção de sexo (masculino/feminino) na tela de cadastro. Backend: 1) Adicionado campo 'sexo' nos modelos User, UserCreate e UserProfile, 2) Atualizado endpoint /api/auth/register para salvar o sexo, 3) Modificado endpoint /api/sugerir-look para incluir sexo do usuário no prompt da IA, 4) Modificado endpoint /api/sugerir-pecas para incluir sexo nas sugestões de compras. Frontend: 1) Adicionado estado 'sexo' com valor padrão 'masculino', 2) Criado UI com dois botões estilizados (masculino/feminino) com ícones, 3) Campo aparece apenas no cadastro (não no login), 4) Sexo é enviado no body da requisição de registro. Prompts da IA agora consideram o sexo para gerar sugestões mais personalizadas e adequadas (ex: 'calça jeans feminina' vs 'calça jeans masculina')."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
