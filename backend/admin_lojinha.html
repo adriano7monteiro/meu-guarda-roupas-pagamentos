@@ -971,7 +971,16 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    showAlert(`Notificação enviada com sucesso para ${result.sent_count} dispositivos!`, 'success');
+                    let message = `Notificação enviada com sucesso para ${result.sent_count} dispositivos!`;
+                    
+                    if (result.failed > 0) {
+                        message += `\n\n⚠️ ${result.failed} falha(s)`;
+                        if (result.errors && result.errors.length > 0) {
+                            message += `:\n- ${result.errors.join('\n- ')}`;
+                        }
+                    }
+                    
+                    showAlert(message, result.sent_count > 0 ? 'success' : 'error');
                     document.getElementById('pushForm').reset();
                     document.getElementById('pushTitleCount').textContent = '0';
                     document.getElementById('pushBodyCount').textContent = '0';
