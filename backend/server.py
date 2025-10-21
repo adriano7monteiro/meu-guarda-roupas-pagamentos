@@ -234,6 +234,7 @@ async def register(user_data: UserCreate):
         "user": UserProfile(
             email=user.email,
             nome=user.nome,
+            telefone=user.telefone,
             sexo=user.sexo,
             foto_corpo=user.foto_corpo,
             ocasiao_preferida=user.ocasiao_preferida,
