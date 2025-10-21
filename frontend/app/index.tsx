@@ -468,12 +468,38 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [sexo, setSexo] = useState('masculino');
   const [loading, setLoading] = useState(false);
   const authModal = useModal();
 
+  // Função para formatar telefone brasileiro
+  const formatPhone = (text: string) => {
+    // Remove tudo que não é número
+    const cleaned = text.replace(/\D/g, '');
+    
+    // Aplica a máscara (11) 99999-9999
+    let formatted = cleaned;
+    if (cleaned.length > 0) {
+      formatted = `(${cleaned.substring(0, 2)}`;
+      if (cleaned.length >= 3) {
+        formatted += `) ${cleaned.substring(2, 7)}`;
+      }
+      if (cleaned.length >= 8) {
+        formatted += `-${cleaned.substring(7, 11)}`;
+      }
+    }
+    
+    return formatted.substring(0, 15); // Limita ao tamanho máximo (11) 99999-9999
+  };
+
+  const handlePhoneChange = (text: string) => {
+    const formatted = formatPhone(text);
+    setTelefone(formatted);
+  };
+
   const handleAuth = async () => {
-    if (!email || !password || (!isLogin && !nome)) {
+    if (!email || !password || (!isLogin && (!nome || !telefone))) {
       authModal.showError('Campos Obrigatórios', 'Por favor, preencha todos os campos');
       return;
     }
@@ -484,7 +510,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const body = isLogin 
         ? { email, password }
-        : { email, password, nome, sexo, ocasiao_preferida: 'casual' };
+        : { email, password, nome, telefone, sexo, ocasiao_preferida: 'casual' };
 
       
 
