@@ -694,15 +694,27 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
         
         if (response.ok) {
           console.log('✅ Push token registrado com sucesso');
+          Alert.alert('Notificações Ativadas', 'Você receberá notificações sobre novidades!');
         } else {
           console.error('❌ Erro ao registrar push token:', result);
         }
       } else {
         console.log('⚠️ Push token não foi obtido - possível permissão negada');
+        Alert.alert(
+          'Permissão Necessária',
+          'Para receber notificações, ative as permissões nas configurações do app.'
+        );
       }
     } catch (error) {
       console.error('❌ Erro ao registrar push token:', error);
       // Não mostra erro para o usuário, apenas loga
+    }
+  };
+
+  const testPushPermission = async () => {
+    const token = await AsyncStorage.getItem('auth_token');
+    if (token) {
+      await registerPushToken(token);
     }
   };
 
