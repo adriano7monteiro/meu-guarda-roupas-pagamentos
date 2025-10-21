@@ -54,6 +54,7 @@ export default function Index() {
   // REMOVIDO: stats state - não é mais necessário
   const [suggestionText, setSuggestionText] = useState('');
   const [shopProduct, setShopProduct] = useState<any>(null);
+  const [shopProductsCount, setShopProductsCount] = useState(0);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [sendingSuggestion, setSendingSuggestion] = useState(false);
