@@ -101,7 +101,7 @@ class ClothingItem(BaseModel):
     tipo: str  # camiseta, calca, sapato, acessorio
     cor: str
     estilo: str
-    imagem_original: str  # base64
+    imagem_original: str  # URL do Cloudflare Images (ou base64 legacy)
     nome: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -110,7 +110,7 @@ class ClothingItemCreate(BaseModel):
     cor: str
     estilo: str
     nome: str
-    imagem_original: str
+    imagem_original: str  # URL do Cloudflare Images (ou base64 legacy)
 
 class Look(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
