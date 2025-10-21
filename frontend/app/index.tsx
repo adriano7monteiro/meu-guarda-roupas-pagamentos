@@ -58,6 +58,7 @@ export default function Index() {
 
   useEffect(() => {
     checkAuthStatus();
+    fetchShopProduct(); // Buscar produto da lojinha
   }, []);
 
   useEffect(() => {
