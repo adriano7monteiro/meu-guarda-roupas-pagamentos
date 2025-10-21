@@ -2136,6 +2136,7 @@ async def send_push_notification(notification: PushNotification):
     
     return {
         "message": "Notificações enviadas",
+        "sent_count": sent_count,
         "sent": sent_count,
         "failed": failed_count,
         "total": len(tokens)
