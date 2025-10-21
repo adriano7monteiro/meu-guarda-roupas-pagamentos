@@ -21,31 +21,45 @@ interface CloudflareUploadResponse {
 }
 
 /**
- * Faz upload de imagem base64 para Cloudflare Images
- * @param base64Image Imagem em base64 (com ou sem prefixo data:)
+ * Faz upload de imagem para Cloudflare Images
+ * @param imageSource Pode ser base64 (com ou sem prefixo) ou URI local (file://)
  * @param fileName Nome do arquivo (opcional)
  * @returns URL pública da imagem no formato: https://imagedelivery.net/hash/id/public
  */
 export async function uploadImageToCloudflare(
-  base64Image: string,
+  imageSource: string,
   fileName: string = `image-${Date.now()}.jpg`
 ): Promise<string> {
   try {
     console.log('🚀 Iniciando upload para Cloudflare Images...');
     
-    // Remove o prefixo data:image/...;base64, se existir
-    const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
-    
     // Cria FormData para React Native
     const formData = new FormData();
     
-    // No React Native, passamos um objeto com uri, type e name
-    // Mas como temos base64, precisamos criar um formato aceito
-    formData.append('file', {
-      uri: `data:image/jpeg;base64,${base64Data}`,
-      type: 'image/jpeg',
-      name: fileName,
-    } as any);
+    // Verifica se é uma URI local (file://) ou base64
+    if (imageSource.startsWith('file://') || imageSource.startsWith('content://')) {
+      // É uma URI local da câmera/galeria
+      console.log('📷 Upload de arquivo local (URI)');
+      
+      formData.append('file', {
+        uri: imageSource,
+        type: 'image/jpeg',
+        name: fileName,
+      } as any);
+      
+    } else {
+      // É base64
+      console.log('🖼️ Upload de base64');
+      
+      // Remove o prefixo data:image/...;base64, se existir
+      const base64Data = imageSource.includes(',') ? imageSource.split(',')[1] : imageSource;
+      
+      formData.append('file', {
+        uri: `data:image/jpeg;base64,${base64Data}`,
+        type: 'image/jpeg',
+        name: fileName,
+      } as any);
+    }
     
     // Upload para Cloudflare
     const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
