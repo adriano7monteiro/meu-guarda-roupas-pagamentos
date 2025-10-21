@@ -2200,11 +2200,21 @@ async def send_push_notification(notification: PushNotification):
     """
     Envia notificação push para todos os usuários usando Firebase Admin SDK
     """
+    # Verificar se Firebase está inicializado
+    if not firebase_admin._apps:
+        logging.error("❌ Firebase Admin SDK não está inicializado")
+        raise HTTPException(
+            status_code=500,
+            detail="Firebase não configurado. Verifique FIREBASE_SERVICE_ACCOUNT no backend."
+        )
+    
     # Buscar todos os tokens
     tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
     
     if not tokens:
         return {"message": "Nenhum dispositivo registrado", "sent": 0}
+    
+    logging.info(f"📱 Preparando envio para {len(tokens)} dispositivos")
     
     sent_count = 0
     failed_count = 0
@@ -2218,9 +2228,11 @@ async def send_push_notification(notification: PushNotification):
         # Suporta formato antigo: ExponentPushToken[xxxxx] e formato novo: xxxxx
         if raw_token.startswith("ExponentPushToken[") and raw_token.endswith("]"):
             fcm_token = raw_token[18:-1]  # Remove "ExponentPushToken[" e "]"
-            logging.info(f"🔄 Convertendo token antigo para novo formato")
+            logging.info(f"🔄 Convertendo token antigo ExponentPushToken para FCM puro")
         else:
             fcm_token = raw_token  # Já é o token FCM puro
+        
+        logging.info(f"📤 Tentando enviar para token: {fcm_token[:30]}...")
         
         try:
             # Criar mensagem FCM
@@ -2248,21 +2260,23 @@ async def send_push_notification(notification: PushNotification):
             
         except messaging.UnregisteredError:
             failed_count += 1
-            error_msg = "Token não registrado ou inválido"
+            error_msg = f"Token não registrado: {fcm_token[:30]}..."
             error_details.append(error_msg)
-            logging.error(f"❌ Unregistered token: {fcm_token[:20]}...")
+            logging.error(f"❌ Unregistered token: {fcm_token[:30]}...")
             
         except messaging.InvalidArgumentError as e:
             failed_count += 1
             error_msg = f"Argumento inválido: {str(e)}"
             error_details.append(error_msg)
-            logging.error(f"❌ Invalid argument for token {fcm_token[:20]}...: {e}")
+            logging.error(f"❌ Invalid argument for token {fcm_token[:30]}...: {e}")
             
         except Exception as e:
             failed_count += 1
             error_msg = f"Erro ao enviar: {str(e)}"
             error_details.append(error_msg)
-            logging.error(f"❌ Error sending to {fcm_token[:20]}...: {e}")
+            logging.error(f"❌ Error sending to {fcm_token[:30]}...: {e}")
+            logging.error(f"❌ Error type: {type(e).__name__}")
+            logging.error(f"❌ Full error: {traceback.format_exc()}")
     
     return {
         "message": "Notificações enviadas",
