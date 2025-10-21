@@ -2104,12 +2104,28 @@ async def root():
 @api_router.get("/admin/lojinha")
 async def admin_lojinha():
     """Serve página HTML de admin da lojinha"""
-    from fastapi.responses import FileResponse
+    from fastapi.responses import HTMLResponse
     import os
     
-    # Caminho absoluto do arquivo
-    file_path = os.path.join(os.path.dirname(__file__), 'admin_lojinha.html')
-    return FileResponse(file_path)
+    # Tenta diferentes caminhos
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), 'admin_lojinha.html'),
+        os.path.join(os.getcwd(), 'backend', 'admin_lojinha.html'),
+        '/app/backend/admin_lojinha.html',
+        'admin_lojinha.html'
+    ]
+    
+    for file_path in possible_paths:
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Se não encontrar, retorna erro detalhado
+    return HTMLResponse(
+        content=f"<h1>Erro 404</h1><p>Arquivo não encontrado. Caminhos tentados:</p><ul>{''.join([f'<li>{p}</li>' for p in possible_paths])}</ul>",
+        status_code=404
+    )
 
 @api_router.get("/health")
 async def health_check():
