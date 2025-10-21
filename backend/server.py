@@ -53,6 +53,7 @@ class User(BaseModel):
     email: str
     password_hash: str
     nome: str
+    telefone: Optional[str] = None  # Formato: (11) 99999-9999
     sexo: Optional[str] = "masculino"  # masculino ou feminino
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str = "casual"
