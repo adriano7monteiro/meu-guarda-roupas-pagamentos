@@ -424,7 +424,12 @@ async def upload_foto_corpo(
 ):
     user = await get_current_user(current_user)
     
-    # Update user's body photo
+    # Identificar se é URL Cloudflare ou base64 legacy
+    is_cloudflare_url = imagem.startswith("https://imagedelivery.net/")
+    image_type = "Cloudflare URL" if is_cloudflare_url else "Base64 legacy"
+    logging.info(f"Upload foto corpo - User: {user['id']}, Type: {image_type}")
+    
+    # Update user's body photo (URL ou base64)
     await db.users.update_one(
         {"id": user["id"]},
         {"$set": {"foto_corpo": imagem}}
