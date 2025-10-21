@@ -151,11 +151,9 @@ export default function ShopProducts() {
         </View>
 
         {products.map((product) => (
-          <TouchableOpacity
+          <View
             key={product.id}
             style={styles.productCard}
-            activeOpacity={0.9}
-            onPress={() => openProductLink(product.link)}
           >
             <View style={styles.productImageContainer}>
               <ScrollView
@@ -186,7 +184,11 @@ export default function ShopProducts() {
               )}
             </View>
 
-            <View style={styles.productContent}>
+            <TouchableOpacity
+              style={styles.productContent}
+              activeOpacity={0.7}
+              onPress={() => openProductLink(product.link)}
+            >
               <Text style={styles.productTitle}>{product.title}</Text>
               <Text style={styles.productDescription} numberOfLines={3}>
                 {product.description}
@@ -199,8 +201,8 @@ export default function ShopProducts() {
                   <Ionicons name="arrow-forward" size={16} color="#fff" />
                 </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
         ))}
 
         {/* Spacer for Android footer */}
