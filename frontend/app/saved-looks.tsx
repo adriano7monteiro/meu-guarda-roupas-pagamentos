@@ -599,45 +599,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  statsSection: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
-  },
-  statsTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  statsScrollView: {
-    marginHorizontal: -20,
-    paddingHorizontal: 20,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  statCard: {
-    backgroundColor: '#2d3436',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    minWidth: 80,
-  },
-  statNumber: {
-    color: '#6c5ce7',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  statLabel: {
-    color: '#999',
-    fontSize: 12,
-    marginTop: 4,
-    textAlign: 'center',
-  },
   filterSection: {
     paddingHorizontal: 20,
     paddingVertical: 16,
