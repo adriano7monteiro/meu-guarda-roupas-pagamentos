@@ -86,12 +86,11 @@ export default function Index() {
         setShopProduct(produto);
       }
       
-      // Buscar total de produtos ativos
+      // Buscar total de TODOS os produtos (não apenas ativos)
       const allResponse = await fetch(`${BACKEND_URL}/api/shop/produtos`);
       if (allResponse.ok) {
         const allProducts = await allResponse.json();
-        const activeProducts = allProducts.filter((p: any) => p.active !== false);
-        setShopProductsCount(activeProducts.length);
+        setShopProductsCount(allProducts.length);
       }
     } catch (error) {
       console.error('Error fetching shop product:', error);
