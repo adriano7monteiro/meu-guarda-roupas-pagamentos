@@ -1,34 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-
 const IS_DEV = process.env.APP_VARIANT === 'development';
 const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
-
-// Criar google-services.json dinamicamente se GOOGLE_SERVICES_JSON existir
-// Isso permite usar EAS Secrets para o arquivo durante builds
-if (process.env.GOOGLE_SERVICES_JSON) {
-  const googleServicesPath = path.resolve(__dirname, 'google-services.json');
-  try {
-    // Parse o JSON para validar
-    const googleServicesContent = JSON.parse(process.env.GOOGLE_SERVICES_JSON);
-    // Escrever o arquivo
-    fs.writeFileSync(googleServicesPath, JSON.stringify(googleServicesContent, null, 2));
-    console.log('✅ google-services.json criado com sucesso via EAS Secret');
-  } catch (error) {
-    console.error('❌ Erro ao criar google-services.json:', error.message);
-    // Durante build, se houver erro, o build deve falhar
-    if (process.env.EAS_BUILD) {
-      throw new Error('Failed to create google-services.json from EAS Secret');
-    }
-  }
-} else if (process.env.EAS_BUILD) {
-  // Durante EAS build, verificar se o arquivo existe localmente
-  const googleServicesPath = path.resolve(__dirname, 'google-services.json');
-  if (!fs.existsSync(googleServicesPath)) {
-    console.warn('⚠️  google-services.json não encontrado. Configure GOOGLE_SERVICES_JSON no EAS Secret.');
-    console.warn('    Execute: eas secret:create --scope project --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json');
-  }
-}
 
 module.exports = {
   expo: {
