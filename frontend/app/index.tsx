@@ -1354,13 +1354,20 @@ const styles = StyleSheet.create({
   },
   shopCountBadge: {
     backgroundColor: '#2ecc71',
-    color: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     fontSize: 11,
     fontWeight: 'bold',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 10,
     marginLeft: 'auto',
+  },
+  shopCountText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
   shopTitle: {
     color: '#fff',
