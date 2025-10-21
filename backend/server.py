@@ -2107,6 +2107,11 @@ async def admin_lojinha():
     from fastapi.responses import HTMLResponse
     import os
     
+    logging.info("=== Admin Lojinha Request ===")
+    logging.info(f"Current working directory: {os.getcwd()}")
+    logging.info(f"__file__ location: {__file__}")
+    logging.info(f"dirname(__file__): {os.path.dirname(__file__)}")
+    
     # Tenta diferentes caminhos
     possible_paths = [
         os.path.join(os.path.dirname(__file__), 'admin_lojinha.html'),
@@ -2116,14 +2121,23 @@ async def admin_lojinha():
     ]
     
     for file_path in possible_paths:
+        logging.info(f"Trying path: {file_path} - Exists: {os.path.exists(file_path)}")
         if os.path.exists(file_path):
+            logging.info(f"✅ Found file at: {file_path}")
             with open(file_path, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             return HTMLResponse(content=html_content)
     
     # Se não encontrar, retorna erro detalhado
+    logging.error("❌ Admin HTML file not found in any path")
     return HTMLResponse(
-        content=f"<h1>Erro 404</h1><p>Arquivo não encontrado. Caminhos tentados:</p><ul>{''.join([f'<li>{p}</li>' for p in possible_paths])}</ul>",
+        content=f"""
+        <h1>Erro 404 - Arquivo não encontrado</h1>
+        <p><strong>CWD:</strong> {os.getcwd()}</p>
+        <p><strong>__file__:</strong> {__file__}</p>
+        <p><strong>Caminhos tentados:</strong></p>
+        <ul>{''.join([f'<li>{p} - Exists: {os.path.exists(p)}</li>' for p in possible_paths])}</ul>
+        """,
         status_code=404
     )
 
