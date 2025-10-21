@@ -540,59 +540,14 @@
         <!-- TAB SUGESTÕES -->
         <div id="sugestoes-tab" class="tab-content">
             <div class="card">
-                <h2 style="color: #667eea; margin-bottom: 20px;">
-                    <span id="sugestao-form-title">Adicionar Nova Sugestão</span>
+                <h2 style="color: #667eea; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                    <span style="display: flex; align-items: center; gap: 10px;">
+                        <span>💡</span> Sugestões dos Usuários
+                    </span>
+                    <span style="font-size: 14px; color: #999; font-weight: normal;" id="sugestoesCount">
+                        Total: -
+                    </span>
                 </h2>
-
-                <form id="sugestaoForm">
-                    <input type="hidden" id="sugestaoId">
-
-                    <div class="form-group">
-                        <label for="sugestao-title">Título da Sugestão *</label>
-                        <input type="text" id="sugestao-title" required placeholder="Ex: Dica de Combinação de Cores">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sugestao-content">Conteúdo *</label>
-                        <textarea id="sugestao-content" required placeholder="Escreva a sugestão ou dica..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sugestao-category">Categoria *</label>
-                        <select id="sugestao-category" required style="width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
-                            <option value="">Selecione uma categoria</option>
-                            <option value="cores">Combinação de Cores</option>
-                            <option value="estilos">Estilos e Tendências</option>
-                            <option value="ocasioes">Looks para Ocasiões</option>
-                            <option value="cuidados">Cuidados com Roupas</option>
-                            <option value="acessorios">Acessórios</option>
-                            <option value="geral">Dicas Gerais</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sugestao-image">URL da Imagem (opcional)</label>
-                        <input type="text" id="sugestao-image" placeholder="https://images.unsplash.com/...">
-                    </div>
-
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="sugestao-active" checked>
-                            <label for="sugestao-active" style="margin: 0;">Sugestão Ativa</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <span id="sugestao-btn-text">💾 Salvar Sugestão</span>
-                    </button>
-                    <button type="button" class="btn" onclick="cancelSugestaoEdit()" id="sugestao-cancelBtn" style="display: none; margin-left: 10px; background: #95a5a6; color: white;">
-                        Cancelar
-                    </button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2 style="color: #667eea; margin-bottom: 20px;">Sugestões Cadastradas</h2>
                 <div id="sugestoesList" class="list-items">
                     <div class="loading">Carregando sugestões...</div>
                 </div>
