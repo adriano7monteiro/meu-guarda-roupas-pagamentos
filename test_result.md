@@ -316,6 +316,18 @@ frontend:
           agent: "main"
           comment: "Implementado sistema de links individuais para cada curso. Modificações: 1) Adicionado campo 'link' na interface Course, 2) Cada curso agora tem seu próprio link específico (curso-fundamentos-estilo, curso-cores-estampas, curso-guarda-roupa-capsula), 3) Função openWebsite renomeada para openCourseLink e modificada para receber URL como parâmetro, 4) Botão 'Comprar Agora' atualizado para usar course.link específico via onPress={() => openCourseLink(course.link)}. Cada produto agora direciona para sua página específica no site zenebathos.com.br."
 
+  - task: "Coleção MongoDB para cursos com seed automático"
+    implemented: true
+    working: true
+    file: "backend/server.py, frontend/app/courses.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado sistema completo de cursos com MongoDB. Backend: 1) Criado modelo Course e CourseCreate no Pydantic, 2) Criado endpoint GET /api/cursos que verifica se existem cursos no banco, 3) Se não houver cursos (count === 0), cria automaticamente 3 cursos de exemplo com insert_many, 4) Retorna cursos ativos do banco de dados. Frontend: 1) Removido array estático de cursos, 2) Adicionados estados: courses (array), loading (boolean), error (string), 3) Implementado useEffect com fetchCourses() para buscar do backend, 4) Adicionadas telas de loading com ActivityIndicator e tela de erro com botão de retry, 5) Importado BACKEND_URL de config/api.ts. Cursos agora são dinâmicos e gerenciáveis pelo banco de dados. Backend reiniciado e funcionando."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
