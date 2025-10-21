@@ -1972,6 +1972,87 @@ async def get_cursos():
     courses = await db.courses.find({"active": True}, {"_id": 0}).to_list(100)
     return courses
 
+# Shop Products routes
+@api_router.get("/shop/produto-destaque")
+async def get_produto_destaque():
+    """
+    Retorna o produto ativo/destaque da lojinha para exibir na home
+    """
+    produto = await db.shop_products.find_one({"active": True}, {"_id": 0})
+    
+    if not produto:
+        # Se não houver produto, retorna None
+        return None
+    
+    return produto
+
+@api_router.get("/shop/produtos")
+async def get_all_produtos():
+    """
+    Lista todos os produtos (para página admin)
+    """
+    produtos = await db.shop_products.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return produtos
+
+@api_router.post("/shop/produtos")
+async def create_produto(produto: ShopProductCreate):
+    """
+    Cria novo produto
+    """
+    # Se o novo produto for ativo, desativa todos os outros
+    if produto.active:
+        await db.shop_products.update_many(
+            {"active": True},
+            {"$set": {"active": False}}
+        )
+    
+    produto_dict = produto.dict()
+    produto_dict["id"] = str(uuid.uuid4())
+    produto_dict["created_at"] = datetime.utcnow()
+    produto_dict["updated_at"] = datetime.utcnow()
+    
+    new_produto = ShopProduct(**produto_dict)
+    await db.shop_products.insert_one(new_produto.dict())
+    
+    return {"message": "Produto criado com sucesso", "id": new_produto.id}
+
+@api_router.put("/shop/produtos/{produto_id}")
+async def update_produto(produto_id: str, produto: ShopProductCreate):
+    """
+    Atualiza produto existente
+    """
+    # Se o produto sendo atualizado for ativo, desativa todos os outros
+    if produto.active:
+        await db.shop_products.update_many(
+            {"active": True, "id": {"$ne": produto_id}},
+            {"$set": {"active": False}}
+        )
+    
+    produto_dict = produto.dict()
+    produto_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.shop_products.update_one(
+        {"id": produto_id},
+        {"$set": produto_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    
+    return {"message": "Produto atualizado com sucesso"}
+
+@api_router.delete("/shop/produtos/{produto_id}")
+async def delete_produto(produto_id: str):
+    """
+    Deleta produto
+    """
+    result = await db.shop_products.delete_one({"id": produto_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    
+    return {"message": "Produto deletado com sucesso"}
+
 # Basic routes
 @api_router.get("/")
 async def root():
