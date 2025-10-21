@@ -667,11 +667,15 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
 
   const registerPushToken = async (authToken: string) => {
     try {
+      console.log('🔔 Iniciando registro de push token...');
       const pushToken = await registerForPushNotificationsAsync();
       
+      console.log('🔔 Push token obtido:', pushToken ? 'SIM' : 'NÃO');
+      
       if (pushToken) {
+        console.log('🔔 Enviando token para backend...');
         // Enviar token para o backend
-        await fetch(`${BACKEND_URL}/api/push/register-token`, {
+        const response = await fetch(`${BACKEND_URL}/api/push/register-token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -682,10 +686,20 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
             platform: Platform.OS,
           }),
         });
-        console.log('Push token registrado com sucesso');
+        
+        const result = await response.json();
+        console.log('🔔 Resposta do backend:', response.status, result);
+        
+        if (response.ok) {
+          console.log('✅ Push token registrado com sucesso');
+        } else {
+          console.error('❌ Erro ao registrar push token:', result);
+        }
+      } else {
+        console.log('⚠️ Push token não foi obtido - possível permissão negada');
       }
     } catch (error) {
-      console.error('Erro ao registrar push token:', error);
+      console.error('❌ Erro ao registrar push token:', error);
       // Não mostra erro para o usuário, apenas loga
     }
   };
