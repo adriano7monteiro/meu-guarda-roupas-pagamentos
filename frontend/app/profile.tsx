@@ -554,6 +554,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 16,
   },
+  notificationButton: {
+    backgroundColor: '#6c5ce7',
+    marginHorizontal: 20,
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 20,
+  },
+  notificationButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   logoutButton: {
     backgroundColor: '#e17055',
     marginHorizontal: 20,
