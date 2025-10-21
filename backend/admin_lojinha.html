@@ -859,6 +859,110 @@
             }
         }
 
+        // ==================== PUSH NOTIFICATIONS ====================
+        
+        // Load device statistics
+        async function loadPushStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/push/stats`);
+                const stats = await response.json();
+                document.getElementById('totalDevices').textContent = stats.total_devices || 0;
+            } catch (error) {
+                document.getElementById('totalDevices').textContent = '0';
+            }
+        }
+
+        // Character counters for push form
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('pushTitle');
+            const bodyInput = document.getElementById('pushBody');
+            const titleCount = document.getElementById('pushTitleCount');
+            const bodyCount = document.getElementById('pushBodyCount');
+            const previewTitle = document.getElementById('pushPreviewTitle');
+            const previewBody = document.getElementById('pushPreviewBody');
+
+            if (titleInput) {
+                titleInput.addEventListener('input', function() {
+                    const count = this.value.length;
+                    titleCount.textContent = count;
+                    previewTitle.textContent = this.value || 'Título da notificação';
+                });
+            }
+
+            if (bodyInput) {
+                bodyInput.addEventListener('input', function() {
+                    const count = this.value.length;
+                    bodyCount.textContent = count;
+                    previewBody.textContent = this.value || 'Sua mensagem aparecerá aqui';
+                });
+            }
+
+            // Load stats when push tab is active
+            if (currentTab === 'push') {
+                loadPushStats();
+            }
+        });
+
+        // Push form submission
+        document.getElementById('pushForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('pushTitle').value;
+            const body = document.getElementById('pushBody').value;
+            const sendBtn = document.getElementById('pushSendBtn');
+            const btnText = document.getElementById('pushBtnText');
+
+            if (!title || !body) {
+                showAlert('Por favor, preencha todos os campos', 'error');
+                return;
+            }
+
+            // Update button state
+            sendBtn.disabled = true;
+            btnText.textContent = '📤 Enviando...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/push/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        body: body
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(`Notificação enviada com sucesso para ${result.sent_count} dispositivos!`, 'success');
+                    document.getElementById('pushForm').reset();
+                    document.getElementById('pushTitleCount').textContent = '0';
+                    document.getElementById('pushBodyCount').textContent = '0';
+                    document.getElementById('pushPreviewTitle').textContent = 'Título da notificação';
+                    document.getElementById('pushPreviewBody').textContent = 'Sua mensagem aparecerá aqui';
+                } else {
+                    showAlert('Erro ao enviar notificação: ' + result.detail, 'error');
+                }
+            } catch (error) {
+                showAlert('Erro de conexão: ' + error.message, 'error');
+            } finally {
+                // Reset button state
+                sendBtn.disabled = false;
+                btnText.textContent = '🚀 Enviar Notificação';
+            }
+        });
+
+        // Update switchTab function to load push stats
+        const originalSwitchTab = switchTab;
+        switchTab = function(tab) {
+            originalSwitchTab.call(this, tab);
+            if (tab === 'push') {
+                loadPushStats();
+            }
+        };
+
         // ==================== UTILS ====================
         function showAlert(message, type) {
             const alertDiv = document.getElementById('alert');
