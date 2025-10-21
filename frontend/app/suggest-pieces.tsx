@@ -134,7 +134,7 @@ export default function SuggestPieces() {
                 onPress={() => openShopee(sugestao.tag_busca)}
               >
                 <Ionicons name="cart-outline" size={20} color="#fff" />
-                <Text style={styles.shopButtonText}>Buscar na Shopee</Text>
+                <Text style={styles.shopButtonText}>Ver mais</Text>
                 <Ionicons name="open-outline" size={18} color="#fff" />
               </TouchableOpacity>
             </View>
