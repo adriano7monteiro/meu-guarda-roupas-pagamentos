@@ -733,10 +733,12 @@ async def sugerir_look(
     
     # Create AI prompt
     contexto_adicional = f"\nDetalhes adicionais fornecidos pelo usuário: {detalhes_contexto}" if detalhes_contexto else ""
+    sexo_usuario = user.get("sexo", "masculino")
     
     prompt = f"""
-    Como personal stylist virtual, sugira uma combinação de roupas para o usuário.
+    Como personal stylist virtual, sugira uma combinação de roupas para um usuário do sexo {sexo_usuario}.
     
+    Perfil do usuário: {sexo_usuario}
     Ocasião: {ocasiao}
     Temperatura: {temperatura or "não informada"}{contexto_adicional}
     
@@ -746,11 +748,11 @@ async def sugerir_look(
     IDs VÁLIDOS que você DEVE usar (copie exatamente):
     {json.dumps(valid_ids, indent=2)}
     
-    Crie uma sugestão de look detalhada. Responda APENAS com JSON válido (sem markdown):
+    Crie uma sugestão de look detalhada considerando que é para uma pessoa do sexo {sexo_usuario}. Responda APENAS com JSON válido (sem markdown):
     {{
-        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si.",
+        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si. Considere que é para {sexo_usuario}.",
         "roupas_ids": ["cole aqui os IDs da lista acima"],
-        "dicas": "Dicas práticas de estilo e acessórios"
+        "dicas": "Dicas práticas de estilo e acessórios adequadas para {sexo_usuario}"
     }}
     
     ⚠️ REGRAS OBRIGATÓRIAS: 
