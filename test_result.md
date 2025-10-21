@@ -292,6 +292,18 @@ frontend:
           agent: "main"
           comment: "Removida a seção 'Resumo do guarda-roupa' da tela my-wardrobe.tsx. Modificações: 1) Removido bloco JSX completo da statsSection (linhas 255-278), 2) Removida função getStatsForType não mais utilizada, 3) Removidos estilos não mais necessários: statsSection, statsTitle, statsContainer, statCard, statNumber, statLabel. A tela agora exibe diretamente os filtros e a lista de roupas, simplificando a interface e economizando espaço na tela."
 
+  - task: "Remover seção de estatísticas dos Looks Salvos"
+    implemented: true
+    working: true
+    file: "frontend/app/saved-looks.tsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Removida a seção de estatísticas 'Seus looks' da tela saved-looks.tsx. Modificações: 1) Removido bloco JSX completo da statsSection com 6 statCards (Total, Favoritos, Trabalho, Casual, Festa, Esporte), 2) Removidos 7 estilos não utilizados: statsSection, statsTitle, statsScrollView, statsContainer, statCard, statNumber, statLabel. Interface agora mais limpa, mostrando diretamente os filtros e lista de looks. Consistente com a mudança feita em my-wardrobe.tsx."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
