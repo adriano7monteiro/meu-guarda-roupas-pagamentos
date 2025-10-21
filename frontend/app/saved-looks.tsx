@@ -612,12 +612,18 @@ export default function SavedLooks() {
         visible={fullScreenImage !== null}
         transparent={true}
         animationType="fade"
-        onRequestClose={() => setFullScreenImage(null)}
+        onRequestClose={() => {
+          setFullScreenImage(null);
+          setIsUserPhoto(false);
+        }}
       >
         <View style={styles.fullScreenContainer}>
           <TouchableOpacity
             style={styles.fullScreenCloseButton}
-            onPress={() => setFullScreenImage(null)}
+            onPress={() => {
+              setFullScreenImage(null);
+              setIsUserPhoto(false);
+            }}
           >
             <Ionicons name="close" size={32} color="#fff" />
           </TouchableOpacity>
@@ -630,9 +636,21 @@ export default function SavedLooks() {
             />
           )}
           
+          {/* Botão de compartilhar Instagram (apenas para foto do usuário) */}
+          {isUserPhoto && (
+            <TouchableOpacity
+              style={styles.instagramShareButton}
+              onPress={shareToInstagram}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="logo-instagram" size={24} color="#fff" />
+              <Text style={styles.instagramShareText}>Compartilhar no Instagram</Text>
+            </TouchableOpacity>
+          )}
+          
           <View style={styles.fullScreenHint}>
             <Text style={styles.fullScreenHintText}>
-              Toque no X para fechar
+              {isUserPhoto ? 'Compartilhe seu look!' : 'Toque no X para fechar'}
             </Text>
           </View>
         </View>
