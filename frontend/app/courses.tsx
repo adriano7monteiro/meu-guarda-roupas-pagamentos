@@ -275,36 +275,13 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 16,
   },
-  highlightsContainer: {
-    marginBottom: 20,
-    gap: 8,
-  },
-  highlightItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  highlightText: {
-    color: '#dfe6e9',
-    fontSize: 14,
-  },
   courseFooter: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#636e72',
-  },
-  priceLabel: {
-    color: '#999',
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  priceValue: {
-    color: '#6c5ce7',
-    fontSize: 24,
-    fontWeight: 'bold',
   },
   buyButton: {
     backgroundColor: '#6c5ce7',
