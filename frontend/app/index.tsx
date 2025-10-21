@@ -1287,11 +1287,12 @@ const styles = StyleSheet.create({
   },
   shopImageCarousel: {
     position: 'relative',
-    height: 200,
+    height: 250,
+    backgroundColor: '#1a1a1a',
   },
   shopImage: {
     width: Dimensions.get('window').width - 32,
-    height: 200,
+    height: 250,
   },
   carouselDots: {
     position: 'absolute',
