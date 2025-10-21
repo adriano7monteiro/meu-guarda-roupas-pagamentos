@@ -393,7 +393,7 @@ export default function Index() {
                       key={index}
                       source={{ uri: imageUrl }}
                       style={styles.shopImage}
-                      resizeMode="cover"
+                      resizeMode="contain"
                     />
                   ))}
                 </ScrollView>
