@@ -45,8 +45,13 @@ export default function ShopProducts() {
       
       if (response.ok) {
         const data = await response.json();
-        // Mostrar TODOS os produtos (não filtrar por active)
-        setProducts(data);
+        // Ordenar: produtos ativos (destaque) primeiro, depois os demais
+        const sortedProducts = data.sort((a: ShopProduct, b: ShopProduct) => {
+          if (a.active && !b.active) return -1;
+          if (!a.active && b.active) return 1;
+          return 0;
+        });
+        setProducts(sortedProducts);
       } else {
         setError('Erro ao carregar produtos');
       }
