@@ -198,10 +198,6 @@ export default function MyWardrobe() {
     ? clothingItems 
     : clothingItems.filter(item => item.tipo === selectedFilter);
 
-  const getStatsForType = (type: string) => {
-    return clothingItems.filter(item => item.tipo === type).length;
-  };
-
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
