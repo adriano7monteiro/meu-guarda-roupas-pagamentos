@@ -2433,6 +2433,32 @@ async def criar_sugestao(
         logging.error(f"Erro ao criar sugestão: {e}")
         raise HTTPException(status_code=500, detail="Erro ao enviar sugestão")
 
+@api_router.get("/sugestoes")
+async def listar_sugestoes():
+    """Lista todas as sugestões enviadas pelos usuários (admin only - sem auth por enquanto)"""
+    try:
+        suggestions = await db.suggestions.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+        return {"suggestions": suggestions, "total": len(suggestions)}
+    except Exception as e:
+        logging.error(f"Erro ao listar sugestões: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar sugestões")
+
+@api_router.delete("/sugestoes/{suggestion_id}")
+async def deletar_sugestao(suggestion_id: str):
+    """Deleta uma sugestão (admin only - sem auth por enquanto)"""
+    try:
+        result = await db.suggestions.delete_one({"id": suggestion_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Sugestão não encontrada")
+        
+        return {"message": "Sugestão deletada com sucesso"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Erro ao deletar sugestão: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao deletar sugestão")
+
 # Include the router in the main app
 app.include_router(api_router)
 
