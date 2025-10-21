@@ -645,6 +645,10 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       if (response.ok) {
         await AsyncStorage.setItem('auth_token', data.token);
         onLogin(data.user);
+        
+        // Registrar push token após login
+        registerPushToken(data.token);
+        
         authModal.showSuccess('Sucesso', isLogin ? 'Login realizado com sucesso!' : 'Conta criada com sucesso!');
       } else {
         authModal.showError('Erro de Autenticação', data.detail || 'Erro durante autenticação');
@@ -658,6 +662,31 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const registerPushToken = async (authToken: string) => {
+    try {
+      const pushToken = await registerForPushNotificationsAsync();
+      
+      if (pushToken) {
+        // Enviar token para o backend
+        await fetch(`${BACKEND_URL}/api/push/register-token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+          body: JSON.stringify({
+            token: pushToken,
+            platform: Platform.OS,
+          }),
+        });
+        console.log('Push token registrado com sucesso');
+      }
+    } catch (error) {
+      console.error('Erro ao registrar push token:', error);
+      // Não mostra erro para o usuário, apenas loga
     }
   };
 
