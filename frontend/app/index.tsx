@@ -17,6 +17,9 @@ import {
   TouchableWithoutFeedback,
   Modal,
   ActivityIndicator,
+  Dimensions,
+  Image,
+  Linking,
 } from 'react-native';
 import CustomModal from '../components/CustomModal';
 import { useModal } from '../hooks/useModal';
