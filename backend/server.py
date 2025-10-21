@@ -2033,6 +2033,122 @@ async def delete_curso(curso_id: str):
     
     return {"message": "Curso deletado com sucesso"}
 
+# Push Notifications routes
+@api_router.post("/push/register-token")
+async def register_push_token(
+    token_data: PushTokenCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Registra o push token do usuário
+    """
+    # Verificar token JWT
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        user_id = payload.get("user_id")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expirado")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    
+    # Verificar se já existe um token para este usuário
+    existing_token = await db.push_tokens.find_one({"user_id": user_id})
+    
+    if existing_token:
+        # Atualizar token existente
+        await db.push_tokens.update_one(
+            {"user_id": user_id},
+            {
+                "$set": {
+                    "token": token_data.token,
+                    "platform": token_data.platform,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        return {"message": "Token atualizado com sucesso"}
+    else:
+        # Criar novo token
+        new_token = PushToken(
+            user_id=user_id,
+            token=token_data.token,
+            platform=token_data.platform
+        )
+        await db.push_tokens.insert_one(new_token.dict())
+        return {"message": "Token registrado com sucesso"}
+
+@api_router.post("/push/send")
+async def send_push_notification(notification: PushNotification):
+    """
+    Envia notificação push para todos os usuários (admin only - sem auth por enquanto)
+    """
+    # Buscar todos os tokens
+    tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
+    
+    if not tokens:
+        return {"message": "Nenhum dispositivo registrado", "sent": 0}
+    
+    # Preparar mensagens para Expo Push API
+    messages = []
+    for token_doc in tokens:
+        messages.append({
+            "to": token_doc["token"],
+            "sound": "default",
+            "title": notification.title,
+            "body": notification.body,
+            "data": notification.data or {},
+        })
+    
+    # Enviar para Expo Push API
+    sent_count = 0
+    failed_count = 0
+    
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.post(
+                "https://exp.host/--/api/v2/push/send",
+                json=messages,
+                headers={
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                },
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                data = result.get("data", [])
+                
+                for item in data:
+                    if item.get("status") == "ok":
+                        sent_count += 1
+                    else:
+                        failed_count += 1
+                        logging.error(f"Failed to send push: {item.get('message')}")
+            else:
+                logging.error(f"Expo Push API error: {response.status_code} - {response.text}")
+                raise HTTPException(status_code=500, detail="Erro ao enviar notificações")
+                
+        except Exception as e:
+            logging.error(f"Error sending push notifications: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Erro ao enviar notificações: {str(e)}")
+    
+    return {
+        "message": "Notificações enviadas",
+        "sent": sent_count,
+        "failed": failed_count,
+        "total": len(tokens)
+    }
+
+@api_router.get("/push/tokens")
+async def get_push_tokens():
+    """
+    Lista todos os tokens registrados (admin only - sem auth por enquanto)
+    """
+    tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
+    return {"tokens": tokens, "total": len(tokens)}
+
 # Shop Products routes
 @api_router.get("/shop/produto-destaque")
 async def get_produto_destaque():
