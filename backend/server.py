@@ -224,10 +224,22 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 # Auth routes
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
+    # Validar formato do telefone
+    if not validate_phone_number(user_data.telefone):
+        raise HTTPException(
+            status_code=400, 
+            detail="Telefone inválido. Use o formato: (11) 99999-9999"
+        )
+    
     # Check if user exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Check if phone already exists
+    existing_phone = await db.users.find_one({"telefone": user_data.telefone})
+    if existing_phone:
+        raise HTTPException(status_code=400, detail="Telefone já cadastrado")
     
     # Create user
     user_dict = user_data.dict()
