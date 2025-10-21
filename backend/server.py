@@ -2219,7 +2219,14 @@ async def get_push_stats():
     Retorna estatísticas de dispositivos registrados
     """
     total = await db.push_tokens.count_documents({})
-    return {"total_devices": total}
+    
+    # Verifica se Firebase está inicializado
+    firebase_status = "initialized" if firebase_admin._apps else "not initialized"
+    
+    return {
+        "total_devices": total,
+        "firebase_status": firebase_status
+    }
 
 # Shop Products routes
 @api_router.get("/shop/produto-destaque")
