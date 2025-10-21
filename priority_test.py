@@ -10,7 +10,7 @@ import base64
 from datetime import datetime
 
 # Backend URL
-BACKEND_URL = "https://wardrobe-genius-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://wardrobepush.preview.emergentagent.com/api"
 
 def create_test_image():
     """Create a simple test image in base64 format"""

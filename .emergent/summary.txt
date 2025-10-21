@@ -1,119 +1,103 @@
 <analysis>
-The AI engineer's trajectory details an extensive development effort on a React Native (Expo) and FastAPI application. Initial tasks involved fixing critical UI issues like Android footer clipping and a  import error, along with optimizing pagination. Significant feature additions include integrating gender into the registration and AI suggestion logic, dynamic course management from MongoDB with example data, and a major shift in image storage from MongoDB (base64) to direct Cloudflare Images upload from the frontend. Recent work focuses on introducing a Lojinha (Shop) feature on the home screen with a product carousel, backend CRUD, and an HTML admin page for product and course management. The agent is currently addressing image cropping and displaying total product counts for the Lojinha card. Intermittently, the agent also handled  issues related to the Emergent platform's workflow.
+The AI engineer's work has significantly expanded the application's features and addressed numerous bugs. Key accomplishments include implementing a Lojinha (shop) with dynamic product listing, carousel, and an admin interface. A major effort was dedicated to establishing push notifications, involving Firebase Admin SDK integration, handling service account keys, and resolving build and permission issues across frontend and backend. UI/UX improvements, such as Android header clipping fixes, image cropping removal, and enhanced pagination, were also tackled. The current challenge revolves around managing sensitive Firebase configuration files () for EAS builds, which were inadvertently added to , preventing the build system from accessing them. The engineer is now preparing to use EAS secrets for these files.
 </analysis>
 
 <product_requirements>
-The user aims to enhance their  application. Initial requests involved fixing UI clipping on Android footers and resolving  import errors. Subsequently, the user requested:
-1.  **Pagination Optimization**: Implement 5-item initial loading for scrollable lists (e.g., my-wardrobe, saved-looks).
-2.  **Gender Integration**: Add a sexo (gender) field to the registration form (with Feminino as default) and pass this to the AI for Gerar Look and Sugerir Peças features.
-3.  **Content Refinements**:
-    *   Remove Resumo do guarda-roupa from my-wardrobe.tsx and saved-looks.tsx.
-    *   Modify courses screen to hide highlights/price, change Comprar agora to Ver mais, and update hero section text.
-    *   Update home screen text Aprenda se vestir com nossos cursos to Venha aprender uma habilidade.
-    *   Simplify suggest-pieces screen by removing Clique para pesquisar na shopee and changing Buscar na shopee to Ver mais.
-    *   Integrate Shopee affiliate parameters into generated search URLs.
-4.  **Dynamic Courses**: Replace static course data with MongoDB storage, with a backend endpoint that auto-creates 3 example courses if none exist.
-5.  **Cloudflare Image Upload**: Migrate image storage from base64 in MongoDB to Cloudflare Images, implementing direct frontend upload and saving only URLs in MongoDB.
-6.  **Lojinha (Shop) Feature**: Introduce a Lojinha card on the home screen with a product carousel (3 images), title, description, value, and a Ver mais button. Create a backend HTML admin page for product and course registration.
-7.  **Future SMS Integration**: Prepare for password recovery via SMS by adding a mobile phone field (Brazilian format) to registration.
+The user aims to enhance their  application, starting with UI fixes (Android footer clipping, Platform import errors). Key feature additions and improvements include:
+
+1.  **Pagination Optimization**: Implement 5-item initial loading for scrollable lists (my-wardrobe, saved-looks).
+2.  **Gender Integration**: Add sexo (gender) to registration and AI suggestion logic.
+3.  **Content Refinements**: Remove summary sections, update course screen text/buttons, modify home screen text, simplify suggest-pieces, and integrate Shopee affiliate links.
+4.  **Dynamic Courses**: Migrate static courses to MongoDB with backend management.
+5.  **Cloudflare Image Upload**: Shift from MongoDB base64 to direct frontend Cloudflare image uploads (for clothing and body photos).
+6.  **Lojinha (Shop) Feature**: Introduce a home screen Lojinha card with product carousel, title, description, value, Ver mais button. Create a backend HTML admin page for product and course management. Enhance Lojinha card with product count badge, a Comprar button for external links, and ensure featured products are ordered first in the list view.
+7.  **Saved Looks Enhancements**: Add a Vestir o look e tirar foto (Wear the look and take photo) feature. If a user photo exists, display it first in the carousel; otherwise, show the button. Implement a Share to Instagram button when the user's photo is viewed fullscreen. Remove image cropping during photo capture.
+8.  **Push Notifications (Android)**: Implement production-ready push notifications using Expo Notifications and Firebase Cloud Messaging (FCM). This involves frontend token registration, backend sending logic, admin interface for manual pushes, and configuring Firebase service account.
+9.  **Admin Portal Unification**: Merge separate admin pages (, ) into a single interface with tabs. Add a Sugestões tab to view user-submitted suggestions.
+10. **Future SMS Integration**: Prepare for password recovery via SMS by adding a mobile phone field (Brazilian format) to registration.
 </product_requirements>
 
 <key_technical_concepts>
--   **React Native/Expo**: Frontend for mobile development, including  API for OS-specific styling and  for external URLs.
--   **FastAPI**: Python backend framework for RESTful APIs.
--   **MongoDB**: NoSQL database for flexible data storage.
--   **Cloudflare Images**: Cloud-based image storage and delivery solution with direct upload capabilities.
--   **JWT**: Authentication token management.
--   **LLMs (OpenAI)**: AI integration for clothing suggestions and look generation.
--   **react-native-snap-carousel**: Component for carousels/sliders.
+-   **React Native/Expo**: Frontend for mobile development, including  API, , , , .
+-   **FastAPI**: Python backend for RESTful APIs.
+-   **MongoDB**: NoSQL database for data storage.
+-   **Cloudflare Images**: Cloud-based image storage with direct frontend upload.
+-   **Firebase Admin SDK**: Backend for sending FCM notifications.
+-   **JWT**: Authentication.
+-   **LLMs (OpenAI)**: AI for clothing suggestions.
+-   ****: Carousel component.
+-   ****: JSON processor (used in scripts).
+-   **Base64 Encoding**: For securely handling sensitive JSON in environment variables.
 </key_technical_concepts>
 
 <code_architecture>
-The application utilizes a monorepo structure with  (FastAPI) and  (React Native/Expo) directories.
+The application uses a monorepo structure with  (FastAPI) and  (React Native/Expo).
 
 
 
-**Key Files and Changes:**
 -   :
-    -   **Importance**: Core backend logic, API endpoints, and database models.
-    -   **Changes**:
-        -    model: Added  and .
-        -   : Updated to accept and save  and , includes  for Brazilian format.
-        -   , : Modified AI prompts to include user's .
-        -   : New GET endpoint to retrieve courses from MongoDB, with logic to create 3 default courses if collection is empty. Added PUT/DELETE endpoints for courses.
-        -   : New CRUD endpoints (GET, POST, PUT, DELETE) for shop products, with image URLs.
-        -   , : Updated comments and added logging to support Cloudflare image URLs.
-        -   : New GET endpoint to serve , initially , then  with absolute pathing for Heroku compatibility.
+    -   **Importance**: Core backend logic and API endpoints.
+    -   **Changes**: Added ,  to  model; updated auth, AI prompts. Implemented CRUD for  and . Introduced , ,  models and corresponding API endpoints (, , , ).  migrated from Expo Push API to Firebase Admin SDK, reading credentials from  env var (Base64 decoded). Added  and . New endpoint  for user photos.
 -   :
-    -   **Importance**: New HTML page for administering shop products and courses.
-    -   **Changes**: Created with tabs for Lojinha and Cursos management sections.
+    -   **Importance**: Admin interface for managing products, courses, push notifications, and viewing user suggestions.
+    -   **Changes**: Consolidated  content and added a Sugestões tab. Implemented JavaScript logic for managing all three tabs (products, courses, push, suggestions), including displaying push notification status and errors, and listing user suggestions.
 -   :
-    -   **Importance**: Main home screen and authentication flow.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding ().
-        -   Auth: Added  and  states, input fields, and UI for gender selection (with Feminino as default).
-        -   Text Update: Changed Aprenda se vestir com nossos cursos to Venha aprender uma habilidade.
-        -   New Feature: Added Lojinha card with carousel (using ), fetching  and . Styles for the shop card, image, and badge were added.
-        -   Imports: Added , , , .
+    -   **Importance**: Firebase Service Account Key for backend FCM communication.
+    -   **Changes**: Initially uploaded by user to frontend, moved to backend, then its content is now expected via  environment variable (Base64 encoded). Removed from Git history.
+-   🔥 Configurando Firebase Service Account no Heroku...
+❌ Erro: firebase-service-account.json não encontrado!
+📂 Execute este script do diretório /app/backend/:
+    -   **Importance**: Helper script to set Firebase Service Account as an environment variable.
+    -   **Changes**: New file created.
 -   :
-    -   **Importance**: Displays user's clothing items.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Pagination: Set  to 5 and fixed  to reset page on initial load.
-        -   Content Removal: Removed Resumo do guarda-roupa section and associated  function and styles.
+    -   **Importance**: Helper script to format Firebase JSON for environment variables.
+    -   **Changes**: New file created.
+-   :
+    -   **Importance**: Main home screen and authentication.
+    -   **Changes**: UI fixes (footer padding, Android header paddingTop). Added ,  fields to registration. Lojinha card now shows  badge, has two buttons (Comprar linking externally, Ver todos navigating to shop), and image . Integrated  for token registration after login/app start, with explicit permission request.
+-   , , , :
+    -   **Importance**: Various user-facing screens.
+    -   **Changes**: UI fixes (Android footer padding, Android header paddingTop).  updated with direct Cloudflare upload and a Verificar Notificações button.
 -   :
     -   **Importance**: Displays saved AI-generated looks.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Pagination: Set  to 5 and fixed  to reset page on initial load.
-        -   Content Removal: Removed summary/statistics section and associated styles.
+    -   **Changes**: UI fixes (footer padding, Android header paddingTop).  interface now includes . Implemented Vestir o look e tirar foto functionality: opens camera ( with ), uploads to Cloudflare, updates look. User's photo displayed first in carousel if present. Added Share to Instagram button () when user photo is fullscreen. Fixed  vs  variable naming.
 -   :
-    -   **Importance**: User profile and body photo upload.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Cloudflare Integration: Modified image upload logic to use  for direct upload, sending only the URL to the backend.
+    -   **Importance**: Displays all shop products.
+    -   **Changes**: New file created. Displays all products (no active filter). Featured products () are sorted to appear first and have a Destaque badge.  adjusted to not encompass the carousel. Added Android header paddingTop.
 -   :
-    -   **Importance**: Component for uploading clothing items.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Cloudflare Integration: Modified  to use  for direct upload, sending only the URL to the backend.
+    -   **Importance**: Handles direct image uploads to Cloudflare.
+    -   **Changes**: Modified to handle both local file URIs (from camera) and Base64 data, ensuring correct content-type for uploads.
 -   :
-    -   **Importance**: Displays course offerings.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Dynamic Data: Refactored to fetch courses from the backend, including loading/error states.
-        -   Content Refinements: Hid highlights and price, changed Comprar agora button text to Ver mais, updated hero section text. Updated  styles.
+    -   **Importance**: Frontend logic for push notifications.
+    -   **Changes**: New service created. Handles explicit permission requests for notifications, obtains  (pure FCM token), sends token to backend, and provides logging.
 -   :
-    -   **Importance**: Suggests clothing pieces based on AI.
-    -   **Changes**:
-        -   UI Fix: Added  import and adjusted footer padding.
-        -   Shopee Integration: Modified  to include affiliate parameters in the URL.
-        -   Text Update: Removed Clique para pesquisar na shopee and changed Buscar na shopee to Ver mais.
-        -   User's PR: Applied user's change to Shopee URL from  to .
+    -   **Importance**: Frontend dependencies.
+    -   **Changes**: , , ,  added. ,  removed.
 -   :
-    -   **Importance**: New service for handling direct image uploads to Cloudflare Images.
-    -   **Changes**: Created to encapsulate Cloudflare API calls, later modified to handle React Native  incompatibility.
+    -   **Importance**: Expo application configuration, overriding .
+    -   **Changes**: Updated SDK versions. Added  plugin configuration (, permissions, icon, color).
 -   :
-    -   **Importance**: Lists frontend dependencies.
-    -   **Changes**:  was removed due to build conflicts.  was installed.
--   :
-    -   **Importance**: Expo application configuration.
-    -   **Changes**: , , , ,  updated.  and  are dynamically injected.
+    -   **Importance**: Firebase client configuration for Android.
+    -   **Changes**: New file uploaded by user, currently gitignored.
+-    and :
+    -   **Importance**: Specifies files to be ignored by Git.
+    -   **Changes**: Updated to ignore  and  to prevent exposing sensitive keys.
 </code_architecture>
 
 <pending_tasks>
--   Implement password recovery via SMS (waiting for user to choose SMS service and provide API credentials).
--   Address UI issues related to the Lojinha card on the home screen, specifically making the entire card clickable to a new route for listing all products.
--   Finalize the styles for the new Lojinha card's product count badge.
+-   **Firebase  Configuration**: Integrate  into the EAS build process, likely via EAS secrets, as it's currently gitignored and not accessible during .
+-   **Push Notifications Delivery**: Verify and troubleshoot the successful delivery of push notifications to physical devices once the Firebase configuration issue for EAS builds is resolved.
+-   **SMS Integration**: Implement password recovery via SMS (waiting for user to choose SMS service and provide API credentials).
 </pending_tasks>
 
 <current_work>
-Immediately before this summary, the AI engineer was addressing two UI issues reported by the user regarding the newly implemented Lojinha (Shop) card on the home screen ().
+Immediately before this summary, the AI engineer was addressing a critical error during the  process: .
 
-1.  **Image Clipping**: The featured product image in the Lojinha card was being clipped. The engineer has started to fix this by adjusting the  and dimensions of the  style in  to ensure the image is displayed correctly without cropping. This involved setting  and possibly adjusting  and adding a .
-2.  **Product Count Display**: The Lojinha card needed to display an indication of more products, for example, click to see more products, especially when multiple products are registered. The engineer has modified the  function in  to retrieve the  count of products from the backend. The plan is to add a badge to the Lojinha card that shows this  and to make the entire card clickable, leading to a new route, , where users can view all available products. The engineer is currently in the process of adding styles for this new badge.
+This error occurred because the  file, which is essential for Firebase client-side configuration in Android builds, was added to the  file along with other sensitive Firebase credentials (). While ignoring sensitive files from Git is good practice, it prevents the EAS build system from accessing them if they are not tracked.
+
+The AI engineer has identified this as the root cause of the build failure for push notifications on Android. The proposed solution is to configure  using EAS environment variables or secrets, allowing the build system to access the file's content without tracking it in Git. This is crucial for enabling push notifications to function correctly on production Android builds. The user has provided the  file content previously.
 </current_work>
 
 <optional_next_step>
-Complete adding the styles for the  badge on the Lojinha card in .
+Configure  as an EAS secret/environment variable for the .
 </optional_next_step>
