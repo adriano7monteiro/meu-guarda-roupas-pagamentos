@@ -340,6 +340,18 @@ frontend:
           agent: "main"
           comment: "Implementado campo de telefone celular no cadastro com formatação brasileira. Backend: 1) Adicionado campo 'telefone' nos modelos User, UserCreate e UserProfile, 2) Criada função validate_phone_number() que valida formato brasileiro (11 dígitos, 9 na posição 3), 3) Atualizado endpoint /api/auth/register com validação de telefone e verificação de telefone duplicado, 4) Retorna erro 400 se telefone inválido ou já cadastrado. Frontend: 1) Adicionado estado 'telefone' e função formatPhone() para aplicar máscara (11) 99999-9999, 2) Criada função handlePhoneChange() que formata em tempo real, 3) Adicionado campo TextInput após campo Nome com keyboardType='phone-pad' e maxLength=15, 4) Validação incluída no handleAuth (telefone obrigatório no cadastro), 5) Telefone enviado no body do registro. Formato automático: usuário digita números e vê (11) 99999-9999. Backend reiniciado e funcionando."
 
+  - task: "Simplificação da tela de cursos"
+    implemented: true
+    working: true
+    file: "frontend/app/courses.tsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Simplificada a tela de cursos conforme solicitado. Modificações: 1) Removida seção de highlights (lista com checkmarks), 2) Removida seção de preço (priceLabel e priceValue), 3) Texto do botão alterado de 'Comprar Agora' para 'Ver mais', 4) Estilo courseFooter atualizado de justifyContent: 'space-between' para 'center' (botão centralizado), 5) Removidos estilos não utilizados: highlightsContainer, highlightItem, highlightText, priceLabel, priceValue. Interface mais limpa focada em título, descrição e botão de ação. ESLint passou sem erros."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
