@@ -442,24 +442,65 @@ export default function SavedLooks() {
 
                       {/* Clothing Items Carousel */}
                       <View style={styles.clothingItemsContainer}>
-                        <Text style={styles.clothingItemsTitle}>
-                          Peças do look ({clothingDetails.length}):
-                        </Text>
+                        <View style={styles.carouselHeader}>
+                          <Text style={styles.clothingItemsTitle}>
+                            {item.user_photo ? 'Você vestindo o look + Peças' : `Peças do look (${clothingDetails.length})`}:
+                          </Text>
+                          {!item.user_photo && (
+                            <TouchableOpacity
+                              style={styles.photoButton}
+                              onPress={() => takeUserPhoto(item.id)}
+                              disabled={uploadingPhoto === item.id}
+                            >
+                              {uploadingPhoto === item.id ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                              ) : (
+                                <>
+                                  <Ionicons name="camera" size={16} color="#fff" />
+                                  <Text style={styles.photoButtonText}>Vestir e Fotografar</Text>
+                                </>
+                              )}
+                            </TouchableOpacity>
+                          )}
+                        </View>
                         <ScrollView 
                           horizontal 
                           showsHorizontalScrollIndicator={false}
                           style={styles.clothingCarousel}
                         >
-                          {clothingDetails.map((item) => (
+                          {/* Foto do usuário vestindo (se existir) */}
+                          {item.user_photo && (
                             <TouchableOpacity
-                              key={item.id}
-                              style={styles.clothingCard}
-                              onPress={() => setFullScreenImage(item.imagem_original)}
+                              style={[styles.clothingCard, styles.userPhotoCard]}
+                              onPress={() => setFullScreenImage(item.user_photo!)}
                               activeOpacity={0.8}
                             >
-                              {item.imagem_original ? (
+                              <Image
+                                source={{ uri: item.user_photo }}
+                                style={styles.clothingImage}
+                                resizeMode="cover"
+                              />
+                              <View style={styles.userPhotoBadge}>
+                                <Ionicons name="person" size={12} color="#fff" />
+                                <Text style={styles.userPhotoBadgeText}>Você</Text>
+                              </View>
+                              <View style={styles.expandIconSmall}>
+                                <Ionicons name="expand-outline" size={14} color="#fff" />
+                              </View>
+                            </TouchableOpacity>
+                          )}
+
+                          {/* Peças do look */}
+                          {clothingDetails.map((clothingItem) => (
+                            <TouchableOpacity
+                              key={clothingItem.id}
+                              style={styles.clothingCard}
+                              onPress={() => setFullScreenImage(clothingItem.imagem_original)}
+                              activeOpacity={0.8}
+                            >
+                              {clothingItem.imagem_original ? (
                                 <Image
-                                  source={{ uri: item.imagem_original }}
+                                  source={{ uri: clothingItem.imagem_original }}
                                   style={styles.clothingImage}
                                   resizeMode="cover"
                                 />
@@ -470,10 +511,10 @@ export default function SavedLooks() {
                               )}
                               <View style={styles.clothingCardInfo}>
                                 <Text style={styles.clothingCardName} numberOfLines={1}>
-                                  {item.nome}
+                                  {clothingItem.nome}
                                 </Text>
                                 <Text style={styles.clothingCardDetails} numberOfLines={1}>
-                                  {item.tipo} • {item.cor}
+                                  {clothingItem.tipo} • {clothingItem.cor}
                                 </Text>
                               </View>
                               <View style={styles.expandIconSmall}>
