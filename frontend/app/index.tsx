@@ -1273,6 +1273,96 @@ const styles = StyleSheet.create({
     color: '#999',
     fontSize: 13,
   },
+  // Shop Section Styles
+  shopSection: {
+    backgroundColor: '#2d3436',
+    borderRadius: 16,
+    marginBottom: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#6c5ce7',
+  },
+  shopImageCarousel: {
+    position: 'relative',
+    height: 200,
+  },
+  shopImage: {
+    width: Dimensions.get('window').width - 32,
+    height: 200,
+  },
+  carouselDots: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  activeDot: {
+    backgroundColor: '#6c5ce7',
+    width: 20,
+  },
+  shopContent: {
+    padding: 16,
+  },
+  shopHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  shopBadge: {
+    backgroundColor: 'rgba(108, 92, 231, 0.2)',
+    color: '#6c5ce7',
+    fontSize: 12,
+    fontWeight: 'bold',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  shopTitle: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  shopDescription: {
+    color: '#b2bec3',
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  shopFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  shopPrice: {
+    color: '#6c5ce7',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  shopButton: {
+    backgroundColor: '#6c5ce7',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+  },
+  shopButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   // Courses Section Styles
   coursesSection: {
     backgroundColor: '#2d3436',
