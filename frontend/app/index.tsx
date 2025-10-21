@@ -622,27 +622,6 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
                 <TouchableOpacity
                   style={[
                     styles.sexoButton,
-                    sexo === 'masculino' && styles.sexoButtonActive
-                  ]}
-                  onPress={() => setSexo('masculino')}
-                  disabled={loading}
-                >
-                  <Ionicons 
-                    name="male" 
-                    size={20} 
-                    color={sexo === 'masculino' ? '#fff' : '#999'} 
-                  />
-                  <Text style={[
-                    styles.sexoButtonText,
-                    sexo === 'masculino' && styles.sexoButtonTextActive
-                  ]}>
-                    Masculino
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.sexoButton,
                     sexo === 'feminino' && styles.sexoButtonActive
                   ]}
                   onPress={() => setSexo('feminino')}
@@ -658,6 +637,27 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
                     sexo === 'feminino' && styles.sexoButtonTextActive
                   ]}>
                     Feminino
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.sexoButton,
+                    sexo === 'masculino' && styles.sexoButtonActive
+                  ]}
+                  onPress={() => setSexo('masculino')}
+                  disabled={loading}
+                >
+                  <Ionicons 
+                    name="male" 
+                    size={20} 
+                    color={sexo === 'masculino' ? '#fff' : '#999'} 
+                  />
+                  <Text style={[
+                    styles.sexoButtonText,
+                    sexo === 'masculino' && styles.sexoButtonTextActive
+                  ]}>
+                    Masculino
                   </Text>
                 </TouchableOpacity>
               </View>
