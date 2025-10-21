@@ -1001,53 +1001,6 @@
         };
 
         // ==================== SUGESTÕES ====================
-        document.getElementById('sugestaoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const sugestaoId = document.getElementById('sugestaoId').value;
-            const isEdit = sugestaoId !== '';
-
-            const sugestao = {
-                title: document.getElementById('sugestao-title').value,
-                content: document.getElementById('sugestao-content').value,
-                category: document.getElementById('sugestao-category').value,
-                image: document.getElementById('sugestao-image').value || null,
-                active: document.getElementById('sugestao-active').checked,
-            };
-
-            try {
-                const url = isEdit 
-                    ? `${API_URL}/api/sugestoes/${sugestaoId}`
-                    : `${API_URL}/api/sugestoes`;
-
-                const method = isEdit ? 'PUT' : 'POST';
-
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(sugestao),
-                });
-
-                if (response.ok) {
-                    showAlert('Sugestão salva com sucesso!', 'success');
-                    document.getElementById('sugestaoForm').reset();
-                    document.getElementById('sugestaoId').value = '';
-                    document.getElementById('sugestao-form-title').textContent = 'Adicionar Nova Sugestão';
-                    document.getElementById('sugestao-btn-text').textContent = '💾 Salvar Sugestão';
-                    document.getElementById('sugestao-cancelBtn').style.display = 'none';
-                    loadSugestoes();
-                } else {
-                    const error = await response.json();
-                    showAlert('Erro ao salvar sugestão: ' + error.detail, 'error');
-                }
-            } catch (error) {
-                showAlert('Erro de conexão: ' + error.message, 'error');
-            }
-        });
-
-        // ==================== SUGESTÕES ====================
         async function loadSugestoes() {
             try {
                 const response = await fetch(`${API_URL}/api/sugestoes`);
