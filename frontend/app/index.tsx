@@ -79,10 +79,19 @@ export default function Index() {
 
   const fetchShopProduct = async () => {
     try {
+      // Buscar produto em destaque
       const response = await fetch(`${BACKEND_URL}/api/shop/produto-destaque`);
       if (response.ok) {
         const produto = await response.json();
         setShopProduct(produto);
+      }
+      
+      // Buscar total de produtos ativos
+      const allResponse = await fetch(`${BACKEND_URL}/api/shop/produtos`);
+      if (allResponse.ok) {
+        const allProducts = await allResponse.json();
+        const activeProducts = allProducts.filter((p: any) => p.active !== false);
+        setShopProductsCount(activeProducts.length);
       }
     } catch (error) {
       console.error('Error fetching shop product:', error);
