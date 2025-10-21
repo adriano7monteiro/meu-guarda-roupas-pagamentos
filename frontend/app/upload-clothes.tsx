@@ -169,28 +169,29 @@ export default function UploadClothes() {
         return;
       }
 
-      console.log('Uploading clothing - attempt:', retryCount + 1);
-      console.log('Image size:', selectedImage.length, 'characters');
-      console.log('Clothing data:', clothingData);
+      console.log('🚀 Passo 1: Upload direto para Cloudflare...');
+      
+      // NOVO: Upload direto para Cloudflare Images
+      const imageUrl = await uploadImageToCloudflare(
+        selectedImage,
+        `roupa-${Date.now()}.jpg`
+      );
+      
+      console.log('✅ Passo 2: Imagem no Cloudflare! URL:', imageUrl);
+      console.log('📤 Passo 3: Enviando URL para backend...');
 
-      // Create request with timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-
+      // Agora envia apenas a URL para o backend
       const response = await fetch(`${BACKEND_URL}/api/upload-roupa`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token.trim()}`, // Trim token to avoid extra spaces
+          'Authorization': `Bearer ${token.trim()}`,
         },
         body: JSON.stringify({
           ...clothingData,
-          imagem_original: selectedImage,
+          imagem_original: imageUrl, // Agora é URL, não base64!
         }),
-        signal: controller.signal,
       });
-
-      clearTimeout(timeoutId);
 
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
