@@ -34,6 +34,21 @@ Isso vai:
 
 ---
 
+### **2.5. ⚠️ IMPORTANTE: Configurar Firebase (UMA VEZ APENAS)**
+
+**Para notificações push funcionarem, você precisa configurar o Firebase:**
+
+```bash
+cd /app/frontend
+./setup-firebase-secret.sh
+```
+
+**Detalhes:** Veja `/app/GUIA_RAPIDO_FIREBASE.md`
+
+✅ **Isso só precisa ser feito UMA VEZ**. Depois, todos os builds terão Firebase configurado.
+
+---
+
 ### **3. Gerar AAB de Produção (Assinado automaticamente)**
 
 ```bash
