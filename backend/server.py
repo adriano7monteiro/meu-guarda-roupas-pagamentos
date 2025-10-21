@@ -2058,6 +2058,12 @@ async def delete_produto(produto_id: str):
 async def root():
     return {"message": "Meu Look IA API"}
 
+@api_router.get("/admin/lojinha")
+async def admin_lojinha():
+    """Serve página HTML de admin da lojinha"""
+    from fastapi.responses import FileResponse
+    return FileResponse('backend/admin_lojinha.html')
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint para monitoramento"""
