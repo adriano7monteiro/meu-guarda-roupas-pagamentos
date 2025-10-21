@@ -192,6 +192,17 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
+def validate_phone_number(phone: str) -> bool:
+    """
+    Valida formato de telefone brasileiro: (11) 99999-9999
+    Remove formatação e verifica se tem 11 dígitos (DDD + 9 dígitos)
+    """
+    import re
+    # Remove tudo que não é dígito
+    digits_only = re.sub(r'\D', '', phone)
+    # Telefone brasileiro tem 11 dígitos (DDD + 9 dígitos com 9 na frente)
+    return len(digits_only) == 11 and digits_only[2] == '9'
+
 def create_jwt_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
