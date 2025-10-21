@@ -2275,6 +2275,35 @@ async def admin_lojinha():
         status_code=404
     )
 
+@api_router.get("/admin/push")
+async def admin_push():
+    """Serve página HTML de admin de notificações push"""
+    from fastapi.responses import HTMLResponse
+    import os
+    
+    # Tenta diferentes caminhos
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), 'admin_push.html'),
+        os.path.join(os.getcwd(), 'backend', 'admin_push.html'),
+        '/app/backend/admin_push.html',
+        'admin_push.html'
+    ]
+    
+    for file_path in possible_paths:
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Se não encontrar, retorna erro
+    return HTMLResponse(
+        content=f"""
+        <h1>Erro 404 - Arquivo não encontrado</h1>
+        <p><strong>Arquivo:</strong> admin_push.html</p>
+        """,
+        status_code=404
+    )
+
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint para monitoramento"""
