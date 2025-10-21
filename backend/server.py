@@ -89,6 +89,7 @@ class UserLogin(BaseModel):
 class UserProfile(BaseModel):
     email: str
     nome: str
+    telefone: Optional[str] = None
     sexo: Optional[str] = None
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str
