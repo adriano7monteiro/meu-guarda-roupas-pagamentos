@@ -328,6 +328,18 @@ frontend:
           agent: "main"
           comment: "Implementado sistema completo de cursos com MongoDB. Backend: 1) Criado modelo Course e CourseCreate no Pydantic, 2) Criado endpoint GET /api/cursos que verifica se existem cursos no banco, 3) Se não houver cursos (count === 0), cria automaticamente 3 cursos de exemplo com insert_many, 4) Retorna cursos ativos do banco de dados. Frontend: 1) Removido array estático de cursos, 2) Adicionados estados: courses (array), loading (boolean), error (string), 3) Implementado useEffect com fetchCourses() para buscar do backend, 4) Adicionadas telas de loading com ActivityIndicator e tela de erro com botão de retry, 5) Importado BACKEND_URL de config/api.ts. Cursos agora são dinâmicos e gerenciáveis pelo banco de dados. Backend reiniciado e funcionando."
 
+  - task: "Campo de telefone celular no cadastro"
+    implemented: true
+    working: true
+    file: "backend/server.py, frontend/app/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementado campo de telefone celular no cadastro com formatação brasileira. Backend: 1) Adicionado campo 'telefone' nos modelos User, UserCreate e UserProfile, 2) Criada função validate_phone_number() que valida formato brasileiro (11 dígitos, 9 na posição 3), 3) Atualizado endpoint /api/auth/register com validação de telefone e verificação de telefone duplicado, 4) Retorna erro 400 se telefone inválido ou já cadastrado. Frontend: 1) Adicionado estado 'telefone' e função formatPhone() para aplicar máscara (11) 99999-9999, 2) Criada função handlePhoneChange() que formata em tempo real, 3) Adicionado campo TextInput após campo Nome com keyboardType='phone-pad' e maxLength=15, 4) Validação incluída no handleAuth (telefone obrigatório no cadastro), 5) Telefone enviado no body do registro. Formato automático: usuário digita números e vê (11) 99999-9999. Backend reiniciado e funcionando."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
