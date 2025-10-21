@@ -123,6 +123,7 @@ class Look(BaseModel):
     favorito: bool = False
     imagem_look: Optional[str] = None  # base64 da simulação
     sugestao_ia: Optional[str] = None  # Texto da sugestão gerado pela IA
+    user_photo: Optional[str] = None  # URL da foto do usuário vestindo o look
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class LookCreate(BaseModel):
@@ -132,6 +133,7 @@ class LookCreate(BaseModel):
     clima: Optional[str] = None
     imagem_look: Optional[str] = None
     sugestao_ia: Optional[str] = None
+    user_photo: Optional[str] = None
 
 class Course(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
