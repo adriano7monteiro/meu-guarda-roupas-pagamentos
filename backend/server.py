@@ -2162,7 +2162,9 @@ async def send_push_notification(notification: PushNotification):
                         sent_count += 1
                     else:
                         failed_count += 1
-                        logging.error(f"Failed to send push: {item.get('message')}")
+                        error_msg = item.get("message") or item.get("details", {})
+                        logging.error(f"❌ Failed to send push to {item.get('id', 'unknown')}: {error_msg}")
+                        logging.error(f"Full error data: {item}")
             else:
                 logging.error(f"Expo Push API error: {response.status_code} - {response.text}")
                 raise HTTPException(status_code=500, detail="Erro ao enviar notificações")
