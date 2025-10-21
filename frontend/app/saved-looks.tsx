@@ -214,6 +214,59 @@ export default function SavedLooks() {
     );
   };
 
+  const takeUserPhoto = async (lookId: string) => {
+    try {
+      // Solicitar permissão da câmera
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (!permissionResult.granted) {
+        Alert.alert('Permissão Necessária', 'Precisamos de acesso à câmera para tirar a foto.');
+        return;
+      }
+
+      // Abrir câmera
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [3, 4],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setUploadingPhoto(lookId);
+
+        // Upload para Cloudflare
+        const imageUrl = await uploadImageToCloudflare(result.assets[0].uri);
+
+        // Salvar no backend
+        const token = await AsyncStorage.getItem('auth_token');
+        const response = await fetch(`${BACKEND_URL}/api/looks/${lookId}/user-photo`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ user_photo: imageUrl }),
+        });
+
+        if (response.ok) {
+          // Atualizar estado local
+          setLooks(prev => prev.map(look => 
+            look.id === lookId ? { ...look, user_photo: imageUrl } : look
+          ));
+          Alert.alert('Sucesso', 'Foto adicionada ao look!');
+        } else {
+          Alert.alert('Erro', 'Erro ao salvar foto.');
+        }
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Erro', 'Erro ao processar foto. Tente novamente.');
+    } finally {
+      setUploadingPhoto(null);
+    }
+  };
+
   const loadMoreLooks = () => {
     if (!loadingMore && hasMore && !loading) {
       setLoadingMore(true);
