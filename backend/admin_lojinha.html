@@ -1043,6 +1043,153 @@
             }
         };
 
+        // ==================== SUGESTÕES ====================
+        document.getElementById('sugestaoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const sugestaoId = document.getElementById('sugestaoId').value;
+            const isEdit = sugestaoId !== '';
+
+            const sugestao = {
+                title: document.getElementById('sugestao-title').value,
+                content: document.getElementById('sugestao-content').value,
+                category: document.getElementById('sugestao-category').value,
+                image: document.getElementById('sugestao-image').value || null,
+                active: document.getElementById('sugestao-active').checked,
+            };
+
+            try {
+                const url = isEdit 
+                    ? `${API_URL}/api/sugestoes/${sugestaoId}`
+                    : `${API_URL}/api/sugestoes`;
+
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(sugestao),
+                });
+
+                if (response.ok) {
+                    showAlert('Sugestão salva com sucesso!', 'success');
+                    document.getElementById('sugestaoForm').reset();
+                    document.getElementById('sugestaoId').value = '';
+                    document.getElementById('sugestao-form-title').textContent = 'Adicionar Nova Sugestão';
+                    document.getElementById('sugestao-btn-text').textContent = '💾 Salvar Sugestão';
+                    document.getElementById('sugestao-cancelBtn').style.display = 'none';
+                    loadSugestoes();
+                } else {
+                    const error = await response.json();
+                    showAlert('Erro ao salvar sugestão: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showAlert('Erro de conexão: ' + error.message, 'error');
+            }
+        });
+
+        async function loadSugestoes() {
+            try {
+                const response = await fetch(`${API_URL}/api/sugestoes`);
+                const sugestoes = await response.json();
+
+                const listDiv = document.getElementById('sugestoesList');
+
+                if (sugestoes.length === 0) {
+                    listDiv.innerHTML = '<p style="text-align: center; color: #999;">Nenhuma sugestão cadastrada ainda.</p>';
+                    return;
+                }
+
+                listDiv.innerHTML = sugestoes.map(sugestao => `
+                    <div class="list-item ${sugestao.active ? 'active' : ''}">
+                        <div class="item-info">
+                            <h3>
+                                ${sugestao.title}
+                                ${sugestao.active ? '<span class="badge badge-success">ATIVA</span>' : ''}
+                            </h3>
+                            <p><strong>Categoria:</strong> ${getCategoryName(sugestao.category)}</p>
+                            <p><strong>Conteúdo:</strong> ${sugestao.content.substring(0, 100)}${sugestao.content.length > 100 ? '...' : ''}</p>
+                            <p style="font-size: 12px; color: #999;">ID: ${sugestao.id}</p>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn btn-edit" onclick='editSugestao(${JSON.stringify(sugestao)})'>
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteSugestao('${sugestao.id}')">
+                                🗑️ Deletar
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('sugestoesList').innerHTML = 
+                    '<p style="text-align: center; color: #e74c3c;">Erro ao carregar sugestões</p>';
+            }
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'cores': 'Combinação de Cores',
+                'estilos': 'Estilos e Tendências',
+                'ocasioes': 'Looks para Ocasiões',
+                'cuidados': 'Cuidados com Roupas',
+                'acessorios': 'Acessórios',
+                'geral': 'Dicas Gerais'
+            };
+            return categories[category] || category;
+        }
+
+        function editSugestao(sugestao) {
+            document.getElementById('sugestaoId').value = sugestao.id;
+            document.getElementById('sugestao-title').value = sugestao.title;
+            document.getElementById('sugestao-content').value = sugestao.content;
+            document.getElementById('sugestao-category').value = sugestao.category;
+            document.getElementById('sugestao-image').value = sugestao.image || '';
+            document.getElementById('sugestao-active').checked = sugestao.active;
+
+            document.getElementById('sugestao-form-title').textContent = 'Editar Sugestão';
+            document.getElementById('sugestao-btn-text').textContent = '💾 Atualizar Sugestão';
+            document.getElementById('sugestao-cancelBtn').style.display = 'inline-block';
+
+            // Switch to sugestoes tab
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab')[3].classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('sugestoes-tab').classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelSugestaoEdit() {
+            document.getElementById('sugestaoForm').reset();
+            document.getElementById('sugestaoId').value = '';
+            document.getElementById('sugestao-form-title').textContent = 'Adicionar Nova Sugestão';
+            document.getElementById('sugestao-btn-text').textContent = '💾 Salvar Sugestão';
+            document.getElementById('sugestao-cancelBtn').style.display = 'none';
+        }
+
+        async function deleteSugestao(id) {
+            if (!confirm('Tem certeza que deseja deletar esta sugestão?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/sugestoes/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    showAlert('Sugestão deletada com sucesso!', 'success');
+                    loadSugestoes();
+                } else {
+                    showAlert('Erro ao deletar sugestão', 'error');
+                }
+            } catch (error) {
+                showAlert('Erro de conexão: ' + error.message, 'error');
+            }
+        }
         // ==================== UTILS ====================
         function showAlert(message, type) {
             const alertDiv = document.getElementById('alert');
