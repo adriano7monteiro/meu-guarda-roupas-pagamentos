@@ -483,7 +483,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
       const body = isLogin 
         ? { email, password }
-        : { email, password, nome, ocasiao_preferida: 'casual' };
+        : { email, password, nome, sexo, ocasiao_preferida: 'casual' };
 
       
 
