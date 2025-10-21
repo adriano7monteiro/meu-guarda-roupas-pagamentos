@@ -20,6 +20,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { BACKEND_URL } from '../config/api';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadImageToCloudflare } from '../services/cloudflareImages';
 
 interface Look {
   id: string;
@@ -30,6 +32,7 @@ interface Look {
   favorito: boolean;
   imagem_look?: string;
   sugestao_ia?: string;  // Texto da sugestão gerado pela IA
+  user_photo?: string;  // URL da foto do usuário vestindo o look
   created_at: string;
 }
 
