@@ -44,6 +44,16 @@ module.exports = {
     plugins: [
       'expo-router',
       [
+        'expo-notifications',
+        {
+          icon: './assets/images/notification-icon.png',
+          color: '#6c5ce7',
+          sounds: [],
+          androidMode: 'default',
+          androidCollapsedTitle: '{{unread_count}} novas notificações'
+        }
+      ],
+      [
         'expo-build-properties',
         {
           android: {
