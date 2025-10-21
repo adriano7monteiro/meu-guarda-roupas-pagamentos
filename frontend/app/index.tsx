@@ -572,6 +572,55 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
             </View>
           )}
 
+          {!isLogin && (
+            <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Sexo</Text>
+              <View style={styles.sexoContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.sexoButton,
+                    sexo === 'masculino' && styles.sexoButtonActive
+                  ]}
+                  onPress={() => setSexo('masculino')}
+                  disabled={loading}
+                >
+                  <Ionicons 
+                    name="male" 
+                    size={20} 
+                    color={sexo === 'masculino' ? '#fff' : '#999'} 
+                  />
+                  <Text style={[
+                    styles.sexoButtonText,
+                    sexo === 'masculino' && styles.sexoButtonTextActive
+                  ]}>
+                    Masculino
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.sexoButton,
+                    sexo === 'feminino' && styles.sexoButtonActive
+                  ]}
+                  onPress={() => setSexo('feminino')}
+                  disabled={loading}
+                >
+                  <Ionicons 
+                    name="female" 
+                    size={20} 
+                    color={sexo === 'feminino' ? '#fff' : '#999'} 
+                  />
+                  <Text style={[
+                    styles.sexoButtonText,
+                    sexo === 'feminino' && styles.sexoButtonTextActive
+                  ]}>
+                    Feminino
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           <View style={styles.inputContainer}>
             <Text style={styles.inputLabel}>Senha</Text>
             <TextInput
