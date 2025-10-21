@@ -2132,7 +2132,7 @@ async def register_push_token(
 @api_router.post("/push/send")
 async def send_push_notification(notification: PushNotification):
     """
-    Envia notificação push para todos os usuários (admin only - sem auth por enquanto)
+    Envia notificação push para todos os usuários usando Firebase Admin SDK
     """
     # Buscar todos os tokens
     tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
@@ -2140,55 +2140,61 @@ async def send_push_notification(notification: PushNotification):
     if not tokens:
         return {"message": "Nenhum dispositivo registrado", "sent": 0}
     
-    # Preparar mensagens para Expo Push API
-    messages = []
-    for token_doc in tokens:
-        messages.append({
-            "to": token_doc["token"],
-            "sound": "default",
-            "title": notification.title,
-            "body": notification.body,
-            "data": notification.data or {},
-        })
-    
-    # Enviar para Expo Push API
     sent_count = 0
     failed_count = 0
     error_details = []
     
-    async with httpx.AsyncClient() as client:
+    # Preparar mensagem FCM
+    for token_doc in tokens:
+        expo_token = token_doc["token"]
+        
+        # Extrair o token real do formato ExponentPushToken[xxxxx]
+        if expo_token.startswith("ExponentPushToken[") and expo_token.endswith("]"):
+            fcm_token = expo_token[18:-1]  # Remove "ExponentPushToken[" e "]"
+        else:
+            fcm_token = expo_token
+        
         try:
-            response = await client.post(
-                "https://exp.host/--/api/v2/push/send",
-                json=messages,
-                headers={
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-                timeout=30.0
+            # Criar mensagem FCM
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=notification.title,
+                    body=notification.body,
+                ),
+                data=notification.data or {},
+                token=fcm_token,
+                android=messaging.AndroidConfig(
+                    priority='high',
+                    notification=messaging.AndroidNotification(
+                        sound='default',
+                        color='#6c5ce7',
+                        channel_id='default',
+                    ),
+                ),
             )
             
-            if response.status_code == 200:
-                result = response.json()
-                data = result.get("data", [])
-                
-                for item in data:
-                    if item.get("status") == "ok":
-                        sent_count += 1
-                        logging.info(f"✅ Push sent successfully to {item.get('id', 'unknown')}")
-                    else:
-                        failed_count += 1
-                        error_msg = item.get("message") or str(item.get("details", {}))
-                        error_details.append(error_msg)
-                        logging.error(f"❌ Failed to send push to {item.get('id', 'unknown')}: {error_msg}")
-                        logging.error(f"Full error data: {item}")
-            else:
-                logging.error(f"Expo Push API error: {response.status_code} - {response.text}")
-                raise HTTPException(status_code=500, detail="Erro ao enviar notificações")
-                
+            # Enviar via Firebase Admin SDK
+            response = messaging.send(message)
+            sent_count += 1
+            logging.info(f"✅ Push sent successfully. Message ID: {response}")
+            
+        except messaging.UnregisteredError:
+            failed_count += 1
+            error_msg = "Token não registrado ou inválido"
+            error_details.append(error_msg)
+            logging.error(f"❌ Unregistered token: {fcm_token[:20]}...")
+            
+        except messaging.InvalidArgumentError as e:
+            failed_count += 1
+            error_msg = f"Argumento inválido: {str(e)}"
+            error_details.append(error_msg)
+            logging.error(f"❌ Invalid argument for token {fcm_token[:20]}...: {e}")
+            
         except Exception as e:
-            logging.error(f"Error sending push notifications: {str(e)}")
-            raise HTTPException(status_code=500, detail=f"Erro ao enviar notificações: {str(e)}")
+            failed_count += 1
+            error_msg = f"Erro ao enviar: {str(e)}"
+            error_details.append(error_msg)
+            logging.error(f"❌ Error sending to {fcm_token[:20]}...: {e}")
     
     return {
         "message": "Notificações enviadas",
@@ -2196,7 +2202,7 @@ async def send_push_notification(notification: PushNotification):
         "sent": sent_count,
         "failed": failed_count,
         "total": len(tokens),
-        "errors": error_details if error_details else None
+        "errors": error_details[:5] if error_details else None  # Limita a 5 erros para não poluir
     }
 
 @api_router.get("/push/tokens")
