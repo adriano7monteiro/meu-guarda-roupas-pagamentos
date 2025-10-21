@@ -122,7 +122,7 @@ export default function Courses() {
                 </View>
                 <TouchableOpacity
                   style={styles.buyButton}
-                  onPress={openWebsite}
+                  onPress={() => openCourseLink(course.link)}
                 >
                   <Text style={styles.buyButtonText}>Comprar Agora</Text>
                   <Ionicons name="arrow-forward" size={20} color="#fff" />
