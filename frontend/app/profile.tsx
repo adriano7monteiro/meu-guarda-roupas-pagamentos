@@ -367,6 +367,12 @@ export default function Profile() {
           </View>
         </View>
 
+        {/* Notification Settings Button */}
+        <TouchableOpacity style={styles.notificationButton} onPress={checkNotificationSettings}>
+          <Ionicons name="notifications" size={20} color="#fff" />
+          <Text style={styles.notificationButtonText}>Verificar Notificações</Text>
+        </TouchableOpacity>
+
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Ionicons name="log-out" size={20} color="#fff" />
