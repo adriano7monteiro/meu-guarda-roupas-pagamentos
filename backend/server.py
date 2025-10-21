@@ -48,10 +48,23 @@ GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 try:
     # Tentar ler de variável de ambiente primeiro
     firebase_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
+    firebase_base64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT_BASE64')
     
-    if firebase_json:
+    if firebase_base64:
+        # Ler do environment variable em Base64
+        logging.info("📱 Loading Firebase config from Base64 environment variable...")
+        try:
+            decoded = base64.b64decode(firebase_base64)
+            firebase_config = json.loads(decoded)
+            cred = credentials.Certificate(firebase_config)
+            firebase_admin.initialize_app(cred)
+            logging.info("✅ Firebase Admin SDK initialized from Base64 environment variable")
+        except Exception as e:
+            logging.error(f"❌ Error parsing Firebase Base64 from env var: {e}")
+            raise
+    elif firebase_json:
         # Ler do environment variable (JSON como string)
-        logging.info("📱 Loading Firebase config from environment variable...")
+        logging.info("📱 Loading Firebase config from JSON environment variable...")
         logging.info(f"📱 Firebase JSON length: {len(firebase_json)} characters")
         logging.info(f"📱 First 50 chars: {firebase_json[:50]}...")
         
@@ -59,11 +72,11 @@ try:
             firebase_config = json.loads(firebase_json)
             cred = credentials.Certificate(firebase_config)
             firebase_admin.initialize_app(cred)
-            logging.info("✅ Firebase Admin SDK initialized from environment variable")
+            logging.info("✅ Firebase Admin SDK initialized from JSON environment variable")
         except json.JSONDecodeError as e:
             logging.error(f"❌ Error parsing Firebase JSON from env var: {e}")
             logging.error(f"❌ JSON content preview: {firebase_json[:200]}")
-            logging.error("💡 Tip: Make sure the JSON is properly formatted in Heroku config vars")
+            logging.error("💡 Tip: Use FIREBASE_SERVICE_ACCOUNT_BASE64 instead for better compatibility")
             raise
     else:
         # Fallback para arquivo local
