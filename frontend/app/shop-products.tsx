@@ -178,6 +178,12 @@ export default function ShopProducts() {
                   <Text style={styles.imageCountText}>{product.images.length}</Text>
                 </View>
               )}
+              {product.active && (
+                <View style={styles.featuredBadge}>
+                  <Ionicons name="star" size={14} color="#fff" />
+                  <Text style={styles.featuredBadgeText}>Destaque</Text>
+                </View>
+              )}
             </View>
 
             <View style={styles.productContent}>
