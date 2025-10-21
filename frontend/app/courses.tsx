@@ -26,42 +26,66 @@ interface Course {
   link: string;
 }
 
-const courses: Course[] = [
-  {
-    id: '1',
-    title: 'Fundamentos do Estilo Pessoal',
-    description: 'Aprenda a identificar seu estilo único e criar looks que expressam sua personalidade. Curso completo com técnicas profissionais de personal styling.',
-    image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
-    price: 'R$ 197,00',
-    highlights: ['8 módulos completos', 'Certificado incluso', 'Acesso vitalício'],
-    link: 'https://zenebathos.com.br/curso-fundamentos-estilo',
-  },
-  {
-    id: '2',
-    title: 'Combinação de Cores e Estampas',
-    description: 'Domine a arte de combinar cores e estampas como um profissional. Aprenda sobre teoria das cores aplicada à moda e crie looks harmoniosos.',
-    image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80',
-    price: 'R$ 147,00',
-    highlights: ['Guia de cores personalizado', 'Exemplos práticos', 'Suporte por 30 dias'],
-    link: 'https://zenebathos.com.br/curso-cores-estampas',
-  },
-  {
-    id: '3',
-    title: 'Guarda-Roupa Cápsula',
-    description: 'Crie um guarda-roupa versátil com peças essenciais que combinam entre si. Economize tempo e dinheiro montando looks incríveis com menos roupas.',
-    image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80',
-    price: 'R$ 167,00',
-    highlights: ['Lista de peças essenciais', 'Planilha de organização', 'Grupo exclusivo'],
-    link: 'https://zenebathos.com.br/curso-guarda-roupa-capsula',
-  },
-];
-
 export default function Courses() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BACKEND_URL}/api/cursos`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCourses(data);
+      } else {
+        setError('Erro ao carregar cursos');
+      }
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      setError('Erro ao conectar com o servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const openCourseLink = (url: string) => {
     Linking.openURL(url).catch(err => {
       console.error('Error opening URL:', err);
     });
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#6c5ce7" />
+          <Text style={styles.loadingText}>Carregando cursos...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle" size={60} color="#e74c3c" />
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchCourses}>
+            <Text style={styles.retryButtonText}>Tentar Novamente</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
