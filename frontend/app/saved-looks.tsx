@@ -380,7 +380,10 @@ export default function SavedLooks() {
                       {look.imagem_look && (
                         <TouchableOpacity
                           style={styles.lookImageContainer}
-                          onPress={() => setFullScreenImage(look.imagem_look!)}
+                          onPress={() => {
+                            setFullScreenImage(look.imagem_look!);
+                            setIsUserPhoto(false);
+                          }}
                           activeOpacity={0.8}
                         >
                           <Image
