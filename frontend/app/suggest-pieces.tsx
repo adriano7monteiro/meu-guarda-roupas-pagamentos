@@ -66,7 +66,14 @@ export default function SuggestPieces() {
   };
 
   const openShopee = (tagBusca: string) => {
-    const url = `https://shopee.com.br/search?keyword=${encodeURIComponent(tagBusca)}`;
+    // Parâmetros de afiliado
+    const affiliateParams = 'uls_trackid=540b4olm00r7&utm_campaign=id_YRjxaktr0r&utm_content=----&utm_medium=affiliates&utm_source=an_18366980320&utm_term=duc1utii55v7';
+    
+    // Monta URL com keyword e parâmetros de afiliado
+    const url = `https://shopee.com.br/search?keyword=${encodeURIComponent(tagBusca)}&${affiliateParams}`;
+    
+    console.log('🔗 Abrindo Shopee com afiliado:', url);
+    
     Linking.openURL(url).catch(err => {
       console.error('Error opening URL:', err);
     });
