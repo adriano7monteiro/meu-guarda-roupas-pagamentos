@@ -129,6 +129,25 @@ class LookCreate(BaseModel):
     imagem_look: Optional[str] = None
     sugestao_ia: Optional[str] = None
 
+class Course(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    image: str
+    price: str
+    highlights: List[str]
+    link: str
+    active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CourseCreate(BaseModel):
+    title: str
+    description: str
+    image: str
+    price: str
+    highlights: List[str]
+    link: str
+
 class SugestaoLook(BaseModel):
     sugestao_texto: str
     roupas_sugeridas: List[str]
