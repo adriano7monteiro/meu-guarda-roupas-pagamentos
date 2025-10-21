@@ -190,6 +190,39 @@ export default function Profile() {
     );
   };
 
+  const checkNotificationSettings = async () => {
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      
+      if (status === 'granted') {
+        Alert.alert(
+          'Notificações Ativadas ✅',
+          'Você está recebendo notificações do app!',
+          [{ text: 'OK' }]
+        );
+      } else {
+        Alert.alert(
+          'Notificações Desativadas',
+          'Para receber notificações, você precisa ativar nas configurações do Android.\n\nDeseja abrir as configurações agora?',
+          [
+            { text: 'Cancelar', style: 'cancel' },
+            {
+              text: 'Abrir Configurações',
+              onPress: () => {
+                if (Platform.OS === 'android') {
+                  Linking.openSettings();
+                }
+              }
+            }
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Error checking notifications:', error);
+      Alert.alert('Erro', 'Não foi possível verificar as configurações de notificações');
+    }
+  };
+
   if (loading || !user) {
     return (
       <SafeAreaView style={styles.container}>
