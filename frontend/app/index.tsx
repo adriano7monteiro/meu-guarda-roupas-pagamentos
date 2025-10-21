@@ -364,7 +364,7 @@ export default function Index() {
                 <Ionicons name="school-outline" size={32} color="#6c5ce7" />
               </View>
               <View style={styles.coursesSectionText}>
-                <Text style={styles.coursesSectionTitle}>Aprenda se Vestir com Nossos Cursos</Text>
+                <Text style={styles.coursesSectionTitle}>Venha aprender uma habilidade</Text>
                 <Text style={styles.coursesSectionSubtitle}>
                   Descubra dicas profissionais de estilo e moda
                 </Text>
