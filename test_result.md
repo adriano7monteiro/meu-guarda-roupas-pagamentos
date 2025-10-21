@@ -340,6 +340,17 @@ frontend:
           agent: "main"
           comment: "Implementado campo de telefone celular no cadastro com formatação brasileira. Backend: 1) Adicionado campo 'telefone' nos modelos User, UserCreate e UserProfile, 2) Criada função validate_phone_number() que valida formato brasileiro (11 dígitos, 9 na posição 3), 3) Atualizado endpoint /api/auth/register com validação de telefone e verificação de telefone duplicado, 4) Retorna erro 400 se telefone inválido ou já cadastrado. Frontend: 1) Adicionado estado 'telefone' e função formatPhone() para aplicar máscara (11) 99999-9999, 2) Criada função handlePhoneChange() que formata em tempo real, 3) Adicionado campo TextInput após campo Nome com keyboardType='phone-pad' e maxLength=15, 4) Validação incluída no handleAuth (telefone obrigatório no cadastro), 5) Telefone enviado no body do registro. Formato automático: usuário digita números e vê (11) 99999-9999. Backend reiniciado e funcionando."
 
+  - task: "Lojinha (Shop) - Card na home e página de listagem"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/index.tsx, frontend/app/shop-products.tsx, backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementada funcionalidade completa da Lojinha. Backend: Endpoints GET /api/shop/produto-destaque e GET /api/shop/produtos já existentes e funcionando. Frontend HOME (index.tsx): 1) Carrossel de imagens do produto em destaque com ScrollView horizontal, 2) Dots indicadores de página ativa, 3) Badge 'Lojinha' com ícone storefront, 4) Badge de contagem de produtos (verde) mostrando '{count} produtos', 5) Card completo clicável navegando para /shop-products, 6) Imagem com resizeMode='cover' para evitar clipping, backgroundColor adicionado. Frontend LISTAGEM (shop-products.tsx): 1) Nova tela criada para listar todos os produtos, 2) Header com botão voltar e título 'Lojinha', 3) Contador de produtos no topo, 4) Cards para cada produto com carrossel de imagens, 5) Badge indicando quantidade de imagens, 6) Título, descrição (limitada a 3 linhas), preço e botão 'Ver mais', 7) Ao clicar no card, abre link externo do produto, 8) Estados de loading, erro e lista vazia tratados, 9) Padding Android para evitar clipping. Pronto para teste."
   - task: "Simplificação da tela de cursos"
     implemented: true
     working: true
