@@ -252,31 +252,6 @@ export default function MyWardrobe() {
         </ScrollView>
       ) : (
         <>
-          {/* Stats Section */}
-          <View style={styles.statsSection}>
-            <Text style={styles.statsTitle}>Resumo do guarda-roupa</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.statsContainer}>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{clothingItems.length}</Text>
-                  <Text style={styles.statLabel}>Total de peças</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{getStatsForType('camiseta')}</Text>
-                  <Text style={styles.statLabel}>Camisetas</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{getStatsForType('calca')}</Text>
-                  <Text style={styles.statLabel}>Calças</Text>
-                </View>
-                <View style={styles.statCard}>
-                  <Text style={styles.statNumber}>{getStatsForType('sapato')}</Text>
-                  <Text style={styles.statLabel}>Sapatos</Text>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-
           {/* Filter Section */}
           <View style={styles.filterSection}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
