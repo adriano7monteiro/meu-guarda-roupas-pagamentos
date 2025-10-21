@@ -467,6 +467,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
+  const [sexo, setSexo] = useState('masculino');
   const [loading, setLoading] = useState(false);
   const authModal = useModal();
 
