@@ -73,6 +73,18 @@ export default function Index() {
     fetchStatus();
   }, [user]);
 
+  const fetchShopProduct = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/shop/produto-destaque`);
+      if (response.ok) {
+        const produto = await response.json();
+        setShopProduct(produto);
+      }
+    } catch (error) {
+      console.error('Error fetching shop product:', error);
+    }
+  };
+
   const checkAuthStatus = async () => {
     try {
       const token = await AsyncStorage.getItem('auth_token');
