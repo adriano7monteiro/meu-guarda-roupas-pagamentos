@@ -280,6 +280,18 @@ frontend:
           agent: "main"
           comment: "Implementado campo de seleção de sexo (masculino/feminino) na tela de cadastro. Backend: 1) Adicionado campo 'sexo' nos modelos User, UserCreate e UserProfile, 2) Atualizado endpoint /api/auth/register para salvar o sexo, 3) Modificado endpoint /api/sugerir-look para incluir sexo do usuário no prompt da IA, 4) Modificado endpoint /api/sugerir-pecas para incluir sexo nas sugestões de compras. Frontend: 1) Adicionado estado 'sexo' com valor padrão 'masculino', 2) Criado UI com dois botões estilizados (masculino/feminino) com ícones, 3) Campo aparece apenas no cadastro (não no login), 4) Sexo é enviado no body da requisição de registro. Prompts da IA agora consideram o sexo para gerar sugestões mais personalizadas e adequadas (ex: 'calça jeans feminina' vs 'calça jeans masculina')."
 
+  - task: "Remover seção Resumo do guarda-roupa"
+    implemented: true
+    working: true
+    file: "frontend/app/my-wardrobe.tsx"
+    stuck_count: 0
+    priority: "low"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Removida a seção 'Resumo do guarda-roupa' da tela my-wardrobe.tsx. Modificações: 1) Removido bloco JSX completo da statsSection (linhas 255-278), 2) Removida função getStatsForType não mais utilizada, 3) Removidos estilos não mais necessários: statsSection, statsTitle, statsContainer, statCard, statNumber, statLabel. A tela agora exibe diretamente os filtros e a lista de roupas, simplificando a interface e economizando espaço na tela."
+
   - task: "Carrossel de imagens na tela de looks salvos"
     implemented: true
     working: "NA"
