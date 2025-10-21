@@ -966,6 +966,34 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#636e72',
   },
+  sexoContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  sexoButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#2d3436',
+    borderWidth: 2,
+    borderColor: '#636e72',
+    borderRadius: 12,
+    padding: 16,
+  },
+  sexoButtonActive: {
+    backgroundColor: '#6c5ce7',
+    borderColor: '#6c5ce7',
+  },
+  sexoButtonText: {
+    color: '#999',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  sexoButtonTextActive: {
+    color: '#fff',
+  },
   authButton: {
     backgroundColor: '#6c5ce7',
     borderRadius: 12,
