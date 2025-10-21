@@ -384,7 +384,11 @@ export default function Index() {
 
           {/* Shop Section - Lojinha */}
           {shopProduct && (
-            <View style={styles.shopSection}>
+            <TouchableOpacity 
+              style={styles.shopSection}
+              activeOpacity={0.9}
+              onPress={() => router.push('/shop-products')}
+            >
               <View style={styles.shopImageCarousel}>
                 <ScrollView
                   horizontal
@@ -423,21 +427,25 @@ export default function Index() {
                 <View style={styles.shopHeader}>
                   <Ionicons name="storefront" size={24} color="#6c5ce7" />
                   <Text style={styles.shopBadge}>Lojinha</Text>
+                  {shopProductsCount > 1 && (
+                    <Text style={styles.shopCountBadge}>
+                      {shopProductsCount} produtos
+                    </Text>
+                  )}
                 </View>
                 <Text style={styles.shopTitle}>{shopProduct.title}</Text>
                 <Text style={styles.shopDescription}>{shopProduct.description}</Text>
                 <View style={styles.shopFooter}>
                   <Text style={styles.shopPrice}>{shopProduct.price}</Text>
-                  <TouchableOpacity
-                    style={styles.shopButton}
-                    onPress={() => Linking.openURL(shopProduct.link)}
-                  >
-                    <Text style={styles.shopButtonText}>Ver mais</Text>
+                  <View style={styles.shopButton}>
+                    <Text style={styles.shopButtonText}>
+                      {shopProductsCount > 1 ? 'Ver todos' : 'Ver mais'}
+                    </Text>
                     <Ionicons name="arrow-forward" size={18} color="#fff" />
-                  </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           )}
 
           {/* Courses Section - New */}
