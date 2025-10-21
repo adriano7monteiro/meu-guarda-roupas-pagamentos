@@ -109,7 +109,6 @@ export default function SuggestPieces() {
             <Text style={styles.introTitle}>Peças Sugeridas para Você</Text>
             <Text style={styles.introText}>
               Com base no seu guarda-roupa atual, identificamos peças que complementariam suas roupas.
-              Clique para pesquisar na Shopee!
             </Text>
           </View>
 
