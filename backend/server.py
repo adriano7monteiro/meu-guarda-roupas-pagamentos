@@ -865,29 +865,32 @@ async def sugerir_pecas(
         })
     
     # Create AI prompt for gap analysis
-    prompt = f"""
-    Como personal shopper especializado, analise o guarda-roupa do usuário e identifique peças que faltam ou que complementariam bem o que ele já tem.
+    sexo_usuario = user.get("sexo", "masculino")
     
+    prompt = f"""
+    Como personal shopper especializado, analise o guarda-roupa de um usuário do sexo {sexo_usuario} e identifique peças que faltam ou que complementariam bem o que ele(a) já tem.
+    
+    Perfil do usuário: {sexo_usuario}
     Guarda-roupa atual:
     {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
     
-    Analise e sugira 4-6 peças que faltam ou complementariam o guarda-roupa. Para cada sugestão, forneça:
+    Analise e sugira 4-6 peças que faltam ou complementariam o guarda-roupa, considerando que são para uma pessoa do sexo {sexo_usuario}. Para cada sugestão, forneça:
     1. Nome da peça (específico e pesquisável na Shopee)
     2. Razão pela qual seria uma boa adição
-    3. Termo de busca otimizado para Shopee (curto, direto, em português)
+    3. Termo de busca otimizado para Shopee (curto, direto, em português, incluindo "{sexo_usuario}" se relevante)
     
     Responda APENAS com JSON válido (sem markdown):
     {{
         "sugestoes": [
             {{
-                "peca": "Nome da peça sugerida",
+                "peca": "Nome da peça sugerida para {sexo_usuario}",
                 "razao": "Por que essa peça complementaria o guarda-roupa",
-                "tag_busca": "termo busca shopee"
+                "tag_busca": "termo busca shopee {sexo_usuario}"
             }}
         ]
     }}
     
-    Exemplos de tags boas: "calça jeans feminina", "blusa branca social", "tênis branco casual"
+    Exemplos de tags boas para {sexo_usuario}: {"calça jeans feminina" if sexo_usuario == "feminino" else "calça jeans masculina"}, {"blusa branca social" if sexo_usuario == "feminino" else "camisa branca social"}, "tênis branco casual"
     """
     
     try:
