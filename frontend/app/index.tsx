@@ -50,6 +50,8 @@ export default function Index() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus | null>(null);
   // REMOVIDO: stats state - não é mais necessário
   const [suggestionText, setSuggestionText] = useState('');
+  const [shopProduct, setShopProduct] = useState<any>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showSuggestionModal, setShowSuggestionModal] = useState(false);
   const [sendingSuggestion, setSendingSuggestion] = useState(false);
   const modal = useModal();
