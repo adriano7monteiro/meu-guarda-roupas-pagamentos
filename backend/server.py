@@ -44,6 +44,18 @@ security = HTTPBearer()
 GOOGLE_PLAY_SERVICE_ACCOUNT_FILE = os.environ.get('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON', None)
 GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 
+# Initialize Firebase Admin SDK
+try:
+    firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
+    if firebase_cred_path.exists():
+        cred = credentials.Certificate(str(firebase_cred_path))
+        firebase_admin.initialize_app(cred)
+        logging.info("✅ Firebase Admin SDK initialized successfully")
+    else:
+        logging.warning("⚠️ Firebase service account file not found. Push notifications may not work.")
+except Exception as e:
+    logging.error(f"❌ Error initializing Firebase Admin SDK: {e}")
+
 # Create the main app without a prefix
 app = FastAPI()
 
