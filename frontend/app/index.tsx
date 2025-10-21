@@ -469,7 +469,7 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
   const [password, setPassword] = useState('');
   const [nome, setNome] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [sexo, setSexo] = useState('masculino');
+  const [sexo, setSexo] = useState('feminino');
   const [loading, setLoading] = useState(false);
   const authModal = useModal();
 
