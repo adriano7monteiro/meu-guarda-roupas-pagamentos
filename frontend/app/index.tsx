@@ -25,6 +25,7 @@ import { BACKEND_URL } from '../config/api';
 interface User {
   email: string;
   nome: string;
+  sexo?: string;
   foto_corpo: string | null;
   ocasiao_preferida: string;
 }
