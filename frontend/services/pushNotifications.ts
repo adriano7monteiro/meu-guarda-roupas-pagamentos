@@ -38,17 +38,27 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     console.log('🔔 [Push] Status de permissão existente:', existingStatus);
     let finalStatus = existingStatus;
     
+    // SEMPRE solicita permissão, mesmo se status for 'undetermined'
     if (existingStatus !== 'granted') {
-      console.log('🔔 [Push] Solicitando permissão...');
+      console.log('🔔 [Push] Solicitando permissão de notificações...');
+      console.log('⚠️ [Push] Se o dialog não aparecer, verifique as configurações do Android');
+      
       const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
-      console.log('🔔 [Push] Nova permissão:', finalStatus);
+      
+      console.log('🔔 [Push] Resposta da solicitação de permissão:', finalStatus);
+    } else {
+      console.log('✅ [Push] Permissão já concedida anteriormente');
     }
     
     if (finalStatus !== 'granted') {
-      console.log('❌ [Push] Permissão de notificação negada');
+      console.log('❌ [Push] Permissão de notificação NEGADA ou NÃO CONCEDIDA');
+      console.log('❌ [Push] Status final:', finalStatus);
+      console.log('💡 [Push] Vá em: Configurações → Apps → Meu Look IA → Notificações → Ativar');
       return null;
     }
+    
+    console.log('✅ [Push] Permissão concedida! Status:', finalStatus);
     
     try {
       console.log('🔔 [Push] Obtendo Expo Push Token...');
@@ -56,9 +66,11 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
         projectId: '48204880-bc16-43d4-98d3-88325a3d422c',
       });
       token = tokenData.data;
-      console.log('✅ [Push] Push token obtido:', token);
+      console.log('✅ [Push] Push token obtido com sucesso!');
+      console.log('📱 [Push] Token:', token);
     } catch (error) {
       console.error('❌ [Push] Erro ao obter push token:', error);
+      console.error('❌ [Push] Detalhes do erro:', JSON.stringify(error));
     }
   } else {
     console.log('⚠️ [Push] Notificações push só funcionam em dispositivos físicos');
