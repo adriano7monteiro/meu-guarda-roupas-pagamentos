@@ -61,13 +61,15 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     console.log('✅ [Push] Permissão concedida! Status:', finalStatus);
     
     try {
-      console.log('🔔 [Push] Obtendo Expo Push Token...');
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId: '48204880-bc16-43d4-98d3-88325a3d422c',
-      });
+      console.log('🔔 [Push] Obtendo FCM Token nativo...');
+      
+      // Obter token FCM nativo (sem wrapper ExponentPushToken)
+      const tokenData = await Notifications.getDevicePushTokenAsync();
       token = tokenData.data;
-      console.log('✅ [Push] Push token obtido com sucesso!');
+      
+      console.log('✅ [Push] FCM Token nativo obtido com sucesso!');
       console.log('📱 [Push] Token:', token);
+      console.log('📱 [Push] Token type:', tokenData.type); // 'fcm' para Android, 'apns' para iOS
     } catch (error) {
       console.error('❌ [Push] Erro ao obter push token:', error);
       console.error('❌ [Push] Detalhes do erro:', JSON.stringify(error));
