@@ -2105,7 +2105,11 @@ async def root():
 async def admin_lojinha():
     """Serve página HTML de admin da lojinha"""
     from fastapi.responses import FileResponse
-    return FileResponse('backend/admin_lojinha.html')
+    import os
+    
+    # Caminho absoluto do arquivo
+    file_path = os.path.join(os.path.dirname(__file__), 'admin_lojinha.html')
+    return FileResponse(file_path)
 
 @api_router.get("/health")
 async def health_check():
