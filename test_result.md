@@ -351,6 +351,18 @@ frontend:
         - working: "NA"
           agent: "main"
           comment: "Implementada funcionalidade completa da Lojinha. Backend: Endpoints GET /api/shop/produto-destaque e GET /api/shop/produtos já existentes e funcionando. Frontend HOME (index.tsx): 1) Carrossel de imagens do produto em destaque com ScrollView horizontal, 2) Dots indicadores de página ativa, 3) Badge 'Lojinha' com ícone storefront, 4) Badge de contagem de produtos (verde) mostrando '{count} produtos', 5) Card completo clicável navegando para /shop-products, 6) Imagem com resizeMode='cover' para evitar clipping, backgroundColor adicionado. Frontend LISTAGEM (shop-products.tsx): 1) Nova tela criada para listar todos os produtos, 2) Header com botão voltar e título 'Lojinha', 3) Contador de produtos no topo, 4) Cards para cada produto com carrossel de imagens, 5) Badge indicando quantidade de imagens, 6) Título, descrição (limitada a 3 linhas), preço e botão 'Ver mais', 7) Ao clicar no card, abre link externo do produto, 8) Estados de loading, erro e lista vazia tratados, 9) Padding Android para evitar clipping. Pronto para teste."
+
+  - task: "Configuração Firebase google-services.json para EAS Build"
+    implemented: true
+    working: "NA"
+    file: "frontend/app.config.js, frontend/eas.json, frontend/setup-firebase-secret.sh"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "main"
+          comment: "Implementada solução completa para o problema de google-services.json missing durante EAS builds. Problema: arquivo estava no .gitignore e não era acessível durante builds. Solução: Uso de EAS Secrets. Modificações: 1) app.config.js - Adicionada lógica para criar google-services.json dinamicamente a partir da variável GOOGLE_SERVICES_JSON durante builds, com validação de JSON e mensagens de erro claras, 2) eas.json - Adicionado comentário de documentação sobre o secret necessário, 3) Criado script setup-firebase-secret.sh para automatizar configuração do secret (verifica arquivo, EAS CLI, login, cria secret, lista secrets), 4) Criados documentos FIREBASE_EAS_SETUP.md e SOLUCAO_FIREBASE_EAS.md com instruções completas. Sistema agora suporta: desenvolvimento local (usa arquivo local), EAS builds (usa secret), segurança mantida (arquivo no .gitignore). Usuário precisa executar ./setup-firebase-secret.sh uma vez para configurar o secret no EAS."
   - task: "Simplificação da tela de cursos"
     implemented: true
     working: true
