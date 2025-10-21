@@ -15,12 +15,14 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { BACKEND_URL } from '../config/api';
+import { uploadImageToCloudflare } from '../services/cloudflareImages';
 
 const { width } = Dimensions.get('window');
 
