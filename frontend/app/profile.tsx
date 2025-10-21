@@ -130,8 +130,18 @@ export default function Profile() {
       const token = await AsyncStorage.getItem('auth_token');
       if (!token) return;
 
+      console.log('🚀 Upload foto corpo para Cloudflare...');
+      
+      // NOVO: Upload direto para Cloudflare Images
+      const imageUrl = await uploadImageToCloudflare(
+        imageBase64,
+        `foto-corpo-${Date.now()}.jpg`
+      );
+      
+      console.log('✅ Foto no Cloudflare! URL:', imageUrl);
+
       const formData = new FormData();
-      formData.append('imagem', imageBase64);
+      formData.append('imagem', imageUrl); // Agora envia URL, não base64
 
       const response = await fetch(`${BACKEND_URL}/api/upload-foto-corpo`, {
         method: 'POST',
