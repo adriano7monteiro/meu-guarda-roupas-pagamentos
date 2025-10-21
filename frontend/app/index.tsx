@@ -439,11 +439,20 @@ export default function Index() {
                 <Text style={styles.shopDescription}>{shopProduct.description}</Text>
                 <View style={styles.shopFooter}>
                   <Text style={styles.shopPrice}>{shopProduct.price}</Text>
-                  <View style={styles.shopButton}>
-                    <Text style={styles.shopButtonText}>
-                      {shopProductsCount > 1 ? 'Ver todos' : 'Ver mais'}
-                    </Text>
-                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  <View style={styles.shopButtonsContainer}>
+                    <TouchableOpacity 
+                      style={styles.shopButtonSecondary}
+                      onPress={() => Linking.openURL(shopProduct.link)}
+                    >
+                      <Text style={styles.shopButtonSecondaryText}>Comprar</Text>
+                      <Ionicons name="cart" size={16} color="#6c5ce7" />
+                    </TouchableOpacity>
+                    <View style={styles.shopButton}>
+                      <Text style={styles.shopButtonText}>
+                        {shopProductsCount > 1 ? 'Ver todos' : 'Ver mais'}
+                      </Text>
+                      <Ionicons name="arrow-forward" size={18} color="#fff" />
+                    </View>
                   </View>
                 </View>
               </TouchableOpacity>
