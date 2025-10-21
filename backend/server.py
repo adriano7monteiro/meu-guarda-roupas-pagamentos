@@ -45,52 +45,82 @@ GOOGLE_PLAY_SERVICE_ACCOUNT_FILE = os.environ.get('GOOGLE_PLAY_SERVICE_ACCOUNT_J
 GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 
 # Initialize Firebase Admin SDK
-try:
-    # Tentar ler de variável de ambiente primeiro
-    firebase_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
-    firebase_base64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT_BASE64')
-    
-    if firebase_base64:
-        # Ler do environment variable em Base64
-        logging.info("📱 Loading Firebase config from Base64 environment variable...")
-        try:
-            decoded = base64.b64decode(firebase_base64)
-            firebase_config = json.loads(decoded)
-            cred = credentials.Certificate(firebase_config)
-            firebase_admin.initialize_app(cred)
-            logging.info("✅ Firebase Admin SDK initialized from Base64 environment variable")
-        except Exception as e:
-            logging.error(f"❌ Error parsing Firebase Base64 from env var: {e}")
-            raise
-    elif firebase_json:
-        # Ler do environment variable (JSON como string)
-        logging.info("📱 Loading Firebase config from JSON environment variable...")
-        logging.info(f"📱 Firebase JSON length: {len(firebase_json)} characters")
-        logging.info(f"📱 First 50 chars: {firebase_json[:50]}...")
+def initialize_firebase():
+    """
+    Inicializa o Firebase Admin usando a variável de ambiente
+    FIREBASE_SERVICE_ACCOUNT (armazenada como string JSON)
+    """
+    try:
+        # Verificar se já foi inicializado
+        if firebase_admin._apps:
+            logging.info("✅ Firebase Admin SDK já está inicializado")
+            return True
         
-        try:
-            firebase_config = json.loads(firebase_json)
-            cred = credentials.Certificate(firebase_config)
-            firebase_admin.initialize_app(cred)
-            logging.info("✅ Firebase Admin SDK initialized from JSON environment variable")
-        except json.JSONDecodeError as e:
-            logging.error(f"❌ Error parsing Firebase JSON from env var: {e}")
-            logging.error(f"❌ JSON content preview: {firebase_json[:200]}")
-            logging.error("💡 Tip: Use FIREBASE_SERVICE_ACCOUNT_BASE64 instead for better compatibility")
-            raise
-    else:
-        # Fallback para arquivo local
-        firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
-        if firebase_cred_path.exists():
-            logging.info("📱 Loading Firebase config from file...")
-            cred = credentials.Certificate(str(firebase_cred_path))
-            firebase_admin.initialize_app(cred)
-            logging.info("✅ Firebase Admin SDK initialized from file")
+        # Tentar ler de variável de ambiente primeiro
+        firebase_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
+        firebase_base64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT_BASE64')
+        
+        if firebase_base64:
+            # Ler do environment variable em Base64
+            logging.info("📱 Loading Firebase config from Base64 environment variable...")
+            try:
+                decoded = base64.b64decode(firebase_base64)
+                firebase_config = json.loads(decoded)
+                cred = credentials.Certificate(firebase_config)
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from Base64 environment variable")
+                logging.info(f"✅ Project ID: {firebase_config.get('project_id', 'unknown')}")
+                return True
+            except Exception as e:
+                logging.error(f"❌ Error parsing Firebase Base64 from env var: {e}")
+                raise
+        elif firebase_json:
+            # Ler do environment variable (JSON como string)
+            logging.info("📱 Loading Firebase config from JSON environment variable...")
+            logging.info(f"📱 Firebase JSON length: {len(firebase_json)} characters")
+            
+            try:
+                # Converte de string → dicionário Python
+                firebase_config = json.loads(firebase_json)
+                
+                # Validar se tem os campos necessários
+                required_fields = ['project_id', 'private_key', 'client_email']
+                missing_fields = [f for f in required_fields if f not in firebase_config]
+                if missing_fields:
+                    raise ValueError(f"Missing required fields in Firebase config: {missing_fields}")
+                
+                # Cria a credencial a partir do dicionário
+                cred = credentials.Certificate(firebase_config)
+                
+                # Inicializa o app Firebase Admin
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from JSON environment variable")
+                logging.info(f"✅ Project ID: {firebase_config.get('project_id')}")
+                logging.info(f"✅ Client Email: {firebase_config.get('client_email')}")
+                return True
+            except json.JSONDecodeError as e:
+                logging.error(f"❌ Error parsing Firebase JSON from env var: {e}")
+                logging.error(f"❌ JSON content preview: {firebase_json[:200]}")
+                raise
         else:
-            logging.warning("⚠️ Firebase service account not found (env var or file). Push notifications will not work.")
-except Exception as e:
-    logging.error(f"❌ Error initializing Firebase Admin SDK: {e}")
-    logging.error(traceback.format_exc())
+            # Fallback para arquivo local
+            firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
+            if firebase_cred_path.exists():
+                logging.info("📱 Loading Firebase config from file...")
+                cred = credentials.Certificate(str(firebase_cred_path))
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from file")
+                return True
+            else:
+                logging.warning("⚠️ Firebase service account not found (env var or file). Push notifications will not work.")
+                return False
+    except Exception as e:
+        logging.error(f"❌ Error initializing Firebase Admin SDK: {e}")
+        logging.error(traceback.format_exc())
+        return False
+
+# Inicializar Firebase na inicialização do servidor
+initialize_firebase()
 
 # Create the main app without a prefix
 app = FastAPI()
