@@ -31,6 +31,10 @@ module.exports = {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: 'com.meulookia.app',
+      googleServicesFile: './google-services.json',
+      permissions: [
+        'POST_NOTIFICATIONS'
+      ],
     },
     web: {
       bundler: 'metro',
