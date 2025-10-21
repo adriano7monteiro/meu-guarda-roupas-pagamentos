@@ -1858,6 +1858,61 @@ async def get_planos():
     plans = await db.plans.find({"active": True}, {"_id": 0}).to_list(100)
     return plans
 
+@api_router.get("/cursos")
+async def get_cursos():
+    """
+    Retorna todos os cursos ativos.
+    Se não houver cursos cadastrados, cria 3 cursos de exemplo automaticamente.
+    """
+    # Verificar se existem cursos no banco
+    cursos_count = await db.courses.count_documents({})
+    
+    if cursos_count == 0:
+        # Criar cursos de exemplo
+        default_courses = [
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Fundamentos do Estilo Pessoal",
+                "description": "Aprenda a identificar seu estilo único e criar looks que expressam sua personalidade. Curso completo com técnicas profissionais de personal styling.",
+                "image": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
+                "price": "R$ 197,00",
+                "highlights": ["8 módulos completos", "Certificado incluso", "Acesso vitalício"],
+                "link": "https://zenebathos.com.br/curso-fundamentos-estilo",
+                "active": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Combinação de Cores e Estampas",
+                "description": "Domine a arte de combinar cores e estampas como um profissional. Aprenda sobre teoria das cores aplicada à moda e crie looks harmoniosos.",
+                "image": "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80",
+                "price": "R$ 147,00",
+                "highlights": ["Guia de cores personalizado", "Exemplos práticos", "Suporte por 30 dias"],
+                "link": "https://zenebathos.com.br/curso-cores-estampas",
+                "active": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Guarda-Roupa Cápsula",
+                "description": "Crie um guarda-roupa versátil com peças essenciais que combinam entre si. Economize tempo e dinheiro montando looks incríveis com menos roupas.",
+                "image": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80",
+                "price": "R$ 167,00",
+                "highlights": ["Lista de peças essenciais", "Planilha de organização", "Grupo exclusivo"],
+                "link": "https://zenebathos.com.br/curso-guarda-roupa-capsula",
+                "active": True,
+                "created_at": datetime.utcnow()
+            }
+        ]
+        
+        # Inserir cursos de exemplo no banco
+        await db.courses.insert_many(default_courses)
+        print("✅ Cursos de exemplo criados com sucesso!")
+    
+    # Retornar cursos ativos
+    courses = await db.courses.find({"active": True}, {"_id": 0}).to_list(100)
+    return courses
+
 # Basic routes
 @api_router.get("/")
 async def root():
