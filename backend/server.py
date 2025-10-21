@@ -77,6 +77,7 @@ class UserCreate(BaseModel):
     email: str
     password: str
     nome: str
+    sexo: str = "masculino"  # masculino ou feminino
     ocasiao_preferida: str = "casual"
 
 class UserLogin(BaseModel):
