@@ -1034,12 +1034,14 @@
             }
         });
 
-        // Update switchTab function to load push stats
+        // Update switchTab function to load push stats and sugestoes
         const originalSwitchTab = switchTab;
         switchTab = function(tab) {
             originalSwitchTab.call(this, tab);
             if (tab === 'push') {
                 loadPushStats();
+            } else if (tab === 'sugestoes') {
+                loadSugestoes();
             }
         };
 
