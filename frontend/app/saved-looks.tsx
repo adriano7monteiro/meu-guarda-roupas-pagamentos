@@ -489,15 +489,15 @@ export default function SavedLooks() {
                       <View style={styles.clothingItemsContainer}>
                         <View style={styles.carouselHeader}>
                           <Text style={styles.clothingItemsTitle}>
-                            {item.user_photo ? 'Você vestindo o look + Peças' : `Peças do look (${clothingDetails.length})`}:
+                            {look.user_photo ? 'Você vestindo o look + Peças' : `Peças do look (${clothingDetails.length})`}:
                           </Text>
-                          {!item.user_photo && (
+                          {!look.user_photo && (
                             <TouchableOpacity
                               style={styles.photoButton}
-                              onPress={() => takeUserPhoto(item.id)}
-                              disabled={uploadingPhoto === item.id}
+                              onPress={() => takeUserPhoto(look.id)}
+                              disabled={uploadingPhoto === look.id}
                             >
-                              {uploadingPhoto === item.id ? (
+                              {uploadingPhoto === look.id ? (
                                 <ActivityIndicator size="small" color="#fff" />
                               ) : (
                                 <>
@@ -514,17 +514,17 @@ export default function SavedLooks() {
                           style={styles.clothingCarousel}
                         >
                           {/* Foto do usuário vestindo (se existir) */}
-                          {item.user_photo && (
+                          {look.user_photo && (
                             <TouchableOpacity
                               style={[styles.clothingCard, styles.userPhotoCard]}
                               onPress={() => {
-                                setFullScreenImage(item.user_photo!);
+                                setFullScreenImage(look.user_photo!);
                                 setIsUserPhoto(true);
                               }}
                               activeOpacity={0.8}
                             >
                               <Image
-                                source={{ uri: item.user_photo }}
+                                source={{ uri: look.user_photo }}
                                 style={styles.clothingImage}
                                 resizeMode="cover"
                               />
