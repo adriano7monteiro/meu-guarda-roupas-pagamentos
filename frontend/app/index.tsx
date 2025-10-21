@@ -369,6 +369,64 @@ export default function Index() {
             </TouchableOpacity>
           </View>
 
+          {/* Shop Section - Lojinha */}
+          {shopProduct && (
+            <View style={styles.shopSection}>
+              <View style={styles.shopImageCarousel}>
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onMomentumScrollEnd={(event) => {
+                    const index = Math.round(
+                      event.nativeEvent.contentOffset.x / 
+                      event.nativeEvent.layoutMeasurement.width
+                    );
+                    setActiveImageIndex(index);
+                  }}
+                >
+                  {shopProduct.images.map((imageUrl: string, index: number) => (
+                    <Image
+                      key={index}
+                      source={{ uri: imageUrl }}
+                      style={styles.shopImage}
+                      resizeMode="cover"
+                    />
+                  ))}
+                </ScrollView>
+                <View style={styles.carouselDots}>
+                  {shopProduct.images.map((_: any, index: number) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.dot,
+                        activeImageIndex === index && styles.activeDot
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+              <View style={styles.shopContent}>
+                <View style={styles.shopHeader}>
+                  <Ionicons name="storefront" size={24} color="#6c5ce7" />
+                  <Text style={styles.shopBadge}>Lojinha</Text>
+                </View>
+                <Text style={styles.shopTitle}>{shopProduct.title}</Text>
+                <Text style={styles.shopDescription}>{shopProduct.description}</Text>
+                <View style={styles.shopFooter}>
+                  <Text style={styles.shopPrice}>{shopProduct.price}</Text>
+                  <TouchableOpacity
+                    style={styles.shopButton}
+                    onPress={() => Linking.openURL(shopProduct.link)}
+                  >
+                    <Text style={styles.shopButtonText}>Ver mais</Text>
+                    <Ionicons name="arrow-forward" size={18} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          )}
+
           {/* Courses Section - New */}
           <TouchableOpacity 
             style={styles.coursesSection}
