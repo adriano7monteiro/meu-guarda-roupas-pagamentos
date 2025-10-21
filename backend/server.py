@@ -2160,13 +2160,15 @@ async def send_push_notification(notification: PushNotification):
     
     # Preparar mensagem FCM
     for token_doc in tokens:
-        expo_token = token_doc["token"]
+        raw_token = token_doc["token"]
         
-        # Extrair o token real do formato ExponentPushToken[xxxxx]
-        if expo_token.startswith("ExponentPushToken[") and expo_token.endswith("]"):
-            fcm_token = expo_token[18:-1]  # Remove "ExponentPushToken[" e "]"
+        # Extrair token FCM puro
+        # Suporta formato antigo: ExponentPushToken[xxxxx] e formato novo: xxxxx
+        if raw_token.startswith("ExponentPushToken[") and raw_token.endswith("]"):
+            fcm_token = raw_token[18:-1]  # Remove "ExponentPushToken[" e "]"
+            logging.info(f"🔄 Convertendo token antigo para novo formato")
         else:
-            fcm_token = expo_token
+            fcm_token = raw_token  # Já é o token FCM puro
         
         try:
             # Criar mensagem FCM
