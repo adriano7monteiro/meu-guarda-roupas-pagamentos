@@ -229,8 +229,7 @@ export default function SavedLooks() {
       // Abrir câmera
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [3, 4],
+        allowsEditing: false,
         quality: 0.8,
       });
 
