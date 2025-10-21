@@ -601,6 +601,22 @@ function AuthScreen({ onLogin }: { onLogin: (user: User) => void }) {
 
           {!isLogin && (
             <View style={styles.inputContainer}>
+              <Text style={styles.inputLabel}>Telefone Celular</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="(11) 99999-9999"
+                placeholderTextColor="#999"
+                value={telefone}
+                onChangeText={handlePhoneChange}
+                keyboardType="phone-pad"
+                maxLength={15}
+                editable={!loading}
+              />
+            </View>
+          )}
+
+          {!isLogin && (
+            <View style={styles.inputContainer}>
               <Text style={styles.inputLabel}>Sexo</Text>
               <View style={styles.sexoContainer}>
                 <TouchableOpacity
