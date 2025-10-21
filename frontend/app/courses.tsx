@@ -21,6 +21,7 @@ interface Course {
   image: string;
   price: string;
   highlights: string[];
+  link: string;
 }
 
 const courses: Course[] = [
@@ -31,6 +32,7 @@ const courses: Course[] = [
     image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80',
     price: 'R$ 197,00',
     highlights: ['8 módulos completos', 'Certificado incluso', 'Acesso vitalício'],
+    link: 'https://zenebathos.com.br/curso-fundamentos-estilo',
   },
   {
     id: '2',
@@ -39,6 +41,7 @@ const courses: Course[] = [
     image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80',
     price: 'R$ 147,00',
     highlights: ['Guia de cores personalizado', 'Exemplos práticos', 'Suporte por 30 dias'],
+    link: 'https://zenebathos.com.br/curso-cores-estampas',
   },
   {
     id: '3',
@@ -47,6 +50,7 @@ const courses: Course[] = [
     image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80',
     price: 'R$ 167,00',
     highlights: ['Lista de peças essenciais', 'Planilha de organização', 'Grupo exclusivo'],
+    link: 'https://zenebathos.com.br/curso-guarda-roupa-capsula',
   },
 ];
 
