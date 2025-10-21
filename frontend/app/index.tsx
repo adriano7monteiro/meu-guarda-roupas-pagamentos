@@ -1349,6 +1349,16 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
+  shopCountBadge: {
+    backgroundColor: '#2ecc71',
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: 'bold',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    marginLeft: 'auto',
+  },
   shopTitle: {
     color: '#fff',
     fontSize: 20,
