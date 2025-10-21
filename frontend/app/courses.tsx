@@ -111,7 +111,7 @@ export default function Courses() {
           </View>
           <Text style={styles.heroTitle}>Transforme Seu Estilo</Text>
           <Text style={styles.heroSubtitle}>
-            Aprenda com especialistas e descubra como se vestir com confiança e elegância
+            Aprenda com especialistas e descubra como ter estilo, confiança e elegância
           </Text>
         </View>
 
