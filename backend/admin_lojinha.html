@@ -456,6 +456,69 @@
                 </div>
             </div>
         </div>
+
+        <!-- TAB PUSH NOTIFICATIONS -->
+        <div id="push-tab" class="tab-content">
+            <div class="card">
+                <h2 style="color: #667eea; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span>📊</span> Estatísticas
+                </h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <div style="background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); padding: 20px; border-radius: 15px; color: white; text-align: center;">
+                        <div style="font-size: 32px; font-weight: bold; margin-bottom: 5px;" id="totalDevices">-</div>
+                        <div style="font-size: 14px; opacity: 0.9;">Dispositivos Registrados</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="color: #667eea; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span>✉️</span> Enviar Notificação
+                </h2>
+                
+                <form id="pushForm">
+                    <div class="form-group">
+                        <label for="pushTitle">Título da Notificação</label>
+                        <input 
+                            type="text" 
+                            id="pushTitle" 
+                            placeholder="Ex: Novo produto na Lojinha!" 
+                            maxlength="50"
+                            required
+                        >
+                        <div style="text-align: right; color: #636e72; font-size: 12px; margin-top: 5px;">
+                            <span id="pushTitleCount">0</span>/50
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pushBody">Mensagem</label>
+                        <textarea 
+                            id="pushBody" 
+                            placeholder="Ex: Confira nossos novos produtos com desconto especial!"
+                            maxlength="200"
+                            required
+                            style="min-height: 100px;"
+                        ></textarea>
+                        <div style="text-align: right; color: #636e72; font-size: 12px; margin-top: 5px;">
+                            <span id="pushBodyCount">0</span>/200
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9fa; border: 2px dashed #dfe6e9; border-radius: 10px; padding: 20px; margin-top: 20px;">
+                        <h3 style="color: #2d3436; margin-bottom: 15px; font-size: 16px;">👁️ Preview</h3>
+                        <div style="background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+                            <div style="font-weight: 600; color: #2d3436; margin-bottom: 5px;" id="pushPreviewTitle">Título da notificação</div>
+                            <div style="color: #636e72; font-size: 14px;" id="pushPreviewBody">Sua mensagem aparecerá aqui</div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="pushSendBtn" style="margin-top: 20px;">
+                        <span id="pushBtnText">🚀 Enviar Notificação</span>
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
