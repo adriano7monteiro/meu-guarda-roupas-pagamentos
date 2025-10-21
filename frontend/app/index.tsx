@@ -104,6 +104,8 @@ export default function Index() {
       if (token) {
         await fetchUserProfile(token);
         await fetchSubscriptionStatus(token);
+        // Registrar push token também ao iniciar app se usuário já estiver logado
+        await registerPushToken(token);
         // REMOVIDO: fetchStats(token) - não é mais necessário
       }
     } catch (error) {
