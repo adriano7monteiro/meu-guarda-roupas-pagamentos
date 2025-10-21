@@ -696,7 +696,15 @@ async def upload_roupa(
         clothing_dict = roupa_data.dict()
         clothing_dict["user_id"] = user["id"]
         
-        logging.info(f"Upload roupa - Image size: {len(roupa_data.imagem_original) if roupa_data.imagem_original else 0}")
+        # Identificar se é URL Cloudflare ou base64 legacy
+        is_cloudflare_url = roupa_data.imagem_original.startswith("https://imagedelivery.net/")
+        image_type = "Cloudflare URL" if is_cloudflare_url else "Base64 legacy"
+        logging.info(f"Upload roupa - Image type: {image_type}")
+        
+        if is_cloudflare_url:
+            logging.info(f"Upload roupa - Cloudflare URL: {roupa_data.imagem_original}")
+        else:
+            logging.info(f"Upload roupa - Image size (base64): {len(roupa_data.imagem_original)}")
         
         clothing = ClothingItem(**clothing_dict)
         result = await db.clothing_items.insert_one(clothing.dict())
