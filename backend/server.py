@@ -46,15 +46,29 @@ GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 
 # Initialize Firebase Admin SDK
 try:
-    firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
-    if firebase_cred_path.exists():
-        cred = credentials.Certificate(str(firebase_cred_path))
+    # Tentar ler de variável de ambiente primeiro
+    firebase_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
+    
+    if firebase_json:
+        # Ler do environment variable (JSON como string)
+        logging.info("📱 Loading Firebase config from environment variable...")
+        firebase_config = json.loads(firebase_json)
+        cred = credentials.Certificate(firebase_config)
         firebase_admin.initialize_app(cred)
-        logging.info("✅ Firebase Admin SDK initialized successfully")
+        logging.info("✅ Firebase Admin SDK initialized from environment variable")
     else:
-        logging.warning("⚠️ Firebase service account file not found. Push notifications may not work.")
+        # Fallback para arquivo local
+        firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
+        if firebase_cred_path.exists():
+            logging.info("📱 Loading Firebase config from file...")
+            cred = credentials.Certificate(str(firebase_cred_path))
+            firebase_admin.initialize_app(cred)
+            logging.info("✅ Firebase Admin SDK initialized from file")
+        else:
+            logging.warning("⚠️ Firebase service account not found (env var or file). Push notifications will not work.")
 except Exception as e:
     logging.error(f"❌ Error initializing Firebase Admin SDK: {e}")
+    logging.error(traceback.format_exc())
 
 # Create the main app without a prefix
 app = FastAPI()
