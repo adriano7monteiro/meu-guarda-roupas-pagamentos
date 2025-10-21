@@ -45,9 +45,8 @@ export default function ShopProducts() {
       
       if (response.ok) {
         const data = await response.json();
-        // Filtrar apenas produtos ativos
-        const activeProducts = data.filter((p: ShopProduct) => p.active !== false);
-        setProducts(activeProducts);
+        // Mostrar TODOS os produtos (não filtrar por active)
+        setProducts(data);
       } else {
         setError('Erro ao carregar produtos');
       }
