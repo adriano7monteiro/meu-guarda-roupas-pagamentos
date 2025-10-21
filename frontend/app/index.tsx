@@ -24,6 +24,7 @@ import {
 import CustomModal from '../components/CustomModal';
 import { useModal } from '../hooks/useModal';
 import { BACKEND_URL } from '../config/api';
+import { registerForPushNotificationsAsync } from '../services/pushNotifications';
 
 interface User {
   email: string;
