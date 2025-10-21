@@ -21,25 +21,6 @@ interface CloudflareUploadResponse {
 }
 
 /**
- * Converte base64 para Blob
- */
-function base64ToBlob(base64: string, contentType: string = 'image/jpeg'): Blob {
-  // Remove o prefixo data:image/...;base64, se existir
-  const base64Data = base64.includes(',') ? base64.split(',')[1] : base64;
-  
-  // Decode base64
-  const byteCharacters = atob(base64Data);
-  const byteNumbers = new Array(byteCharacters.length);
-  
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-  
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type: contentType });
-}
-
-/**
  * Faz upload de imagem base64 para Cloudflare Images
  * @param base64Image Imagem em base64 (com ou sem prefixo data:)
  * @param fileName Nome do arquivo (opcional)
@@ -52,15 +33,24 @@ export async function uploadImageToCloudflare(
   try {
     console.log('🚀 Iniciando upload para Cloudflare Images...');
     
-    // Converte base64 para Blob
-    const blob = base64ToBlob(base64Image);
+    // Remove o prefixo data:image/...;base64, se existir
+    const base64Data = base64Image.includes(',') ? base64Image.split(',')[1] : base64Image;
     
-    // Cria FormData
+    // Cria FormData para React Native
     const formData = new FormData();
-    formData.append('file', blob, fileName);
+    
+    // No React Native, passamos um objeto com uri, type e name
+    // Mas como temos base64, precisamos criar um formato aceito
+    formData.append('file', {
+      uri: `data:image/jpeg;base64,${base64Data}`,
+      type: 'image/jpeg',
+      name: fileName,
+    } as any);
     
     // Upload para Cloudflare
     const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/images/v1`;
+    
+    console.log('📤 Enviando para Cloudflare...');
     
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -74,7 +64,7 @@ export async function uploadImageToCloudflare(
     
     if (!data.success || !data.result) {
       console.error('❌ Erro no upload Cloudflare:', data.errors);
-      throw new Error('Falha ao fazer upload da imagem');
+      throw new Error(data.errors?.[0]?.message || 'Falha ao fazer upload da imagem');
     }
     
     // Monta URL pública da imagem
