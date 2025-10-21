@@ -270,6 +270,38 @@ export default function SavedLooks() {
     }
   };
 
+  const shareToInstagram = async () => {
+    if (!fullScreenImage) return;
+
+    try {
+      // Baixar a imagem temporariamente
+      const fileName = 'look-' + Date.now() + '.jpg';
+      const fileUri = FileSystem.cacheDirectory + fileName;
+      
+      const downloadResult = await FileSystem.downloadAsync(
+        fullScreenImage,
+        fileUri
+      );
+
+      if (downloadResult.uri) {
+        // Verificar se pode compartilhar
+        const canShare = await Sharing.isAvailableAsync();
+        
+        if (canShare) {
+          await Sharing.shareAsync(downloadResult.uri, {
+            mimeType: 'image/jpeg',
+            dialogTitle: 'Compartilhar no Instagram',
+          });
+        } else {
+          Alert.alert('Erro', 'Compartilhamento não disponível neste dispositivo');
+        }
+      }
+    } catch (error) {
+      console.error('Error sharing to Instagram:', error);
+      Alert.alert('Erro', 'Não foi possível compartilhar. Tente novamente.');
+    }
+  };
+
   const loadMoreLooks = () => {
     if (!loadingMore && hasMore && !loading) {
       setLoadingMore(true);
