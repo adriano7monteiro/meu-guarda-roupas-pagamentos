@@ -170,6 +170,23 @@ class ShopProductCreate(BaseModel):
     link: str
     active: bool = True
 
+class PushToken(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    token: str
+    platform: str  # "android" or "ios"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PushTokenCreate(BaseModel):
+    token: str
+    platform: str
+
+class PushNotification(BaseModel):
+    title: str
+    body: str
+    data: Optional[dict] = None
+
 class SugestaoLook(BaseModel):
     sugestao_texto: str
     roupas_sugeridas: List[str]
