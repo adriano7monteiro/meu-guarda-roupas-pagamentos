@@ -24,8 +24,7 @@
         "EXPO_PUBLIC_ENABLE_IAP": "true"
       },
       "android": {
-        "buildType": "app-bundle",
-        "serviceAccountKeyPath": "./firebase-service-account.json"
+        "buildType": "app-bundle"
       }
     },
     "production-apk": {
