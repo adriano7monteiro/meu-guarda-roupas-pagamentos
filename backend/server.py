@@ -1170,6 +1170,41 @@ async def delete_look(look_id: str, current_user=Depends(security)):
     
     return {"message": "Look removido com sucesso"}
 
+@api_router.put("/looks/{look_id}/user-photo")
+async def add_user_photo_to_look(
+    look_id: str,
+    photo_data: dict,
+    current_user=Depends(security)
+):
+    """
+    Adiciona ou atualiza a foto do usuário vestindo o look
+    Espera: {"user_photo": "URL_da_foto_cloudflare"}
+    """
+    user = await get_current_user(current_user)
+    
+    # Verificar se o look existe e pertence ao usuário
+    look = await db.looks.find_one({
+        "id": look_id,
+        "user_id": user["id"]
+    })
+    
+    if not look:
+        raise HTTPException(status_code=404, detail="Look não encontrado")
+    
+    # Atualizar com a foto do usuário
+    result = await db.looks.update_one(
+        {"id": look_id, "user_id": user["id"]},
+        {"$set": {"user_photo": photo_data.get("user_photo")}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Erro ao atualizar foto")
+    
+    return {
+        "message": "Foto adicionada ao look com sucesso",
+        "user_photo": photo_data.get("user_photo")
+    }
+
 # Subscription/Payment models
 class CreateSubscriptionRequest(BaseModel):
     plano: str  # mensal, semestral, anual
