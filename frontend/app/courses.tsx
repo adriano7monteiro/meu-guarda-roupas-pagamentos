@@ -175,6 +175,42 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#1a1a1a',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 12,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+    gap: 16,
+  },
+  errorText: {
+    color: '#e74c3c',
+    fontSize: 18,
+    textAlign: 'center',
+    marginTop: 16,
+  },
+  retryButton: {
+    backgroundColor: '#6c5ce7',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginTop: 16,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
