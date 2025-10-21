@@ -55,8 +55,8 @@ const courses: Course[] = [
 ];
 
 export default function Courses() {
-  const openWebsite = () => {
-    Linking.openURL('https://zenebathos.com.br').catch(err => {
+  const openCourseLink = (url: string) => {
+    Linking.openURL(url).catch(err => {
       console.error('Error opening URL:', err);
     });
   };
