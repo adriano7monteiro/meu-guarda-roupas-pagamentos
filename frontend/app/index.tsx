@@ -427,9 +427,12 @@ export default function Index() {
                   <Ionicons name="storefront" size={24} color="#6c5ce7" />
                   <Text style={styles.shopBadge}>Lojinha</Text>
                   {shopProductsCount > 1 && (
-                    <Text style={styles.shopCountBadge}>
-                      {shopProductsCount} produtos
-                    </Text>
+                    <View style={styles.shopCountBadge}>
+                      <Ionicons name="add-circle" size={14} color="#fff" />
+                      <Text style={styles.shopCountText}>
+                        +{shopProductsCount - 1} {shopProductsCount - 1 === 1 ? 'produto' : 'produtos'}
+                      </Text>
+                    </View>
                   )}
                 </View>
                 <Text style={styles.shopTitle}>{shopProduct.title}</Text>
