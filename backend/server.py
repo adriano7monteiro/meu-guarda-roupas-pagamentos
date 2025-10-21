@@ -2140,6 +2140,7 @@ async def send_push_notification(notification: PushNotification):
     # Enviar para Expo Push API
     sent_count = 0
     failed_count = 0
+    error_details = []
     
     async with httpx.AsyncClient() as client:
         try:
@@ -2160,9 +2161,11 @@ async def send_push_notification(notification: PushNotification):
                 for item in data:
                     if item.get("status") == "ok":
                         sent_count += 1
+                        logging.info(f"✅ Push sent successfully to {item.get('id', 'unknown')}")
                     else:
                         failed_count += 1
-                        error_msg = item.get("message") or item.get("details", {})
+                        error_msg = item.get("message") or str(item.get("details", {}))
+                        error_details.append(error_msg)
                         logging.error(f"❌ Failed to send push to {item.get('id', 'unknown')}: {error_msg}")
                         logging.error(f"Full error data: {item}")
             else:
@@ -2178,7 +2181,8 @@ async def send_push_notification(notification: PushNotification):
         "sent_count": sent_count,
         "sent": sent_count,
         "failed": failed_count,
-        "total": len(tokens)
+        "total": len(tokens),
+        "errors": error_details if error_details else None
     }
 
 @api_router.get("/push/tokens")
