@@ -2284,17 +2284,18 @@ async def send_push_notification(notification: PushNotification):
             sent_count += 1
             logging.info(f"✅ Push sent successfully. Message ID: {response}")
             
-        except messaging.UnregisteredError:
+        except firebase_exceptions.InvalidArgumentError as e:
             failed_count += 1
-            error_msg = f"Token não registrado: {fcm_token[:30]}..."
+            error_msg = f"Token inválido: {str(e)}"
+            error_details.append(error_msg)
+            logging.error(f"❌ Invalid FCM token {fcm_token[:30]}...: {e}")
+            logging.error(f"❌ Este token não é um token FCM válido. App precisa de novo build com Firebase configurado.")
+            
+        except firebase_exceptions.UnregisteredError as e:
+            failed_count += 1
+            error_msg = f"Token não registrado: {str(e)}"
             error_details.append(error_msg)
             logging.error(f"❌ Unregistered token: {fcm_token[:30]}...")
-            
-        except messaging.InvalidArgumentError as e:
-            failed_count += 1
-            error_msg = f"Argumento inválido: {str(e)}"
-            error_details.append(error_msg)
-            logging.error(f"❌ Invalid argument for token {fcm_token[:30]}...: {e}")
             
         except Exception as e:
             failed_count += 1
