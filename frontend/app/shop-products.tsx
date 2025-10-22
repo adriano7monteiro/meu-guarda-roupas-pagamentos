@@ -171,7 +171,7 @@ export default function ShopProducts() {
                     key={index}
                     source={{ uri: imageUrl }}
                     style={styles.productImage}
-                    resizeMode="cover"
+                    resizeMode="contain"
                   />
                 ))}
               </ScrollView>
