@@ -23,7 +23,7 @@ from openai import AsyncOpenAI
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import firebase_admin
-from firebase_admin import credentials, messaging
+from firebase_admin import credentials, messaging, exceptions as firebase_exceptions
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
