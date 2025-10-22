@@ -296,6 +296,9 @@ export default function SavedLooks() {
         return;
       }
 
+      // Importar FileSystem dinamicamente apenas em plataformas nativas
+      const FileSystem = await import('expo-file-system');
+      
       // Baixar a imagem temporariamente (apenas em plataformas nativas)
       const imageUri = fullScreenImage;
       const fileUri = FileSystem.cacheDirectory + `look_${Date.now()}.jpg`;
