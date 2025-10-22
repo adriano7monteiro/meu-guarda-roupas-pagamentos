@@ -20,8 +20,11 @@ Agora o código:
 
 ### 2. Fluxo de Compartilhamento
 
+**No Android/iOS (Nativo):**
 ```
 Usuário clica "Compartilhar no Instagram"
+    ↓
+Verifica plataforma (Android/iOS)
     ↓
 Baixa imagem para cache local
     ↓
@@ -30,6 +33,19 @@ Abre menu nativo de compartilhamento
 Usuário escolhe Instagram da lista
     ↓
 Instagram abre com a imagem pronta para post/story
+```
+
+**No Web:**
+```
+Usuário clica "Compartilhar no Instagram"
+    ↓
+Detecta plataforma Web
+    ↓
+Mostra alert com instruções:
+- Clique direito na imagem
+- Salvar imagem
+- Abrir Instagram no celular
+- Criar post/story com a imagem
 ```
 
 ### 3. Fallbacks Implementados
