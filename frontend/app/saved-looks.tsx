@@ -274,39 +274,84 @@ export default function SavedLooks() {
     if (!fullScreenImage) return;
 
     try {
-      // Tentar abrir o Instagram
-      const instagramUrl = 'instagram://';
-      const canOpen = await Linking.canOpenURL(instagramUrl);
+      console.log('📤 Iniciando compartilhamento para Instagram...');
       
-      if (canOpen) {
+      // Verificar se o sharing está disponível
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
         Alert.alert(
-          'Compartilhar no Instagram',
-          'A foto está salva no seu dispositivo. Vamos abrir o Instagram para você compartilhar!',
-          [
-            {
-              text: 'Cancelar',
-              style: 'cancel',
-            },
-            {
-              text: 'Abrir Instagram',
-              onPress: () => Linking.openURL(instagramUrl),
-            },
-          ]
-        );
-      } else {
-        // Se Instagram não estiver instalado, copiar link da imagem
-        Alert.alert(
-          'Instagram não encontrado',
-          'Você pode salvar a imagem manualmente e compartilhar no Instagram.\n\nURL da imagem copiada!',
+          'Compartilhamento não disponível',
+          'Seu dispositivo não suporta compartilhamento direto. Tente fazer um print da tela.',
           [{ text: 'OK' }]
         );
+        return;
       }
+
+      // Baixar a imagem temporariamente
+      const imageUri = fullScreenImage;
+      const fileUri = FileSystem.cacheDirectory + `look_${Date.now()}.jpg`;
+      
+      console.log('📥 Baixando imagem:', imageUri);
+      
+      const downloadResult = await FileSystem.downloadAsync(imageUri, fileUri);
+      
+      if (downloadResult.status !== 200) {
+        throw new Error('Falha ao baixar imagem');
+      }
+      
+      console.log('✅ Imagem baixada:', downloadResult.uri);
+
+      // Compartilhar usando o menu nativo do Android/iOS
+      // O usuário poderá escolher o Instagram da lista de apps
+      await Sharing.shareAsync(downloadResult.uri, {
+        mimeType: 'image/jpeg',
+        dialogTitle: 'Compartilhar look',
+        UTI: 'public.jpeg',
+      });
+      
+      console.log('✅ Compartilhamento aberto com sucesso');
+      
     } catch (error) {
-      console.error('Error sharing to Instagram:', error);
-      Alert.alert(
-        'Dica de Compartilhamento',
-        'Para compartilhar no Instagram:\n\n1. Faça um print desta tela\n2. Ou salve a imagem manualmente\n3. Depois compartilhe no Instagram!'
-      );
+      console.error('❌ Erro ao compartilhar:', error);
+      
+      // Fallback: tentar abrir o Instagram diretamente
+      try {
+        const instagramUrl = 'instagram://camera';
+        const canOpen = await Linking.canOpenURL(instagramUrl);
+        
+        if (canOpen) {
+          Alert.alert(
+            'Opções de Compartilhamento',
+            'Escolha como deseja compartilhar:',
+            [
+              {
+                text: 'Fazer Print da Tela',
+                onPress: () => Alert.alert('Dica', 'Use o botão de print do seu celular para capturar a imagem, depois abra o Instagram e compartilhe!'),
+              },
+              {
+                text: 'Abrir Instagram',
+                onPress: () => Linking.openURL(instagramUrl),
+              },
+              {
+                text: 'Cancelar',
+                style: 'cancel',
+              },
+            ]
+          );
+        } else {
+          Alert.alert(
+            'Dica de Compartilhamento',
+            'Para compartilhar no Instagram:\n\n1. Faça um print desta tela (Botão Power + Volume Baixo)\n2. Abra o Instagram\n3. Crie um novo post/story\n4. Selecione a imagem da galeria',
+            [{ text: 'Entendi' }]
+          );
+        }
+      } catch (linkError) {
+        Alert.alert(
+          'Dica de Compartilhamento',
+          'Para compartilhar no Instagram:\n\n1. Faça um print desta tela (Botão Power + Volume Baixo)\n2. Abra o Instagram\n3. Crie um novo post/story\n4. Selecione a imagem da galeria',
+          [{ text: 'Entendi' }]
+        );
+      }
     }
   };
 
