@@ -17,10 +17,13 @@ import base64
 import json
 import random
 import traceback
+import httpx
 from email_service import email_service
 from openai import AsyncOpenAI
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import firebase_admin
+from firebase_admin import credentials, messaging
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -41,6 +44,84 @@ security = HTTPBearer()
 GOOGLE_PLAY_SERVICE_ACCOUNT_FILE = os.environ.get('GOOGLE_PLAY_SERVICE_ACCOUNT_JSON', None)
 GOOGLE_PACKAGE_NAME = os.environ.get('GOOGLE_PACKAGE_NAME', 'com.meulookia.app')
 
+# Initialize Firebase Admin SDK
+def initialize_firebase():
+    """
+    Inicializa o Firebase Admin usando a variável de ambiente
+    FIREBASE_SERVICE_ACCOUNT (armazenada como string JSON)
+    """
+    try:
+        # Verificar se já foi inicializado
+        if firebase_admin._apps:
+            logging.info("✅ Firebase Admin SDK já está inicializado")
+            return True
+        
+        # Tentar ler de variável de ambiente primeiro
+        firebase_json = os.environ.get('FIREBASE_SERVICE_ACCOUNT')
+        firebase_base64 = os.environ.get('FIREBASE_SERVICE_ACCOUNT_BASE64')
+        
+        if firebase_base64:
+            # Ler do environment variable em Base64
+            logging.info("📱 Loading Firebase config from Base64 environment variable...")
+            try:
+                decoded = base64.b64decode(firebase_base64)
+                firebase_config = json.loads(decoded)
+                cred = credentials.Certificate(firebase_config)
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from Base64 environment variable")
+                logging.info(f"✅ Project ID: {firebase_config.get('project_id', 'unknown')}")
+                return True
+            except Exception as e:
+                logging.error(f"❌ Error parsing Firebase Base64 from env var: {e}")
+                raise
+        elif firebase_json:
+            # Ler do environment variable (JSON como string)
+            logging.info("📱 Loading Firebase config from JSON environment variable...")
+            logging.info(f"📱 Firebase JSON length: {len(firebase_json)} characters")
+            
+            try:
+                # Converte de string → dicionário Python
+                firebase_config = json.loads(firebase_json)
+                
+                # Validar se tem os campos necessários
+                required_fields = ['project_id', 'private_key', 'client_email']
+                missing_fields = [f for f in required_fields if f not in firebase_config]
+                if missing_fields:
+                    raise ValueError(f"Missing required fields in Firebase config: {missing_fields}")
+                
+                # Cria a credencial a partir do dicionário
+                cred = credentials.Certificate(firebase_config)
+                
+                # Inicializa o app Firebase Admin
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from JSON environment variable")
+                logging.info(f"✅ Project ID: {firebase_config.get('project_id')}")
+                logging.info(f"✅ Client Email: {firebase_config.get('client_email')}")
+                return True
+            except json.JSONDecodeError as e:
+                logging.error(f"❌ Error parsing Firebase JSON from env var: {e}")
+                logging.error(f"❌ JSON content preview: {firebase_json[:200]}")
+                raise
+        else:
+            # Fallback para arquivo local
+            firebase_cred_path = ROOT_DIR / 'firebase-service-account.json'
+            if firebase_cred_path.exists():
+                logging.info("📱 Loading Firebase config from file...")
+                cred = credentials.Certificate(str(firebase_cred_path))
+                firebase_admin.initialize_app(cred)
+                logging.info("✅ Firebase Admin SDK initialized from file")
+                return True
+            else:
+                logging.warning("⚠️ Firebase service account not found (env var or file). Push notifications will not work.")
+                return False
+    except Exception as e:
+        logging.error(f"❌ Error initializing Firebase Admin SDK: {e}")
+        logging.error(traceback.format_exc())
+        return False
+
+# Inicializar Firebase na inicialização do servidor
+initialize_firebase()
+
 # Create the main app without a prefix
 app = FastAPI()
 
@@ -53,6 +134,8 @@ class User(BaseModel):
     email: str
     password_hash: str
     nome: str
+    telefone: Optional[str] = None  # Formato: (11) 99999-9999
+    sexo: Optional[str] = "masculino"  # masculino ou feminino
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str = "casual"
     looks_usados: int = 0  # Contador de looks gratuitos usados
@@ -76,6 +159,8 @@ class UserCreate(BaseModel):
     email: str
     password: str
     nome: str
+    telefone: str  # Obrigatório no cadastro
+    sexo: str = "masculino"  # masculino ou feminino
     ocasiao_preferida: str = "casual"
 
 class UserLogin(BaseModel):
@@ -85,6 +170,8 @@ class UserLogin(BaseModel):
 class UserProfile(BaseModel):
     email: str
     nome: str
+    telefone: Optional[str] = None
+    sexo: Optional[str] = None
     foto_corpo: Optional[str] = None
     ocasiao_preferida: str
     created_at: datetime
@@ -95,7 +182,7 @@ class ClothingItem(BaseModel):
     tipo: str  # camiseta, calca, sapato, acessorio
     cor: str
     estilo: str
-    imagem_original: str  # base64
+    imagem_original: str  # URL do Cloudflare Images (ou base64 legacy)
     nome: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -104,7 +191,7 @@ class ClothingItemCreate(BaseModel):
     cor: str
     estilo: str
     nome: str
-    imagem_original: str
+    imagem_original: str  # URL do Cloudflare Images (ou base64 legacy)
 
 class Look(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -116,6 +203,7 @@ class Look(BaseModel):
     favorito: bool = False
     imagem_look: Optional[str] = None  # base64 da simulação
     sugestao_ia: Optional[str] = None  # Texto da sugestão gerado pela IA
+    user_photo: Optional[str] = None  # URL da foto do usuário vestindo o look
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class LookCreate(BaseModel):
@@ -125,6 +213,62 @@ class LookCreate(BaseModel):
     clima: Optional[str] = None
     imagem_look: Optional[str] = None
     sugestao_ia: Optional[str] = None
+    user_photo: Optional[str] = None
+
+class Course(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    image: str
+    price: str
+    highlights: List[str]
+    link: str
+    active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CourseCreate(BaseModel):
+    title: str
+    description: str
+    image: str
+    price: str
+    highlights: List[str]
+    link: str
+
+class ShopProduct(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    title: str
+    description: str
+    images: List[str]  # Array de 3 URLs de imagens
+    price: str
+    link: str  # Link externo para compra
+    active: bool = True  # Apenas o produto ativo aparece na home
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ShopProductCreate(BaseModel):
+    title: str
+    description: str
+    images: List[str]
+    price: str
+    link: str
+    active: bool = True
+
+class PushToken(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    token: str
+    platform: str  # "android" or "ios"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PushTokenCreate(BaseModel):
+    token: str
+    platform: str
+
+class PushNotification(BaseModel):
+    title: str
+    body: str
+    data: Optional[dict] = None
 
 class SugestaoLook(BaseModel):
     sugestao_texto: str
@@ -167,10 +311,21 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
 
+def validate_phone_number(phone: str) -> bool:
+    """
+    Valida formato de telefone brasileiro: (11) 99999-9999
+    Remove formatação e verifica se tem 11 dígitos (DDD + 9 dígitos)
+    """
+    import re
+    # Remove tudo que não é dígito
+    digits_only = re.sub(r'\D', '', phone)
+    # Telefone brasileiro tem 11 dígitos (DDD + 9 dígitos com 9 na frente)
+    return len(digits_only) == 11 and digits_only[2] == '9'
+
 def create_jwt_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
-        "exp": datetime.utcnow() + timedelta(days=30)
+        "exp": datetime.utcnow() + timedelta(days=365)  # Token válido por 1 ano
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
@@ -188,10 +343,22 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
 # Auth routes
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
+    # Validar formato do telefone
+    if not validate_phone_number(user_data.telefone):
+        raise HTTPException(
+            status_code=400, 
+            detail="Telefone inválido. Use o formato: (11) 99999-9999"
+        )
+    
     # Check if user exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Check if phone already exists
+    existing_phone = await db.users.find_one({"telefone": user_data.telefone})
+    if existing_phone:
+        raise HTTPException(status_code=400, detail="Telefone já cadastrado")
     
     # Create user
     user_dict = user_data.dict()
@@ -209,6 +376,8 @@ async def register(user_data: UserCreate):
         "user": UserProfile(
             email=user.email,
             nome=user.nome,
+            telefone=user.telefone,
+            sexo=user.sexo,
             foto_corpo=user.foto_corpo,
             ocasiao_preferida=user.ocasiao_preferida,
             created_at=user.created_at
@@ -374,7 +543,12 @@ async def upload_foto_corpo(
 ):
     user = await get_current_user(current_user)
     
-    # Update user's body photo
+    # Identificar se é URL Cloudflare ou base64 legacy
+    is_cloudflare_url = imagem.startswith("https://imagedelivery.net/")
+    image_type = "Cloudflare URL" if is_cloudflare_url else "Base64 legacy"
+    logging.info(f"Upload foto corpo - User: {user['id']}, Type: {image_type}")
+    
+    # Update user's body photo (URL ou base64)
     await db.users.update_one(
         {"id": user["id"]},
         {"$set": {"foto_corpo": imagem}}
@@ -646,7 +820,15 @@ async def upload_roupa(
         clothing_dict = roupa_data.dict()
         clothing_dict["user_id"] = user["id"]
         
-        logging.info(f"Upload roupa - Image size: {len(roupa_data.imagem_original) if roupa_data.imagem_original else 0}")
+        # Identificar se é URL Cloudflare ou base64 legacy
+        is_cloudflare_url = roupa_data.imagem_original.startswith("https://imagedelivery.net/")
+        image_type = "Cloudflare URL" if is_cloudflare_url else "Base64 legacy"
+        logging.info(f"Upload roupa - Image type: {image_type}")
+        
+        if is_cloudflare_url:
+            logging.info(f"Upload roupa - Cloudflare URL: {roupa_data.imagem_original}")
+        else:
+            logging.info(f"Upload roupa - Image size (base64): {len(roupa_data.imagem_original)}")
         
         clothing = ClothingItem(**clothing_dict)
         result = await db.clothing_items.insert_one(clothing.dict())
@@ -729,10 +911,12 @@ async def sugerir_look(
     
     # Create AI prompt
     contexto_adicional = f"\nDetalhes adicionais fornecidos pelo usuário: {detalhes_contexto}" if detalhes_contexto else ""
+    sexo_usuario = user.get("sexo", "masculino")
     
     prompt = f"""
-    Como personal stylist virtual, sugira uma combinação de roupas para o usuário.
+    Como personal stylist virtual, sugira uma combinação de roupas para um usuário do sexo {sexo_usuario}.
     
+    Perfil do usuário: {sexo_usuario}
     Ocasião: {ocasiao}
     Temperatura: {temperatura or "não informada"}{contexto_adicional}
     
@@ -742,11 +926,11 @@ async def sugerir_look(
     IDs VÁLIDOS que você DEVE usar (copie exatamente):
     {json.dumps(valid_ids, indent=2)}
     
-    Crie uma sugestão de look detalhada. Responda APENAS com JSON válido (sem markdown):
+    Crie uma sugestão de look detalhada considerando que é para uma pessoa do sexo {sexo_usuario}. Responda APENAS com JSON válido (sem markdown):
     {{
-        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si.",
+        "sugestao_texto": "Uma explicação detalhada e elegante da combinação sugerida. Use parágrafos e seja descritivo sobre as cores, estilos e como as peças combinam entre si. Considere que é para {sexo_usuario}.",
         "roupas_ids": ["cole aqui os IDs da lista acima"],
-        "dicas": "Dicas práticas de estilo e acessórios"
+        "dicas": "Dicas práticas de estilo e acessórios adequadas para {sexo_usuario}"
     }}
     
     ⚠️ REGRAS OBRIGATÓRIAS: 
@@ -830,6 +1014,129 @@ async def sugerir_look(
     except Exception as e:
         logging.error(f"Error in AI suggestion: {str(e)}")
         raise HTTPException(status_code=500, detail="Erro ao gerar sugestão de look")
+
+
+@api_router.post("/sugerir-pecas")
+async def sugerir_pecas(
+    current_user=Depends(security)
+):
+    """
+    Analisa o guarda-roupa do usuário e sugere peças que faltam,
+    gerando tags de pesquisa para Shopee
+    """
+    user = await get_current_user(current_user)
+    
+    # Get user's clothing items
+    roupas = await db.clothing_items.find({"user_id": user["id"]}).to_list(1000)
+    
+    if not roupas:
+        raise HTTPException(status_code=400, detail="Você precisa cadastrar roupas primeiro para receber sugestões")
+    
+    # Prepare context for AI
+    roupas_context = []
+    for roupa in roupas:
+        roupas_context.append({
+            "tipo": roupa["tipo"],
+            "cor": roupa["cor"],
+            "estilo": roupa["estilo"],
+            "nome": roupa["nome"]
+        })
+    
+    # Create AI prompt for gap analysis
+    sexo_usuario = user.get("sexo", "masculino")
+    
+    prompt = f"""
+    Como personal shopper especializado, analise o guarda-roupa de um usuário do sexo {sexo_usuario} e identifique peças que faltam ou que complementariam bem o que ele(a) já tem.
+    
+    Perfil do usuário: {sexo_usuario}
+    Guarda-roupa atual:
+    {json.dumps(roupas_context, indent=2, ensure_ascii=False)}
+    
+    Analise e sugira 4-6 peças que faltam ou complementariam o guarda-roupa, considerando que são para uma pessoa do sexo {sexo_usuario}. Para cada sugestão, forneça:
+    1. Nome da peça (específico e pesquisável na Shopee)
+    2. Razão pela qual seria uma boa adição
+    3. Termo de busca otimizado para Shopee (curto, direto, em português, incluindo "{sexo_usuario}" se relevante)
+    
+    Responda APENAS com JSON válido (sem markdown):
+    {{
+        "sugestoes": [
+            {{
+                "peca": "Nome da peça sugerida para {sexo_usuario}",
+                "razao": "Por que essa peça complementaria o guarda-roupa",
+                "tag_busca": "termo busca shopee {sexo_usuario}"
+            }}
+        ]
+    }}
+    
+    Exemplos de tags boas para {sexo_usuario}: {"calça jeans feminina" if sexo_usuario == "feminino" else "calça jeans masculina"}, {"blusa branca social" if sexo_usuario == "feminino" else "camisa branca social"}, "tênis branco casual"
+    """
+    
+    try:
+        # Call OpenAI API
+        completion = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "Você é um personal shopper especializado em análise de guarda-roupa e sugestões de compras."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.7,
+            max_tokens=800
+        )
+        
+        response = completion.choices[0].message.content
+        
+        # Parse response
+        try:
+            # Clean up markdown code blocks if present
+            clean_response = response.strip()
+            if clean_response.startswith('```json'):
+                clean_response = clean_response[7:]
+            if clean_response.endswith('```'):
+                clean_response = clean_response[:-3]
+            clean_response = clean_response.strip()
+            
+            ai_response = json.loads(clean_response)
+            
+            # Validar estrutura
+            if "sugestoes" not in ai_response or not isinstance(ai_response["sugestoes"], list):
+                raise ValueError("Resposta da IA inválida")
+            
+            return {
+                "sugestoes": ai_response["sugestoes"]
+            }
+            
+        except (json.JSONDecodeError, ValueError) as e:
+            logging.warning(f"Failed to parse JSON response: {response[:200]}...")
+            # Fallback: criar sugestões básicas baseadas no que falta
+            return {
+                "sugestoes": [
+                    {
+                        "peca": "Calça Jeans Clássica",
+                        "razao": "Uma calça jeans versátil complementa qualquer guarda-roupa",
+                        "tag_busca": "calça jeans básica"
+                    },
+                    {
+                        "peca": "Camiseta Branca Básica",
+                        "razao": "Peça essencial que combina com tudo",
+                        "tag_busca": "camiseta branca básica"
+                    },
+                    {
+                        "peca": "Tênis Casual Branco",
+                        "razao": "Calçado versátil para looks casuais",
+                        "tag_busca": "tênis branco casual"
+                    }
+                ]
+            }
+            
+    except Exception as e:
+        logging.error(f"Error in clothing suggestion: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erro ao gerar sugestões de peças")
 
 # Look management routes
 @api_router.post("/looks")
@@ -942,6 +1249,41 @@ async def delete_look(look_id: str, current_user=Depends(security)):
         raise HTTPException(status_code=404, detail="Look não encontrado")
     
     return {"message": "Look removido com sucesso"}
+
+@api_router.put("/looks/{look_id}/user-photo")
+async def add_user_photo_to_look(
+    look_id: str,
+    photo_data: dict,
+    current_user=Depends(security)
+):
+    """
+    Adiciona ou atualiza a foto do usuário vestindo o look
+    Espera: {"user_photo": "URL_da_foto_cloudflare"}
+    """
+    user = await get_current_user(current_user)
+    
+    # Verificar se o look existe e pertence ao usuário
+    look = await db.looks.find_one({
+        "id": look_id,
+        "user_id": user["id"]
+    })
+    
+    if not look:
+        raise HTTPException(status_code=404, detail="Look não encontrado")
+    
+    # Atualizar com a foto do usuário
+    result = await db.looks.update_one(
+        {"id": look_id, "user_id": user["id"]},
+        {"$set": {"user_photo": photo_data.get("user_photo")}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Erro ao atualizar foto")
+    
+    return {
+        "message": "Foto adicionada ao look com sucesso",
+        "user_photo": photo_data.get("user_photo")
+    }
 
 # Subscription/Payment models
 class CreateSubscriptionRequest(BaseModel):
@@ -1710,10 +2052,430 @@ async def get_planos():
     plans = await db.plans.find({"active": True}, {"_id": 0}).to_list(100)
     return plans
 
+@api_router.get("/cursos")
+async def get_cursos():
+    """
+    Retorna todos os cursos ativos.
+    Se não houver cursos cadastrados, cria 3 cursos de exemplo automaticamente.
+    """
+    # Verificar se existem cursos no banco
+    cursos_count = await db.courses.count_documents({})
+    
+    if cursos_count == 0:
+        # Criar cursos de exemplo
+        default_courses = [
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Fundamentos do Estilo Pessoal",
+                "description": "Aprenda a identificar seu estilo único e criar looks que expressam sua personalidade. Curso completo com técnicas profissionais de personal styling.",
+                "image": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80",
+                "price": "R$ 197,00",
+                "highlights": ["8 módulos completos", "Certificado incluso", "Acesso vitalício"],
+                "link": "https://zenebathos.com.br/curso-fundamentos-estilo",
+                "active": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Combinação de Cores e Estampas",
+                "description": "Domine a arte de combinar cores e estampas como um profissional. Aprenda sobre teoria das cores aplicada à moda e crie looks harmoniosos.",
+                "image": "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&q=80",
+                "price": "R$ 147,00",
+                "highlights": ["Guia de cores personalizado", "Exemplos práticos", "Suporte por 30 dias"],
+                "link": "https://zenebathos.com.br/curso-cores-estampas",
+                "active": True,
+                "created_at": datetime.utcnow()
+            },
+            {
+                "id": str(uuid.uuid4()),
+                "title": "Guarda-Roupa Cápsula",
+                "description": "Crie um guarda-roupa versátil com peças essenciais que combinam entre si. Economize tempo e dinheiro montando looks incríveis com menos roupas.",
+                "image": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=800&q=80",
+                "price": "R$ 167,00",
+                "highlights": ["Lista de peças essenciais", "Planilha de organização", "Grupo exclusivo"],
+                "link": "https://zenebathos.com.br/curso-guarda-roupa-capsula",
+                "active": True,
+                "created_at": datetime.utcnow()
+            }
+        ]
+        
+        # Inserir cursos de exemplo no banco
+        await db.courses.insert_many(default_courses)
+        print("✅ Cursos de exemplo criados com sucesso!")
+    
+    # Retornar cursos ativos
+    courses = await db.courses.find({"active": True}, {"_id": 0}).to_list(100)
+    return courses
+
+@api_router.post("/cursos")
+async def create_curso(curso: CourseCreate):
+    """
+    Cria novo curso
+    """
+    curso_dict = curso.dict()
+    curso_dict["id"] = str(uuid.uuid4())
+    curso_dict["created_at"] = datetime.utcnow()
+    
+    new_curso = Course(**curso_dict)
+    await db.courses.insert_one(new_curso.dict())
+    
+    return {"message": "Curso criado com sucesso", "id": new_curso.id}
+
+@api_router.put("/cursos/{curso_id}")
+async def update_curso(curso_id: str, curso: CourseCreate):
+    """
+    Atualiza curso existente
+    """
+    curso_dict = curso.dict()
+    
+    result = await db.courses.update_one(
+        {"id": curso_id},
+        {"$set": curso_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    
+    return {"message": "Curso atualizado com sucesso"}
+
+@api_router.delete("/cursos/{curso_id}")
+async def delete_curso(curso_id: str):
+    """
+    Deleta curso
+    """
+    result = await db.courses.delete_one({"id": curso_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Curso não encontrado")
+    
+    return {"message": "Curso deletado com sucesso"}
+
+# Push Notifications routes
+@api_router.post("/push/register-token")
+async def register_push_token(
+    token_data: PushTokenCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """
+    Registra o push token do usuário
+    """
+    # Verificar token JWT
+    token = credentials.credentials
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        user_id = payload.get("user_id")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expirado")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Token inválido")
+    
+    # Verificar se já existe um token para este usuário
+    existing_token = await db.push_tokens.find_one({"user_id": user_id})
+    
+    if existing_token:
+        # Atualizar token existente
+        await db.push_tokens.update_one(
+            {"user_id": user_id},
+            {
+                "$set": {
+                    "token": token_data.token,
+                    "platform": token_data.platform,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        return {"message": "Token atualizado com sucesso"}
+    else:
+        # Criar novo token
+        new_token = PushToken(
+            user_id=user_id,
+            token=token_data.token,
+            platform=token_data.platform
+        )
+        await db.push_tokens.insert_one(new_token.dict())
+        return {"message": "Token registrado com sucesso"}
+
+@api_router.post("/push/send")
+async def send_push_notification(notification: PushNotification):
+    """
+    Envia notificação push para todos os usuários usando Firebase Admin SDK
+    """
+    # Verificar se Firebase está inicializado
+    if not firebase_admin._apps:
+        logging.error("❌ Firebase Admin SDK não está inicializado")
+        raise HTTPException(
+            status_code=500,
+            detail="Firebase não configurado. Verifique FIREBASE_SERVICE_ACCOUNT no backend."
+        )
+    
+    # Buscar todos os tokens
+    tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
+    
+    if not tokens:
+        return {"message": "Nenhum dispositivo registrado", "sent": 0}
+    
+    logging.info(f"📱 Preparando envio para {len(tokens)} dispositivos")
+    
+    sent_count = 0
+    failed_count = 0
+    error_details = []
+    
+    # Preparar mensagem FCM
+    for token_doc in tokens:
+        raw_token = token_doc["token"]
+        
+        # Extrair token FCM puro
+        # Suporta formato antigo: ExponentPushToken[xxxxx] e formato novo: xxxxx
+        if raw_token.startswith("ExponentPushToken[") and raw_token.endswith("]"):
+            fcm_token = raw_token[18:-1]  # Remove "ExponentPushToken[" e "]"
+            logging.info(f"🔄 Convertendo token antigo ExponentPushToken para FCM puro")
+        else:
+            fcm_token = raw_token  # Já é o token FCM puro
+        
+        logging.info(f"📤 Tentando enviar para token: {fcm_token[:30]}...")
+        
+        try:
+            # Criar mensagem FCM (funciona para Android e iOS)
+            message = messaging.Message(
+                notification=messaging.Notification(
+                    title=notification.title,
+                    body=notification.body,
+                ),
+                data=notification.data or {},
+                token=fcm_token,
+                android=messaging.AndroidConfig(
+                    priority='high',
+                    notification=messaging.AndroidNotification(
+                        sound='default',
+                        color='#6c5ce7',
+                        channel_id='default',
+                    ),
+                ),
+                apns=messaging.APNSConfig(
+                    payload=messaging.APNSPayload(
+                        aps=messaging.Aps(
+                            alert=messaging.ApsAlert(
+                                title=notification.title,
+                                body=notification.body,
+                            ),
+                            sound='default',
+                            badge=1,
+                        ),
+                    ),
+                ),
+            )
+            
+            # Enviar via Firebase Admin SDK
+            response = messaging.send(message)
+            sent_count += 1
+            logging.info(f"✅ Push sent successfully. Message ID: {response}")
+            
+        except messaging.UnregisteredError:
+            failed_count += 1
+            error_msg = f"Token não registrado: {fcm_token[:30]}..."
+            error_details.append(error_msg)
+            logging.error(f"❌ Unregistered token: {fcm_token[:30]}...")
+            
+        except messaging.InvalidArgumentError as e:
+            failed_count += 1
+            error_msg = f"Argumento inválido: {str(e)}"
+            error_details.append(error_msg)
+            logging.error(f"❌ Invalid argument for token {fcm_token[:30]}...: {e}")
+            
+        except Exception as e:
+            failed_count += 1
+            error_msg = f"Erro ao enviar: {str(e)}"
+            error_details.append(error_msg)
+            logging.error(f"❌ Error sending to {fcm_token[:30]}...: {e}")
+            logging.error(f"❌ Error type: {type(e).__name__}")
+            logging.error(f"❌ Full error: {traceback.format_exc()}")
+    
+    return {
+        "message": "Notificações enviadas",
+        "sent_count": sent_count,
+        "sent": sent_count,
+        "failed": failed_count,
+        "total": len(tokens),
+        "errors": error_details[:5] if error_details else None  # Limita a 5 erros para não poluir
+    }
+
+@api_router.get("/push/tokens")
+async def get_push_tokens():
+    """
+    Lista todos os tokens registrados (admin only - sem auth por enquanto)
+    """
+    tokens = await db.push_tokens.find({}, {"_id": 0}).to_list(1000)
+    return {"tokens": tokens, "total": len(tokens)}
+
+@api_router.get("/push/stats")
+async def get_push_stats():
+    """
+    Retorna estatísticas de dispositivos registrados
+    """
+    total = await db.push_tokens.count_documents({})
+    
+    # Verifica se Firebase está inicializado
+    firebase_status = "initialized" if firebase_admin._apps else "not initialized"
+    
+    return {
+        "total_devices": total,
+        "firebase_status": firebase_status
+    }
+
+# Shop Products routes
+@api_router.get("/shop/produto-destaque")
+async def get_produto_destaque():
+    """
+    Retorna o produto ativo/destaque da lojinha para exibir na home
+    """
+    produto = await db.shop_products.find_one({"active": True}, {"_id": 0})
+    
+    if not produto:
+        # Se não houver produto, retorna None
+        return None
+    
+    return produto
+
+@api_router.get("/shop/produtos")
+async def get_all_produtos():
+    """
+    Lista todos os produtos (para página admin)
+    """
+    produtos = await db.shop_products.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return produtos
+
+@api_router.post("/shop/produtos")
+async def create_produto(produto: ShopProductCreate):
+    """
+    Cria novo produto
+    """
+    # Se o novo produto for ativo, desativa todos os outros
+    if produto.active:
+        await db.shop_products.update_many(
+            {"active": True},
+            {"$set": {"active": False}}
+        )
+    
+    produto_dict = produto.dict()
+    produto_dict["id"] = str(uuid.uuid4())
+    produto_dict["created_at"] = datetime.utcnow()
+    produto_dict["updated_at"] = datetime.utcnow()
+    
+    new_produto = ShopProduct(**produto_dict)
+    await db.shop_products.insert_one(new_produto.dict())
+    
+    return {"message": "Produto criado com sucesso", "id": new_produto.id}
+
+@api_router.put("/shop/produtos/{produto_id}")
+async def update_produto(produto_id: str, produto: ShopProductCreate):
+    """
+    Atualiza produto existente
+    """
+    # Se o produto sendo atualizado for ativo, desativa todos os outros
+    if produto.active:
+        await db.shop_products.update_many(
+            {"active": True, "id": {"$ne": produto_id}},
+            {"$set": {"active": False}}
+        )
+    
+    produto_dict = produto.dict()
+    produto_dict["updated_at"] = datetime.utcnow()
+    
+    result = await db.shop_products.update_one(
+        {"id": produto_id},
+        {"$set": produto_dict}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    
+    return {"message": "Produto atualizado com sucesso"}
+
+@api_router.delete("/shop/produtos/{produto_id}")
+async def delete_produto(produto_id: str):
+    """
+    Deleta produto
+    """
+    result = await db.shop_products.delete_one({"id": produto_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    
+    return {"message": "Produto deletado com sucesso"}
+
 # Basic routes
 @api_router.get("/")
 async def root():
     return {"message": "Meu Look IA API"}
+
+@api_router.get("/admin/lojinha")
+async def admin_lojinha():
+    """Serve página HTML de admin da lojinha"""
+    from fastapi.responses import HTMLResponse
+    import os
+    
+    logging.info("=== Admin Lojinha Request ===")
+    logging.info(f"Current working directory: {os.getcwd()}")
+    logging.info(f"__file__ location: {__file__}")
+    logging.info(f"dirname(__file__): {os.path.dirname(__file__)}")
+    
+    # Tenta diferentes caminhos
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), 'admin_lojinha.html'),
+        os.path.join(os.getcwd(), 'backend', 'admin_lojinha.html'),
+        '/app/backend/admin_lojinha.html',
+        'admin_lojinha.html'
+    ]
+    
+    for file_path in possible_paths:
+        logging.info(f"Trying path: {file_path} - Exists: {os.path.exists(file_path)}")
+        if os.path.exists(file_path):
+            logging.info(f"✅ Found file at: {file_path}")
+            with open(file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Se não encontrar, retorna erro detalhado
+    logging.error("❌ Admin HTML file not found in any path")
+    return HTMLResponse(
+        content=f"""
+        <h1>Erro 404 - Arquivo não encontrado</h1>
+        <p><strong>CWD:</strong> {os.getcwd()}</p>
+        <p><strong>__file__:</strong> {__file__}</p>
+        <p><strong>Caminhos tentados:</strong></p>
+        <ul>{''.join([f'<li>{p} - Exists: {os.path.exists(p)}</li>' for p in possible_paths])}</ul>
+        """,
+        status_code=404
+    )
+
+@api_router.get("/admin/push")
+async def admin_push():
+    """Serve página HTML de admin de notificações push"""
+    from fastapi.responses import HTMLResponse
+    import os
+    
+    # Tenta diferentes caminhos
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), 'admin_push.html'),
+        os.path.join(os.getcwd(), 'backend', 'admin_push.html'),
+        '/app/backend/admin_push.html',
+        'admin_push.html'
+    ]
+    
+    for file_path in possible_paths:
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            return HTMLResponse(content=html_content)
+    
+    # Se não encontrar, retorna erro
+    return HTMLResponse(
+        content=f"""
+        <h1>Erro 404 - Arquivo não encontrado</h1>
+        <p><strong>Arquivo:</strong> admin_push.html</p>
+        """,
+        status_code=404
+    )
 
 @api_router.get("/health")
 async def health_check():
@@ -1834,6 +2596,32 @@ async def criar_sugestao(
     except Exception as e:
         logging.error(f"Erro ao criar sugestão: {e}")
         raise HTTPException(status_code=500, detail="Erro ao enviar sugestão")
+
+@api_router.get("/sugestoes")
+async def listar_sugestoes():
+    """Lista todas as sugestões enviadas pelos usuários (admin only - sem auth por enquanto)"""
+    try:
+        suggestions = await db.suggestions.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+        return {"suggestions": suggestions, "total": len(suggestions)}
+    except Exception as e:
+        logging.error(f"Erro ao listar sugestões: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao buscar sugestões")
+
+@api_router.delete("/sugestoes/{suggestion_id}")
+async def deletar_sugestao(suggestion_id: str):
+    """Deleta uma sugestão (admin only - sem auth por enquanto)"""
+    try:
+        result = await db.suggestions.delete_one({"id": suggestion_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Sugestão não encontrada")
+        
+        return {"message": "Sugestão deletada com sucesso"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Erro ao deletar sugestão: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao deletar sugestão")
 
 # Include the router in the main app
 app.include_router(api_router)
