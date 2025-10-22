@@ -9,12 +9,14 @@ O erro "Instagram não encontrado" ocorria porque:
 
 ## ✅ Solução Implementada
 
-### 1. Uso do `expo-sharing` e `expo-file-system`
+### 1. Uso do `expo-sharing` e `expo-file-system` (Apenas Nativo)
 
 Agora o código:
-1. **Baixa a imagem** para o cache do dispositivo
-2. **Usa o menu de compartilhamento nativo** do Android/iOS
-3. O usuário pode **escolher o Instagram** (ou qualquer outro app) da lista
+1. **Verifica a plataforma** (Android/iOS ou Web)
+2. **No nativo:** Baixa a imagem para o cache do dispositivo
+3. **No nativo:** Usa o menu de compartilhamento nativo do Android/iOS
+4. **No web:** Mostra instruções para salvar a imagem manualmente
+5. O usuário pode **escolher o Instagram** (ou qualquer outro app) da lista
 
 ### 2. Fluxo de Compartilhamento
 
