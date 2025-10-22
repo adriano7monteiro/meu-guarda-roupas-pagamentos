@@ -2235,7 +2235,7 @@ async def send_push_notification(notification: PushNotification):
         logging.info(f"📤 Tentando enviar para token: {fcm_token[:30]}...")
         
         try:
-            # Criar mensagem FCM
+            # Criar mensagem FCM (funciona para Android e iOS)
             message = messaging.Message(
                 notification=messaging.Notification(
                     title=notification.title,
@@ -2249,6 +2249,18 @@ async def send_push_notification(notification: PushNotification):
                         sound='default',
                         color='#6c5ce7',
                         channel_id='default',
+                    ),
+                ),
+                apns=messaging.APNSConfig(
+                    payload=messaging.APNSPayload(
+                        aps=messaging.Aps(
+                            alert=messaging.ApsAlert(
+                                title=notification.title,
+                                body=notification.body,
+                            ),
+                            sound='default',
+                            badge=1,
+                        ),
                     ),
                 ),
             )
