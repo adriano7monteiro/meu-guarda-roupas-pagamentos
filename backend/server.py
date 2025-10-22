@@ -2227,12 +2227,26 @@ async def send_push_notification(notification: PushNotification):
         # Extrair token FCM puro
         # Suporta formato antigo: ExponentPushToken[xxxxx] e formato novo: xxxxx
         if raw_token.startswith("ExponentPushToken[") and raw_token.endswith("]"):
-            fcm_token = raw_token[18:-1]  # Remove "ExponentPushToken[" e "]"
-            logging.info(f"🔄 Convertendo token antigo ExponentPushToken para FCM puro")
-        else:
-            fcm_token = raw_token  # Já é o token FCM puro
+            # Token ainda é do formato Expo, não é FCM puro
+            # Isso acontece quando o app não tem google-services.json configurado
+            failed_count += 1
+            error_msg = f"Token antigo Expo detectado (não FCM). App precisa de novo build com Firebase configurado."
+            error_details.append(error_msg)
+            logging.warning(f"⚠️ Token Expo detectado: {raw_token[:50]}... (ignorando)")
+            logging.warning(f"⚠️ Este token precisa que o app seja reconstruído com google-services.json/GoogleService-Info.plist")
+            continue  # Pular este token
         
-        logging.info(f"📤 Tentando enviar para token: {fcm_token[:30]}...")
+        fcm_token = raw_token  # Já é o token FCM puro
+        
+        # Validar se o token parece ser FCM válido
+        if not fcm_token or len(fcm_token) < 140:
+            failed_count += 1
+            error_msg = f"Token inválido ou muito curto: {fcm_token[:30]}..."
+            error_details.append(error_msg)
+            logging.error(f"❌ Token inválido: {fcm_token[:30]}... (length: {len(fcm_token)})")
+            continue
+        
+        logging.info(f"📤 Tentando enviar para token FCM: {fcm_token[:30]}... (length: {len(fcm_token)})")
         
         try:
             # Criar mensagem FCM (funciona para Android e iOS)
