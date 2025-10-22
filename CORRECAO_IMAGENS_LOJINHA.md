@@ -103,12 +103,19 @@ resizeMode="contain"
 
 ## 🧪 Como Testar
 
-1. Abra o app
-2. Vá para a home
-3. Veja o carrossel da "Lojinha"
-4. **Resultado esperado:** Imagens completas, sem cortes na cabeça
-5. Toque em "Ver todos"
-6. **Resultado esperado:** Todas as imagens dos produtos mostram a imagem completa
+1. **Home - Lojinha:**
+   - Abra o app
+   - Vá para a home
+   - Veja o carrossel da "Lojinha"
+   - **Resultado esperado:** Imagens completas, sem cortes na cabeça
+
+2. **Listagem de Produtos:**
+   - Toque em "Ver todos"
+   - **Resultado esperado:** Todas as imagens dos produtos mostram a imagem completa
+
+3. **Tela de Cursos:**
+   - Vá para a tela de "Cursos"
+   - **Resultado esperado:** Imagens dos cursos mostram conteúdo completo
 
 ## 🎯 Produtos de Exemplo para Testar
 
