@@ -122,7 +122,7 @@ export default function Courses() {
             <Image 
               source={{ uri: course.image }} 
               style={styles.courseImage}
-              resizeMode="cover"
+              resizeMode="contain"
             />
             
             {/* Course Content */}
