@@ -59,6 +59,17 @@ resizeMode="cover"
 resizeMode="contain"
 ```
 
+### 3. `/app/frontend/app/courses.tsx` (Cursos)
+
+**Linha 125:**
+```tsx
+// ANTES
+resizeMode="cover"
+
+// DEPOIS
+resizeMode="contain"
+```
+
 ## 🎨 Impacto Visual
 
 ### Antes (cover):
