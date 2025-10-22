@@ -19,10 +19,11 @@
   - 🛍️ Lojinha
   - 📚 Cursos
 
-#### 2. **Recursos Ampliados (9 cards)**
+#### 2. **Recursos Ampliados (10 cards)**
 - ✅ IA GPT-5 (atualizado)
 - ✅ Guarda-Roupa Digital
 - ✅ Sugestões por Ocasião (novo)
+- ✅ Sugestões de Peças (novo - baseado no guarda-roupa)
 - ✅ Vista o Look e Tire Foto (novo)
 - ✅ Lojinha Integrada (novo)
 - ✅ Salve e Compartilhe
@@ -30,12 +31,13 @@
 - ✅ Envie Sugestões (novo)
 - ✅ Notificações Push (novo)
 
-#### 3. **Como Funciona (5 passos)**
+#### 3. **Como Funciona (6 passos)**
 1. Cadastre Suas Roupas
 2. Escolha a Ocasião (novo - trabalho, festa, casual, etc.)
 3. IA Gera o Look Perfeito (atualizado com GPT-5)
 4. Vista, Fotografe e Compartilhe (novo - integração Instagram)
-5. Explore a Lojinha (novo)
+5. Receba Sugestões de Peças (novo)
+6. Explore a Lojinha (novo)
 
 #### 4. **Nova Seção: "Por Que Escolher Meu Look IA?"**
 Substitui a seção de preços com 6 benefícios:
