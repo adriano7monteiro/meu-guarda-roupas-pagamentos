@@ -273,10 +273,20 @@ export default function SavedLooks() {
   const shareToInstagram = async () => {
     if (!fullScreenImage) return;
 
+    // Verificar se está em plataforma nativa (Android/iOS)
+    if (Platform.OS === 'web') {
+      Alert.alert(
+        'Compartilhamento no Instagram',
+        'Para compartilhar no Instagram:\n\n1. Clique com botão direito na imagem\n2. Selecione "Salvar imagem"\n3. Abra o Instagram no seu celular\n4. Crie um novo post/story\n5. Selecione a imagem salva',
+        [{ text: 'Entendi' }]
+      );
+      return;
+    }
+
     try {
       console.log('📤 Iniciando compartilhamento para Instagram...');
       
-      // Verificar se o sharing está disponível
+      // Verificar se o sharing está disponível (Android/iOS)
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
         Alert.alert(
@@ -287,7 +297,7 @@ export default function SavedLooks() {
         return;
       }
 
-      // Baixar a imagem temporariamente
+      // Baixar a imagem temporariamente (apenas em plataformas nativas)
       const imageUri = fullScreenImage;
       const fileUri = FileSystem.cacheDirectory + `look_${Date.now()}.jpg`;
       
