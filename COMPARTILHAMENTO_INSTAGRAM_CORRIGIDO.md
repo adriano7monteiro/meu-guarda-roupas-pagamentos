@@ -98,9 +98,11 @@ import * as FileSystem from 'expo-file-system';
 ```
 
 **Função `shareToInstagram` refatorada:**
-- ✅ Verifica se sharing está disponível
-- ✅ Baixa imagem para cache local
-- ✅ Usa `Sharing.shareAsync()` com menu nativo
+- ✅ **Verifica plataforma primeiro** (`Platform.OS === 'web'`)
+- ✅ **Web:** Mostra instruções para salvar manualmente
+- ✅ **Nativo:** Verifica se sharing está disponível
+- ✅ **Nativo:** Baixa imagem para cache local
+- ✅ **Nativo:** Usa `Sharing.shareAsync()` com menu nativo
 - ✅ Tratamento de erros robusto
 - ✅ Múltiplos fallbacks
 - ✅ Logs detalhados para debug
