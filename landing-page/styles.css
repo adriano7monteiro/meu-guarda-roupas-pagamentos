@@ -653,3 +653,56 @@ body {
 html {
     scroll-behavior: smooth;
 }
+
+/* Why Choose Section */
+.why-choose {
+    padding: 80px 0;
+    background: var(--bg-light);
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+}
+
+.benefit-card {
+    background: var(--bg-white);
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.benefit-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.benefit-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.benefit-card h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+.benefit-card p {
+    color: var(--text-light);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Update step styling for 5 steps */
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 32px;
+    margin-top: 48px;
+}
