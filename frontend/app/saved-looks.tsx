@@ -284,9 +284,12 @@ export default function SavedLooks() {
 
     try {
       console.log('📤 Iniciando compartilhamento para Instagram...');
+      console.log('📸 URL da imagem:', fullScreenImage);
       
       // Verificar se o sharing está disponível (Android/iOS)
       const isAvailable = await Sharing.isAvailableAsync();
+      console.log('🔍 Sharing disponível:', isAvailable);
+      
       if (!isAvailable) {
         Alert.alert(
           'Compartilhamento não disponível',
@@ -297,73 +300,66 @@ export default function SavedLooks() {
       }
 
       // Importar FileSystem dinamicamente apenas em plataformas nativas
+      console.log('📦 Importando FileSystem...');
       const FileSystem = await import('expo-file-system');
+      console.log('✅ FileSystem importado');
       
       // Baixar a imagem temporariamente (apenas em plataformas nativas)
       const imageUri = fullScreenImage;
-      const fileUri = FileSystem.cacheDirectory + `look_${Date.now()}.jpg`;
+      const fileName = `look_${Date.now()}.jpg`;
+      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
       
-      console.log('📥 Baixando imagem:', imageUri);
+      console.log('📥 Baixando imagem...');
+      console.log('   De:', imageUri);
+      console.log('   Para:', fileUri);
       
       const downloadResult = await FileSystem.downloadAsync(imageUri, fileUri);
       
+      console.log('📊 Resultado download:', downloadResult);
+      
       if (downloadResult.status !== 200) {
-        throw new Error('Falha ao baixar imagem');
+        throw new Error(`Falha ao baixar imagem. Status: ${downloadResult.status}`);
       }
       
-      console.log('✅ Imagem baixada:', downloadResult.uri);
+      console.log('✅ Imagem baixada com sucesso:', downloadResult.uri);
 
       // Compartilhar usando o menu nativo do Android/iOS
-      // O usuário poderá escolher o Instagram da lista de apps
+      console.log('🔗 Abrindo menu de compartilhamento...');
       await Sharing.shareAsync(downloadResult.uri, {
         mimeType: 'image/jpeg',
-        dialogTitle: 'Compartilhar look',
+        dialogTitle: 'Compartilhar no Instagram',
         UTI: 'public.jpeg',
       });
       
-      console.log('✅ Compartilhamento aberto com sucesso');
+      console.log('✅ Menu de compartilhamento aberto com sucesso');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Erro ao compartilhar:', error);
+      console.error('❌ Tipo de erro:', error?.name);
+      console.error('❌ Mensagem:', error?.message);
+      console.error('❌ Stack:', error?.stack);
       
-      // Fallback: tentar abrir o Instagram diretamente
-      try {
-        const instagramUrl = 'instagram://camera';
-        const canOpen = await Linking.canOpenURL(instagramUrl);
-        
-        if (canOpen) {
-          Alert.alert(
-            'Opções de Compartilhamento',
-            'Escolha como deseja compartilhar:',
-            [
-              {
-                text: 'Fazer Print da Tela',
-                onPress: () => Alert.alert('Dica', 'Use o botão de print do seu celular para capturar a imagem, depois abra o Instagram e compartilhe!'),
-              },
-              {
-                text: 'Abrir Instagram',
-                onPress: () => Linking.openURL(instagramUrl),
-              },
-              {
-                text: 'Cancelar',
-                style: 'cancel',
-              },
-            ]
-          );
-        } else {
-          Alert.alert(
-            'Dica de Compartilhamento',
-            'Para compartilhar no Instagram:\n\n1. Faça um print desta tela (Botão Power + Volume Baixo)\n2. Abra o Instagram\n3. Crie um novo post/story\n4. Selecione a imagem da galeria',
-            [{ text: 'Entendi' }]
-          );
-        }
-      } catch (linkError) {
-        Alert.alert(
-          'Dica de Compartilhamento',
-          'Para compartilhar no Instagram:\n\n1. Faça um print desta tela (Botão Power + Volume Baixo)\n2. Abra o Instagram\n3. Crie um novo post/story\n4. Selecione a imagem da galeria',
-          [{ text: 'Entendi' }]
-        );
-      }
+      // Mostrar erro detalhado para o usuário
+      Alert.alert(
+        'Erro ao Compartilhar',
+        `Não foi possível compartilhar a imagem.\n\nErro: ${error?.message || 'Desconhecido'}\n\nTente fazer um print da tela.`,
+        [
+          {
+            text: 'Ver Instruções',
+            onPress: () => {
+              Alert.alert(
+                'Como Compartilhar',
+                '1. Faça um print desta tela:\n   • Android: Power + Volume Baixo\n   • iOS: Power + Volume Cima\n\n2. Abra o Instagram\n\n3. Crie novo post/story\n\n4. Selecione a imagem da galeria',
+                [{ text: 'Entendi' }]
+              );
+            },
+          },
+          {
+            text: 'Fechar',
+            style: 'cancel',
+          },
+        ]
+      );
     }
   };
 
