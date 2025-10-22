@@ -23,7 +23,6 @@ import { router } from 'expo-router';
 import { BACKEND_URL } from '../config/api';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
 import { uploadImageToCloudflare } from '../services/cloudflareImages';
 
 interface Look {
