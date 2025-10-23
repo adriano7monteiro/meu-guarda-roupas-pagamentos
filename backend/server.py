@@ -2300,10 +2300,38 @@ async def send_push_notification(notification: PushNotification):
         # Identificar tipo de token
         # iOS APNs: 64 caracteres hexadecimais
         # Android FCM: 140-200+ caracteres
-        token_type = "iOS APNs" if len(fcm_token) == 64 else "Android FCM"
+        is_ios = len(fcm_token) == 64 and fcm_token.isalnum()
+        token_type = "iOS APNs" if is_ios else "Android FCM"
         
         logging.info(f"📤 Tentando enviar para token {token_type}: {fcm_token[:30]}... (length: {len(fcm_token)})")
         
+        # iOS: Enviar via APNs direto
+        if is_ios:
+            try:
+                success = await send_apns_notification(
+                    token=fcm_token,
+                    title=notification.title,
+                    body=notification.body
+                )
+                
+                if success:
+                    sent_count += 1
+                    logging.info(f"✅ Push iOS enviado via APNs com sucesso!")
+                else:
+                    failed_count += 1
+                    error_msg = "Falha ao enviar via APNs"
+                    error_details.append(error_msg)
+                    logging.error(f"❌ Falha ao enviar via APNs para {fcm_token[:30]}...")
+                    
+            except Exception as e:
+                failed_count += 1
+                error_msg = f"Erro APNs: {str(e)}"
+                error_details.append(error_msg)
+                logging.error(f"❌ Erro ao enviar via APNs: {e}")
+            
+            continue  # Próximo token
+        
+        # Android: Enviar via Firebase (como antes)
         try:
             # Criar mensagem FCM (funciona para Android e iOS)
             message = messaging.Message(
