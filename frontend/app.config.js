@@ -22,6 +22,10 @@ module.exports = {
       bundleIdentifier: 'com.meulookia.app',
       icon: './assets/images/icon.png',
       googleServicesFile: './GoogleService-Info.plist',
+      infoPlist: {
+      NSCameraUsageDescription: "O aplicativo precisa acessar sua câmera para tirar fotos dos suas roupas.",
+      NSPhotoLibraryUsageDescription: "O aplicativo precisa acessar sua galeria para escolher fotos de roupas.",
+    }
     },
     android: {
       icon: './assets/images/icon.png',
@@ -77,7 +81,7 @@ module.exports = {
     extra: {
       router: {},
       eas: {
-        projectId: '84e4ed9c-089d-4e2e-9ab2-4c30b0456e75',
+        projectId: '48204880-bc16-43d4-98d3-88325a3d422c',
       },
       // IMPORTANTE: Aqui é onde a variável do eas.json é injetada
       backendUrl: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://meulookia-e68fc7ce1afa.herokuapp.com',

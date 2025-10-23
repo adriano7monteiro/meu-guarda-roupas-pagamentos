@@ -1,7 +1,6 @@
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import messaging from '@react-native-firebase/messaging';
 
 // Configurar como as notificações devem ser tratadas quando o app está em foreground
 Notifications.setNotificationHandler({
@@ -16,10 +15,13 @@ Notifications.setNotificationHandler({
  * Registra o dispositivo para receber notificações push
  * @returns Push token ou null se falhar
  */
-export async function registerForPushNotificationsAsync() {
-  let token = null;
+export async function registerForPushNotificationsAsync(): Promise<string | null> {
+  let token: string | null = null;
 
-  // Configurar canal de notificação para Android
+  console.log('🔔 [Push] Iniciando configuração...');
+  console.log('🔔 [Push] Platform:', Platform.OS);
+  console.log('🔔 [Push] Is Device:', Device.isDevice);
+
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('default', {
       name: 'default',
@@ -31,80 +33,49 @@ export async function registerForPushNotificationsAsync() {
   }
 
   if (Device.isDevice) {
-    // iOS: Usar Firebase Messaging para obter token FCM válido
-    if (Platform.OS === 'ios') {
-      console.log('🍎 [Push iOS] Solicitando permissão de notificações...');
+    console.log('🔔 [Push] Verificando permissões...');
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    console.log('🔔 [Push] Status de permissão existente:', existingStatus);
+    let finalStatus = existingStatus;
+    
+    // SEMPRE solicita permissão, mesmo se status for 'undetermined'
+    if (existingStatus !== 'granted') {
+      console.log('🔔 [Push] Solicitando permissão de notificações...');
+      console.log('⚠️ [Push] Se o dialog não aparecer, verifique as configurações do Android');
       
-      try {
-        const authStatus = await messaging().requestPermission();
-        const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-        if (enabled) {
-          console.log('✅ [Push iOS] Permissão concedida! Status:', authStatus);
-          console.log('🔔 [Push iOS] Obtendo FCM Token via Firebase...');
-          
-          token = await messaging().getToken();
-          
-          console.log('✅ [Push iOS] FCM Token obtido com sucesso via Firebase!');
-          console.log('🔔 [Push iOS] Token type:', typeof token);
-          console.log('🔔 [Push iOS] Token length:', token?.length);
-          console.log('🔔 [Push iOS] Token preview:', token?.substring(0, 50) + '...');
-        } else {
-          console.log('❌ [Push iOS] Permissão NEGADA. Status:', authStatus);
-          console.log('💡 [Push iOS] Vá em: Ajustes → Meu Look IA → Notificações → Ativar');
-        }
-      } catch (error) {
-        console.error('❌ [Push iOS] Erro ao obter token Firebase:', error);
-      }
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+      
+      console.log('🔔 [Push] Resposta da solicitação de permissão:', finalStatus);
+    } else {
+      console.log('✅ [Push] Permissão já concedida anteriormente');
     }
-    // Android: Continuar usando Expo Notifications (já funciona)
-    else if (Platform.OS === 'android') {
-      console.log('🤖 [Push Android] Verificando permissões...');
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      console.log('🔔 [Push Android] Status de permissão existente:', existingStatus);
-      let finalStatus = existingStatus;
+    
+    if (finalStatus !== 'granted') {
+      console.log('❌ [Push] Permissão de notificação NEGADA ou NÃO CONCEDIDA');
+      console.log('❌ [Push] Status final:', finalStatus);
+      console.log('💡 [Push] Vá em: Configurações → Apps → Meu Look IA → Notificações → Ativar');
+      return null;
+    }
+    
+    console.log('✅ [Push] Permissão concedida! Status:', finalStatus);
+    
+    try {
+      console.log('🔔 [Push] Obtendo FCM Token nativo...');
       
-      // SEMPRE solicita permissão, mesmo se status for 'undetermined'
-      if (existingStatus !== 'granted') {
-        console.log('🔔 [Push Android] Solicitando permissão de notificações...');
-        console.log('⚠️ [Push Android] Se o dialog não aparecer, verifique as configurações');
-        
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-        
-        console.log('🔔 [Push Android] Resposta da solicitação de permissão:', finalStatus);
-      } else {
-        console.log('✅ [Push Android] Permissão já concedida anteriormente');
-      }
+      // Obter token FCM nativo (sem wrapper ExponentPushToken)
+      const tokenData = await Notifications.getDevicePushTokenAsync();
+      token = tokenData.data;
       
-      if (finalStatus !== 'granted') {
-        console.log('❌ [Push Android] Permissão de notificação NEGADA ou NÃO CONCEDIDA');
-        console.log('❌ [Push Android] Status final:', finalStatus);
-        console.log('💡 [Push Android] Vá em: Configurações → Apps → Meu Look IA → Notificações → Ativar');
-        return null;
-      }
-      
-      console.log('✅ [Push Android] Permissão concedida! Status:', finalStatus);
-      
-      try {
-        console.log('🔔 [Push Android] Obtendo FCM Token nativo via Expo...');
-        
-        // Obter token FCM nativo (sem wrapper ExponentPushToken)
-        const tokenData = await Notifications.getDevicePushTokenAsync();
-        token = tokenData.data;
-        
-        console.log('✅ [Push Android] FCM Token obtido com sucesso!');
-        console.log('🔔 [Push Android] Token type:', typeof token);
-        console.log('🔔 [Push Android] Token length:', token?.length);
-        console.log('🔔 [Push Android] Token preview:', token?.substring(0, 50) + '...');
-      } catch (error) {
-        console.error('❌ [Push Android] Erro ao obter token:', error);
-      }
+      console.log('✅ [Push] FCM Token nativo obtido com sucesso!');
+      console.log('📱 [Push] Token:', token);
+      console.log('📱 [Push] Token type:', tokenData.type); // 'fcm' para Android, 'apns' para iOS
+    } catch (error) {
+      console.error('❌ [Push] Erro ao obter push token:', error);
+      console.error('❌ [Push] Detalhes do erro:', JSON.stringify(error));
     }
   } else {
-    console.log('⚠️ [Push] Deve ser executado em um dispositivo físico (não funciona no simulador/emulador)');
+    console.log('⚠️ [Push] Notificações push só funcionam em dispositivos físicos');
   }
 
   return token;
