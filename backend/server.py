@@ -191,10 +191,10 @@ async def send_apns_notification(token: str, title: str, body: str):
         )
         
         # Enviar
-        await apns.send_notification(request)
-        await apns.close()
+        response = await apns.send_notification(request)
         
         logging.info(f"✅ [APNs] Notificação enviada com sucesso para token {token[:30]}...")
+        logging.info(f"✅ [APNs] Response: {response}")
         
         return True
         
