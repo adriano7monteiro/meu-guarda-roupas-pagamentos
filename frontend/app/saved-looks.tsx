@@ -270,98 +270,52 @@ export default function SavedLooks() {
   };
 
   const shareToInstagram = async () => {
-    if (!fullScreenImage) return;
+  if (!fullScreenImage) return;
 
-    // Verificar se está em plataforma nativa (Android/iOS)
-    if (Platform.OS === 'web') {
+  try {
+    const isAvailable = await Sharing.isAvailableAsync();
+    if (!isAvailable) {
       Alert.alert(
-        'Compartilhamento no Instagram',
-        'Para compartilhar no Instagram:\n\n1. Clique com botão direito na imagem\n2. Selecione "Salvar imagem"\n3. Abra o Instagram no seu celular\n4. Crie um novo post/story\n5. Selecione a imagem salva',
-        [{ text: 'Entendi' }]
+        'Compartilhamento não disponível',
+        'Seu dispositivo não suporta compartilhamento direto. Tente fazer um print da tela.'
       );
       return;
     }
 
-    try {
-      console.log('📤 Iniciando compartilhamento para Instagram...');
-      console.log('📸 URL da imagem:', fullScreenImage);
-      
-      // Verificar se o sharing está disponível (Android/iOS)
-      const isAvailable = await Sharing.isAvailableAsync();
-      console.log('🔍 Sharing disponível:', isAvailable);
-      
-      if (!isAvailable) {
-        Alert.alert(
-          'Compartilhamento não disponível',
-          'Seu dispositivo não suporta compartilhamento direto. Tente fazer um print da tela.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
+    const { File, Paths, getPermissionsAsync, requestPermissionsAsync } = await import('expo-file-system/next');
 
-      // Importar FileSystem dinamicamente apenas em plataformas nativas
-      console.log('📦 Importando FileSystem...');
-      const FileSystem = await import('expo-file-system');
-      console.log('✅ FileSystem importado');
-      
-      // Baixar a imagem temporariamente (apenas em plataformas nativas)
-      const imageUri = fullScreenImage;
-      const fileName = `look_${Date.now()}.jpg`;
-      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
-      
-      console.log('📥 Baixando imagem...');
-      console.log('   De:', imageUri);
-      console.log('   Para:', fileUri);
-      
-      const downloadResult = await FileSystem.downloadAsync(imageUri, fileUri);
-      
-      console.log('📊 Resultado download:', downloadResult);
-      
-      if (downloadResult.status !== 200) {
-        throw new Error(`Falha ao baixar imagem. Status: ${downloadResult.status}`);
-      }
-      
-      console.log('✅ Imagem baixada com sucesso:', downloadResult.uri);
-
-      // Compartilhar usando o menu nativo do Android/iOS
-      console.log('🔗 Abrindo menu de compartilhamento...');
-      await Sharing.shareAsync(downloadResult.uri, {
-        mimeType: 'image/jpeg',
-        dialogTitle: 'Compartilhar no Instagram',
-        UTI: 'public.jpeg',
-      });
-      
-      console.log('✅ Menu de compartilhamento aberto com sucesso');
-      
-    } catch (error: any) {
-      console.error('❌ Erro ao compartilhar:', error);
-      console.error('❌ Tipo de erro:', error?.name);
-      console.error('❌ Mensagem:', error?.message);
-      console.error('❌ Stack:', error?.stack);
-      
-      // Mostrar erro detalhado para o usuário
-      Alert.alert(
-        'Erro ao Compartilhar',
-        `Não foi possível compartilhar a imagem.\n\nErro: ${error?.message || 'Desconhecido'}\n\nTente fazer um print da tela.`,
-        [
-          {
-            text: 'Ver Instruções',
-            onPress: () => {
-              Alert.alert(
-                'Como Compartilhar',
-                '1. Faça um print desta tela:\n   • Android: Power + Volume Baixo\n   • iOS: Power + Volume Cima\n\n2. Abra o Instagram\n\n3. Crie novo post/story\n\n4. Selecione a imagem da galeria',
-                [{ text: 'Entendi' }]
-              );
-            },
-          },
-          {
-            text: 'Fechar',
-            style: 'cancel',
-          },
-        ]
-      );
+    // 🔐 Solicita permissão de armazenamento
+    let permission = await getPermissionsAsync();
+    if (!permission.granted) {
+      permission = await requestPermissionsAsync();
     }
-  };
+
+    if (!permission.granted) {
+      Alert.alert(
+        'Permissão necessária',
+        'É necessário permitir acesso ao armazenamento para salvar e compartilhar a imagem.'
+      );
+      return;
+    }
+
+    // 📥 Faz o download
+    const file = new File(Paths.cache, `look_${Date.now()}.jpg`);
+    const download = await File.downloadFileAsync(fullScreenImage, file);
+
+    await Sharing.shareAsync(download.uri, {
+      mimeType: 'image/jpeg',
+      dialogTitle: 'Compartilhar no Instagram',
+      UTI: 'public.jpeg',
+    });
+  } catch (error) {
+    Alert.alert(
+      'Erro ao Compartilhar',
+      `Não foi possível compartilhar a imagem.
+
+Erro: ${error?.message || 'Desconhecido'}`
+    );
+  }
+};
 
   const loadMoreLooks = () => {
     if (!loadingMore && hasMore && !loading) {
@@ -698,22 +652,22 @@ export default function SavedLooks() {
           )}
           
           {/* Botão de compartilhar Instagram (apenas para foto do usuário) */}
-          {isUserPhoto && (
-            <TouchableOpacity
-              style={styles.instagramShareButton}
-              onPress={shareToInstagram}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="logo-instagram" size={24} color="#fff" />
-              <Text style={styles.instagramShareText}>Compartilhar no Instagram</Text>
-            </TouchableOpacity>
-          )}
+          {/* {isUserPhoto && (
+            // <TouchableOpacity
+            //   style={styles.instagramShareButton}
+            //   onPress={shareToInstagram}
+            //   activeOpacity={0.8}
+            // >
+            //   <Ionicons name="logo-instagram" size={24} color="#fff" />
+            //   <Text style={styles.instagramShareText}>Compartilhar no Instagram</Text>
+            // </TouchableOpacity>
+          )} */}
           
-          <View style={styles.fullScreenHint}>
+          {/* <View style={styles.fullScreenHint}>
             <Text style={styles.fullScreenHintText}>
               {isUserPhoto ? 'Compartilhe seu look!' : 'Toque no X para fechar'}
             </Text>
-          </View>
+          </View> */}
         </View>
       </Modal>
 
