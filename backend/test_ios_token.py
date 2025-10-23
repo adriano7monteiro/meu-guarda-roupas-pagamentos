@@ -11,10 +11,19 @@ if firebase_json:
     cred = credentials.Certificate(firebase_config)
     if not firebase_admin._apps:
         firebase_admin.initialize_app(cred)
-    print("✅ Firebase inicializado")
+    print("✅ Firebase inicializado via ENV")
 else:
-    print("❌ FIREBASE_SERVICE_ACCOUNT não encontrado")
-    exit(1)
+    # Tentar arquivo local
+    import pathlib
+    firebase_file = pathlib.Path(__file__).parent / 'firebase-service-account.json'
+    if firebase_file.exists():
+        cred = credentials.Certificate(str(firebase_file))
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+        print("✅ Firebase inicializado via arquivo local")
+    else:
+        print("❌ FIREBASE_SERVICE_ACCOUNT não encontrado")
+        exit(1)
 
 # Token iOS para testar
 ios_token = "d44e4fa5ad94d1216e7846e096a7eed0dffcece2ab006d00112c593ab01363bf"
