@@ -2291,10 +2291,30 @@ async def send_push_notification(notification: PushNotification):
             
         except firebase_exceptions.InvalidArgumentError as e:
             failed_count += 1
-            error_msg = f"Token inválido: {str(e)}"
-            error_details.append(error_msg)
-            logging.error(f"❌ Invalid FCM token {fcm_token[:30]}...: {e}")
-            logging.error(f"❌ Este token não é um token FCM válido. App precisa de novo build com Firebase configurado.")
+            error_details.append(f"Token inválido: {str(e)}")
+            
+            # Análise detalhada do erro
+            error_str = str(e).lower()
+            
+            if "registration token" in error_str and len(fcm_token) == 64:
+                # Token iOS mas APNs não configurado no Firebase
+                logging.error(f"❌ Token iOS APNs detectado mas Firebase APNs não está configurado!")
+                logging.error(f"❌ Token: {fcm_token[:30]}... (length: 64)")
+                logging.error(f"❌ Erro: {e}")
+                logging.error(f"⚠️  SOLUÇÃO:")
+                logging.error(f"   1. Acesse Firebase Console: https://console.firebase.google.com")
+                logging.error(f"   2. Vá em Project Settings → Cloud Messaging")
+                logging.error(f"   3. Na seção 'Apple app configuration', faça upload do APNs Authentication Key (.p8)")
+                logging.error(f"   4. Configure Key ID e Team ID")
+            elif "registration token" in error_str:
+                # Token Android inválido
+                logging.error(f"❌ Token Android inválido: {fcm_token[:30]}...")
+                logging.error(f"❌ Erro: {e}")
+                logging.error(f"❌ Token length: {len(fcm_token)}")
+            else:
+                # Outro erro
+                logging.error(f"❌ Erro InvalidArgument: {fcm_token[:30]}...")
+                logging.error(f"❌ Detalhes: {e}")
             
         except firebase_exceptions.UnregisteredError as e:
             failed_count += 1
