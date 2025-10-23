@@ -21,6 +21,7 @@ module.exports = {
       supportsTablet: true,
       bundleIdentifier: 'com.meulookia.app',
       icon: './assets/images/icon.png',
+      googleServicesFile: './GoogleService-Info.plist',
     },
     android: {
       icon: './assets/images/icon.png',
