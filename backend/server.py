@@ -123,6 +123,56 @@ def initialize_firebase():
 # Inicializar Firebase na inicialização do servidor
 initialize_firebase()
 
+# Função helper para enviar notificação via APNs (iOS)
+async def send_apns_notification(token: str, title: str, body: str):
+    """
+    Envia notificação push diretamente para iOS via APNs
+    """
+    try:
+        # Obter credenciais APNs do ambiente
+        key_id = os.environ.get('APNS_KEY_ID')
+        team_id = os.environ.get('APNS_TEAM_ID')
+        auth_key = os.environ.get('APNS_AUTH_KEY')
+        bundle_id = 'com.meulookia.app'  # Bundle ID do app
+        
+        if not all([key_id, team_id, auth_key]):
+            logging.error("❌ Credenciais APNs não configuradas. Configure: APNS_KEY_ID, APNS_TEAM_ID, APNS_AUTH_KEY")
+            return False
+        
+        # Criar cliente APNs
+        apns = APNs(
+            key=auth_key,
+            key_id=key_id,
+            team_id=team_id,
+            topic=bundle_id,  # deve ser o Bundle ID
+            use_sandbox=False,  # False = produção, True = desenvolvimento
+        )
+        
+        # Criar payload da notificação
+        request = NotificationRequest(
+            device_token=token,
+            message={
+                "aps": {
+                    "alert": {
+                        "title": title,
+                        "body": body,
+                    },
+                    "sound": "default",
+                    "badge": 1,
+                }
+            },
+        )
+        
+        # Enviar
+        await apns.send_notification(request)
+        await apns.close()
+        
+        return True
+        
+    except Exception as e:
+        logging.error(f"❌ Erro ao enviar via APNs: {e}")
+        return False
+
 # Create the main app without a prefix
 app = FastAPI()
 
