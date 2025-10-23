@@ -48,13 +48,14 @@ Copie **TODO** o conteúdo do arquivo `.p8`, incluindo as linhas:
 ```
 APNS_KEY_ID = 7V3XCY46LP
 APNS_TEAM_ID = C88Z4WK6J2
-APNS_AUTH_KEY = -----BEGIN PRIVATE KEY-----
-MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg...
-...
------END PRIVATE KEY-----
+APNS_AUTH_KEY = -----BEGIN PRIVATE KEY-----\nMIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg...\n...\n-----END PRIVATE KEY-----
 ```
 
-⚠️ **IMPORTANTE:** No campo `APNS_AUTH_KEY`, cole TODO o conteúdo em UMA ÚNICA variável, incluindo quebras de linha.
+⚠️ **IMPORTANTE:** 
+- No campo `APNS_AUTH_KEY`, cole TODO o conteúdo em UMA ÚNICA variável
+- As quebras de linha podem ser representadas como `\n` literalmente
+- OU cole o conteúdo com quebras de linha normais (Heroku aceita ambos)
+- O código backend processará automaticamente qualquer formato
 
 #### Via Heroku CLI (alternativa):
 
