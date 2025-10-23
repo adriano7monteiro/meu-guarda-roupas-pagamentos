@@ -132,12 +132,39 @@ async def send_apns_notification(token: str, title: str, body: str):
         # Obter credenciais APNs do ambiente
         key_id = os.environ.get('APNS_KEY_ID')
         team_id = os.environ.get('APNS_TEAM_ID')
-        auth_key = os.environ.get('APNS_AUTH_KEY')
+        auth_key_raw = os.environ.get('APNS_AUTH_KEY')
         bundle_id = 'com.meulookia.app'  # Bundle ID do app
         
-        if not all([key_id, team_id, auth_key]):
+        if not all([key_id, team_id, auth_key_raw]):
             logging.error("❌ Credenciais APNs não configuradas. Configure: APNS_KEY_ID, APNS_TEAM_ID, APNS_AUTH_KEY")
             return False
+        
+        # Processar a chave para garantir formato correto
+        # Se a chave perdeu quebras de linha, restaurá-las
+        auth_key = auth_key_raw.strip()
+        
+        # Se não tem quebras de linha, adicionar
+        if '\\n' in auth_key:
+            # Heroku às vezes escapa \n como \\n
+            auth_key = auth_key.replace('\\n', '\n')
+        elif '\n' not in auth_key and '-----BEGIN PRIVATE KEY-----' in auth_key:
+            # Chave em uma única linha, precisa adicionar quebras
+            auth_key = auth_key.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n')
+            auth_key = auth_key.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----')
+            # Adicionar quebras de linha a cada 64 caracteres no conteúdo
+            lines = []
+            lines.append('-----BEGIN PRIVATE KEY-----')
+            content = auth_key.split('-----BEGIN PRIVATE KEY-----')[1].split('-----END PRIVATE KEY-----')[0].strip()
+            # Dividir em linhas de 64 caracteres
+            for i in range(0, len(content), 64):
+                lines.append(content[i:i+64])
+            lines.append('-----END PRIVATE KEY-----')
+            auth_key = '\n'.join(lines)
+        
+        logging.info(f"🔑 [APNs] Key ID: {key_id}")
+        logging.info(f"🔑 [APNs] Team ID: {team_id}")
+        logging.info(f"🔑 [APNs] Auth Key length: {len(auth_key)} chars")
+        logging.info(f"🔑 [APNs] Auth Key preview: {auth_key[:50]}...")
         
         # Criar cliente APNs
         apns = APNs(
@@ -167,10 +194,15 @@ async def send_apns_notification(token: str, title: str, body: str):
         await apns.send_notification(request)
         await apns.close()
         
+        logging.info(f"✅ [APNs] Notificação enviada com sucesso para token {token[:30]}...")
+        
         return True
         
     except Exception as e:
         logging.error(f"❌ Erro ao enviar via APNs: {e}")
+        logging.error(f"❌ Tipo do erro: {type(e).__name__}")
+        import traceback
+        logging.error(f"❌ Stack trace: {traceback.format_exc()}")
         return False
 
 # Create the main app without a prefix
