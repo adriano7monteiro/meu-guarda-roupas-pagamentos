@@ -2236,17 +2236,22 @@ async def send_push_notification(notification: PushNotification):
             logging.warning(f"⚠️ Este token precisa que o app seja reconstruído com google-services.json/GoogleService-Info.plist")
             continue  # Pular este token
         
-        fcm_token = raw_token  # Já é o token FCM puro
+        fcm_token = raw_token  # Já é o token FCM/APNs puro
         
-        # Validar se o token parece ser FCM válido
-        if not fcm_token or len(fcm_token) < 140:
+        # Validar se o token não está vazio
+        if not fcm_token or len(fcm_token) < 10:
             failed_count += 1
-            error_msg = f"Token inválido ou muito curto: {fcm_token[:30]}..."
+            error_msg = f"Token vazio ou inválido: {fcm_token[:30]}..."
             error_details.append(error_msg)
             logging.error(f"❌ Token inválido: {fcm_token[:30]}... (length: {len(fcm_token)})")
             continue
         
-        logging.info(f"📤 Tentando enviar para token FCM: {fcm_token[:30]}... (length: {len(fcm_token)})")
+        # Identificar tipo de token
+        # iOS APNs: 64 caracteres hexadecimais
+        # Android FCM: 140-200+ caracteres
+        token_type = "iOS APNs" if len(fcm_token) == 64 else "Android FCM"
+        
+        logging.info(f"📤 Tentando enviar para token {token_type}: {fcm_token[:30]}... (length: {len(fcm_token)})")
         
         try:
             # Criar mensagem FCM (funciona para Android e iOS)
