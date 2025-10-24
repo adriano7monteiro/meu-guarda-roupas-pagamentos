@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 16.22.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://meulookia-e68fc7ce1afa.herokuapp.com"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://meulookia-e68fc7ce1afa.herokuapp.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://meulookia-e68fc7ce1afa.herokuapp.com",
+        "EXPO_PUBLIC_ENABLE_IAP": "true"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      }
+    },
+    "production-apk": {
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://meulookia-e68fc7ce1afa.herokuapp.com"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

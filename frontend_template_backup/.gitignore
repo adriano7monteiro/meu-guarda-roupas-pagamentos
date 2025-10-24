@@ -30,11 +30,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# local env files
+.env*.local
+
 # typescript
 *.tsbuildinfo
 
 app-example
-
-# Firebase - Sensitive files
-firebase-service-account.json
-google-services.json
