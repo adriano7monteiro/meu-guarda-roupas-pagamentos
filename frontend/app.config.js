@@ -5,7 +5,7 @@ module.exports = {
   expo: {
     name: IS_DEV ? 'Meu Look IA (Dev)' : 'Meu Look IA',
     slug: 'meu-look-ia',
-    version: '1.0.0',
+    version: '1.0.1',
     orientation: 'portrait',
     icon: './assets/images/icon.png',
     scheme: 'meulookia',
@@ -22,6 +22,7 @@ module.exports = {
       bundleIdentifier: 'com.meulookia.app',
       icon: './assets/images/icon.png',
       googleServicesFile: './GoogleService-Info.plist',
+      buildNumber: "114",
       infoPlist: {
       NSCameraUsageDescription: "O aplicativo precisa acessar sua câmera para tirar fotos dos suas roupas.",
       NSPhotoLibraryUsageDescription: "O aplicativo precisa acessar sua galeria para escolher fotos de roupas.",
