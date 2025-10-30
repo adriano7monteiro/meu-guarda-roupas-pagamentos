@@ -32,8 +32,8 @@ target 'MeuLookIA' do
 
   config = use_native_modules!(config_command)
 
-  # ✅ CORREÇÃO: Removemos `use_modular_headers!` global
-  # e aplicamos apenas nos pods necessários:
+  # ✅ FIX DEFINITIVO: modular headers somente onde necessário
+  pod 'FirebaseCore', :modular_headers => true
   pod 'FirebaseCoreInternal', :modular_headers => true
   pod 'GoogleUtilities', :modular_headers => true
 
