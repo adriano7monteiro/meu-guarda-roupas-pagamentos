@@ -78,8 +78,7 @@ module.exports = {
             deploymentTarget: '15.1',
           },
         },
-      ],
-      '@react-native-firebase/crashlytics',
+      ]
     ],
 
     experiments: {
