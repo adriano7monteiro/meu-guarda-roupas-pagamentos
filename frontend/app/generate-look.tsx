@@ -131,6 +131,7 @@ export default function GenerateLook() {
         formData.append('detalhes_contexto', contextDetails.trim());
       }
 
+      console.log('📤 Enviando requisição para gerar look...');
       const response = await fetch(`${BACKEND_URL}/api/sugerir-look`, {
         method: 'POST',
         headers: {
@@ -139,17 +140,25 @@ export default function GenerateLook() {
         body: formData,
       });
 
+      console.log('📥 Resposta recebida:', response.status);
       const data = await response.json();
+      console.log('📦 Dados:', data);
 
       if (response.ok) {
+        console.log('✅ Sucesso! Definindo sugestão...');
+        console.log('Sugestão recebida:', data.sugestao_texto?.substring(0, 100));
+        console.log('Roupas IDs:', data.roupas_ids);
+        
         setSuggestion(data);
         
         // Filter suggested clothes
         const suggested = userClothes.filter(item => 
           data.roupas_ids.includes(item.id)
         );
+        console.log('Roupas sugeridas encontradas:', suggested.length);
         setSuggestedClothes(suggested);
       } else {
+        console.error('❌ Erro na resposta:', data);
         modal.showError('Erro', data.detail || 'Erro ao gerar sugestão de look.');
       }
     } catch (error) {
@@ -345,10 +354,81 @@ export default function GenerateLook() {
         </TouchableOpacity>
       </>
     ) : (
-      /* Look Suggestion Result (não alterado) */
-      <View style={styles.section}>
-        ...
-      </View>
+      /* Look Suggestion Result */
+      <>
+        {/* Suggestion Text */}
+        <View style={styles.section}>
+          <View style={styles.resultHeader}>
+            <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+            <Text style={styles.resultTitle}>Look Gerado com Sucesso!</Text>
+          </View>
+          
+          <Text style={styles.suggestionText}>{suggestion.sugestao_texto}</Text>
+          
+          {suggestion.dicas && (
+            <View style={styles.tipsContainer}>
+              <View style={styles.tipsHeader}>
+                <Ionicons name="bulb" size={20} color="#FFD700" />
+                <Text style={styles.tipsTitle}>Dicas</Text>
+              </View>
+              <Text style={styles.tipsText}>{suggestion.dicas}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Suggested Clothes */}
+        {suggestedClothes.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Peças Sugeridas</Text>
+            <View style={styles.clothesGrid}>
+              {suggestedClothes.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.clothingCard}
+                  onPress={() => setFullScreenImage(item.imagem_original)}
+                >
+                  <Image 
+                    source={{ uri: item.imagem_original }} 
+                    style={styles.clothingImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.clothingInfo}>
+                    <Text style={styles.clothingName}>{item.nome}</Text>
+                    <Text style={styles.clothingDetails}>
+                      {item.tipo} • {item.cor}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Action Buttons */}
+        <View style={styles.section}>
+          <TouchableOpacity 
+            style={styles.saveButton}
+            onPress={saveLook}
+          >
+            <Ionicons name="heart" size={24} color="#fff" />
+            <Text style={styles.saveButtonText}>Salvar Look</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.generateAgainButton}
+            onPress={() => {
+              setSuggestion(null);
+              setSuggestedClothes([]);
+              setSelectedOccasion('');
+              setSelectedTemperature('');
+              setContextDetails('');
+            }}
+          >
+            <Ionicons name="refresh" size={24} color="#6c5ce7" />
+            <Text style={styles.generateAgainButtonText}>Gerar Outro Look</Text>
+          </TouchableOpacity>
+        </View>
+      </>
     )}
 
   </ScrollView>
@@ -968,5 +1048,56 @@ const styles = StyleSheet.create({
     height: 28,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  resultHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 12,
+  },
+  resultTitle: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  tipsContainer: {
+    backgroundColor: '#2d3436',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 16,
+  },
+  clothesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  clothingCard: {
+    width: '48%',
+    backgroundColor: '#2d3436',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  clothingImage: {
+    width: '100%',
+    height: 150,
+    backgroundColor: '#636e72',
+  },
+  generateAgainButton: {
+    backgroundColor: 'transparent',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    borderWidth: 2,
+    borderColor: '#6c5ce7',
+    marginTop: 12,
+  },
+  generateAgainButtonText: {
+    color: '#6c5ce7',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
