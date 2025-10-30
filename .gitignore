@@ -875,7 +875,7 @@ frontend/.metro-cache/cache/03/822d6c7c4bcf53977d68cd94fd82481885f10f3194ecef525
 -e 
 # Firebase - Sensitive files
 *firebase-service-account.json
-*google-services.json
+
 -e 
 # Environment files
 *.env
