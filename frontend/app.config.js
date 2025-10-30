@@ -1,5 +1,4 @@
 const IS_DEV = process.env.APP_VARIANT === 'development';
-const IS_PREVIEW = process.env.APP_VARIANT === 'preview';
 
 module.exports = {
   expo: {
@@ -12,22 +11,25 @@ module.exports = {
     userInterfaceStyle: 'automatic',
     newArchEnabled: true,
     platforms: ['ios', 'android', 'web'],
+
     splash: {
       image: './assets/images/splash-icon.png',
       resizeMode: 'contain',
       backgroundColor: '#6c5ce7',
     },
+
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.meulookia.app',
       icon: './assets/images/icon.png',
       googleServicesFile: './GoogleService-Info.plist',
-      buildNumber: "114",
+      buildNumber: "115",
       infoPlist: {
         NSCameraUsageDescription: "O aplicativo precisa acessar sua câmera para tirar fotos das suas roupas.",
         NSPhotoLibraryUsageDescription: "O aplicativo precisa acessar sua galeria para escolher fotos de roupas.",
       }
     },
+
     android: {
       icon: './assets/images/icon.png',
       adaptiveIcon: {
@@ -42,11 +44,13 @@ module.exports = {
         'POST_NOTIFICATIONS'
       ],
     },
+
     web: {
       bundler: 'metro',
       output: 'static',
       favicon: './assets/images/favicon.png',
     },
+
     plugins: [
       'expo-router',
       [
@@ -75,19 +79,23 @@ module.exports = {
           },
         },
       ],
+      '@react-native-firebase/crashlytics',
     ],
+
     experiments: {
       typedRoutes: true,
     },
+
     extra: {
       router: {},
       eas: {
         projectId: '48204880-bc16-43d4-98d3-88325a3d422c',
       },
+
       backendUrl: 'https://meulookia-e68fc7ce1afa.herokuapp.com',
       enableIAP: false,
 
-      // ✅ Firebase completo
+      // ✅ Firebase ajustado e correto
       firebase: {
         android: {
           apiKey: "AIzaSyDLIY57I3SY_giqarTlntwDBHsv1yc_uQ0",
@@ -99,9 +107,12 @@ module.exports = {
         },
         projectId: "meu-look-ia",
         authDomain: "meu-look-ia.firebaseapp.com",
-        storageBucket: "meu-look-ia.appspot.com",
+
+        // ✅ Correção aqui (era o motivo do analytics não iniciar no iOS)
+        storageBucket: "meu-look-ia.firebasestorage.app",
+
         messagingSenderId: "608023360247",
-        measurementId: "G-JY34083XGL" // ✅ Seu Measurement ID
+        measurementId: "G-JY34083XGL"
       },
     },
   },
