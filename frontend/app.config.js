@@ -53,6 +53,9 @@ module.exports = {
 
     plugins: [
       'expo-router',
+
+      // ✅ ADICIONADO - necessário para analytics funcionar
+      '@react-native-firebase/analytics'
       [
         'expo-notifications',
         {
@@ -94,7 +97,6 @@ module.exports = {
       backendUrl: 'https://meulookia-e68fc7ce1afa.herokuapp.com',
       enableIAP: false,
 
-      // ✅ Firebase ajustado e correto
       firebase: {
         android: {
           apiKey: "AIzaSyDLIY57I3SY_giqarTlntwDBHsv1yc_uQ0",
@@ -106,10 +108,7 @@ module.exports = {
         },
         projectId: "meu-look-ia",
         authDomain: "meu-look-ia.firebaseapp.com",
-
-        // ✅ Correção aqui (era o motivo do analytics não iniciar no iOS)
         storageBucket: "meu-look-ia.firebasestorage.app",
-
         messagingSenderId: "608023360247",
         measurementId: "G-JY34083XGL"
       },
