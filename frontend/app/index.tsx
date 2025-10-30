@@ -2,6 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { analytics } from '../app/lib/firebase';
+import { logEvent } from 'firebase/analytics';
 import {
   Platform,
   SafeAreaView,
@@ -77,6 +79,16 @@ export default function Index() {
     
     fetchStatus();
   }, [user]);
+
+    useEffect(() => {
+      if (analytics) {
+        logEvent(analytics, 'screen_view', {
+          screen_name: 'IndexScreen',
+          screen_class: 'IndexScreen',
+        });
+      }
+    }, []);
+
 
   const fetchShopProduct = async () => {
     try {

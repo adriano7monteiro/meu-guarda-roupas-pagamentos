@@ -24,9 +24,9 @@ module.exports = {
       googleServicesFile: './GoogleService-Info.plist',
       buildNumber: "114",
       infoPlist: {
-      NSCameraUsageDescription: "O aplicativo precisa acessar sua câmera para tirar fotos dos suas roupas.",
-      NSPhotoLibraryUsageDescription: "O aplicativo precisa acessar sua galeria para escolher fotos de roupas.",
-    }
+        NSCameraUsageDescription: "O aplicativo precisa acessar sua câmera para tirar fotos das suas roupas.",
+        NSPhotoLibraryUsageDescription: "O aplicativo precisa acessar sua galeria para escolher fotos de roupas.",
+      }
     },
     android: {
       icon: './assets/images/icon.png',
@@ -84,9 +84,25 @@ module.exports = {
       eas: {
         projectId: '48204880-bc16-43d4-98d3-88325a3d422c',
       },
-      // IMPORTANTE: Aqui é onde a variável do eas.json é injetada
-      backendUrl: process.env.EXPO_PUBLIC_BACKEND_URL || 'https://meulookia-e68fc7ce1afa.herokuapp.com',
-      enableIAP: process.env.EXPO_PUBLIC_ENABLE_IAP === 'true',
+      backendUrl: 'https://meulookia-e68fc7ce1afa.herokuapp.com',
+      enableIAP: false,
+
+      // ✅ Firebase completo
+      firebase: {
+        android: {
+          apiKey: "AIzaSyDLIY57I3SY_giqarTlntwDBHsv1yc_uQ0",
+          appId: "1:608023360247:android:553b102ce491475917d9f2",
+        },
+        ios: {
+          apiKey: "AIzaSyAC6Fyq4CNgKqFE4A59CIHkIQR2WBmnDck",
+          appId: "1:608023360247:ios:4f3078a25bad59f617d9f2",
+        },
+        projectId: "meu-look-ia",
+        authDomain: "meu-look-ia.firebaseapp.com",
+        storageBucket: "meu-look-ia.appspot.com",
+        messagingSenderId: "608023360247",
+        measurementId: "G-JY34083XGL" // ✅ Seu Measurement ID
+      },
     },
   },
 };
