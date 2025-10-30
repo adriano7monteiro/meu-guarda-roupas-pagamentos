@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 5.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "node": "22.11.0",
+      "yarn": "1.22.22",
+      "env": {
+        "YARN_IGNORE_ENGINES": "1",
+        "NPM_CONFIG_ENGINE_STRICT": "false",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "22.11.0",
+      "yarn": "1.22.22",
+      "env": {
+        "YARN_IGNORE_ENGINES": "1",
+        "NPM_CONFIG_ENGINE_STRICT": "false",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "node": "22.11.0",
+      "yarn": "1.22.22",
+      "env": {
+        "YARN_IGNORE_ENGINES": "1",
+        "NPM_CONFIG_ENGINE_STRICT": "false",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
